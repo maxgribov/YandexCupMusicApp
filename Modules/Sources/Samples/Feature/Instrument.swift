@@ -7,9 +7,9 @@
 
 import Foundation
 
-public enum Instrument {
+public enum Instrument: String {
     
     case guitar
     case drums
-    case tube
+    case brass
 }

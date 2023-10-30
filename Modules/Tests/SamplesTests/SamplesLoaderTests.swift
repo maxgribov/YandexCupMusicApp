@@ -62,7 +62,7 @@ final class SamplesLoaderTests: XCTestCase {
         var sut: SamplesLoader<SamplesLocalStoreSpy>? = .init(store: store)
         
         var receivedResult: Result<[Sample], Error>? = nil
-        sut?.load(for: .tube) { receivedResult = $0 }
+        sut?.load(for: .brass) { receivedResult = $0 }
         sut = nil
         
         store.complete(with: uniqueSamples())
@@ -123,7 +123,7 @@ final class SamplesLoaderTests: XCTestCase {
         line: UInt = #line
     ) {
         
-        var exp = expectation(description: "Waiting for completion")
+        let exp = expectation(description: "Waiting for completion")
         sut.load(for: .drums) { receivedResult in
             
             switch (receivedResult, expectedResult) {
