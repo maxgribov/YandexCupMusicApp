@@ -10,24 +10,7 @@ import Samples
 
 final class BundleSamplesLocalStoreTests: XCTestCase {
 
-    func test_retrieve_deliversErrorForResourcePathRetrievalError() throws {
-        
-        let sut = makeSUT(bundle: invalidBundle())
-        
-        var resultError: Error? = nil
-        sut.retrieveSamples(for: .brass) { result in
-            
-            switch result {
-            case let  .failure(error):
-                resultError = error
-                
-            default:
-                break
-            }
-        }
-        
-        XCTAssertEqual(resultError as? BundleSamplesLocalStore.Error, .unableRetrieveResourcePathForBundle)
-    }
+    //MARK: - Sample IDs
     
     func test_retrieveSamplesIDs_deliversErrorForResourcePathRetrievalError() {
         
@@ -59,6 +42,8 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         
         expect(sut, retrieveSamplesIDsResult: .success(expected), for: .brass)
     }
+    
+    //MARK: - Sample
     
     func test_retrieveSample_failsForResourcePathRetrievalError() {
         

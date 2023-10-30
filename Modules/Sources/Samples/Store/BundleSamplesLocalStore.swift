@@ -17,14 +17,7 @@ public final class BundleSamplesLocalStore {
         
         self.bundle = bundle ?? Self.moduleBundle
     }
-    
-    public func retrieveSamples(for instrument: Instrument, completion: @escaping (SamplesLocalStore.Result) -> Void) {
         
-        guard let path = bundle.resourcePath else {
-            return completion(.failure(Error.unableRetrieveResourcePathForBundle))
-        }
-    }
-    
     public func retrieveSamplesIDs(for instrument: Instrument, complete: @escaping (Result<[SampleID], Swift.Error>) -> Void) {
         
         do {
