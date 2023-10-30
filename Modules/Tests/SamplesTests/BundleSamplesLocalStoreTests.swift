@@ -64,19 +64,14 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         
         let sut = makeSUT(bundle: invalidBundle())
         
-        var receivedError: Error? = nil
-        sut.retrieveSample(for: anySampleID()) { result in
-            
-            switch result {
-            case let .failure(error):
-                receivedError = error
-            
-            default:
-                break
-            }
-        }
+        expect(sut, retrieveSample: .failure(BundleSamplesLocalStore.Error.unableRetrieveResourcePathForBundle), for: anySampleID())
+    }
+    
+    func test_retrieveSample_failsForNotExistingFileForSampleID() {
         
-        XCTAssertEqual(receivedError as? BundleSamplesLocalStore.Error, .unableRetrieveResourcePathForBundle)
+        let sut = makeSUT()
+        
+        expect(sut, retrieveSample: .failure(BundleSamplesLocalStore.Error.retrieveSampleFileFailed), for: notExistingSampleID())
     }
     
     //MARK: - Helpers
@@ -117,6 +112,34 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
     
+    private func expect(
+        _ sut: BundleSamplesLocalStore,
+        retrieveSample expectedResult: Result<Sample, Error>,
+        for sampleID: SampleID,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        let exp = expectation(description: "Wait for completion")
+        sut.retrieveSample(for: sampleID) { receivedResult in
+            
+            switch (receivedResult, expectedResult) {
+            case let (.success(receivedIds), .success(expectedIds)):
+                XCTAssertEqual(receivedIds, expectedIds, "Expected IDs: \(expectedIds), got \(receivedIds) instead", file: file, line: line)
+                
+            case let (.failure(receivedError), .failure(expectedError)):
+                XCTAssertEqual(receivedError as NSError, expectedError as NSError, "Expected error: \(expectedError), got \(receivedError) instead", file: file, line: line)
+                
+            default:
+                XCTFail("Expected result: \(expectedResult), got \(receivedResult) instead", file: file, line: line)
+            }
+            
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 1.0)
+    }
+    
     private func fileNames(bundle: Bundle, prefix: String) throws -> [String] {
         
         guard let path = bundle.resourcePath else {
@@ -133,5 +156,9 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     
     private func anySampleID() -> SampleID {
         "any-sample-file-name"
+    }
+    
+    private func notExistingSampleID() -> SampleID {
+        "Sample file not exists"
     }
 }

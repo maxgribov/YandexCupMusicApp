@@ -11,6 +11,7 @@ public final class BundleSamplesLocalStore {
     
     private let bundle: Bundle
     private let fileManager = FileManager.default
+    private let queue = DispatchConcurrentQueue(label: "BundleSamplesLocalStoreQueue")
     
     public init(bundle: Bundle? = nil) {
         
@@ -44,6 +45,15 @@ public final class BundleSamplesLocalStore {
         do {
             
             let path = try path()
+            let filePath = path + "/" + sampleID
+            let url = URL(filePath: filePath)
+            
+            queue.async {
+                
+                guard let result = try? Data(contentsOf: url) else {
+                    return completion(.failure(Error.retrieveSampleFileFailed))
+                }
+            }
             
         } catch {
             
@@ -54,6 +64,7 @@ public final class BundleSamplesLocalStore {
     public enum Error: Swift.Error {
         
         case unableRetrieveResourcePathForBundle
+        case retrieveSampleFileFailed
     }
     
     private func path() throws -> String {
