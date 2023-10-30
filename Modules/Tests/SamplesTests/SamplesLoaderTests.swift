@@ -64,40 +64,20 @@ final class SamplesLoaderTests: XCTestCase {
         
         let (sut, store) = makeSUT()
         
-        var receivedError: Error? = nil
-        sut.load(for: .guitar) { result in
-            switch result {
-            case let .failure(error):
-                receivedError = error
-                
-            default:
-                break
-            }
-        }
-        
-        store.complete(with: anyNSError())
-        
-        XCTAssertEqual(receivedError as? NSError, anyNSError())
+        expected(sut, result: .failure(anyNSError()), for: {
+            
+            store.complete(with: anyNSError())
+        })
     }
     
     func test_load_deliversSamplesOnSuccessRetrieval() {
         
         let (sut, store) = makeSUT()
         
-        var receivedSamples: [Sample]? = nil
-        sut.load(for: .drums) { result in
-            switch result {
-            case let .success(samples):
-                receivedSamples = samples
-                
-            default:
-                break
-            }
-        }
-        
-        store.complete(with: uniqueSamples())
-        
-        XCTAssertEqual(receivedSamples, uniqueSamples())
+        expected(sut, result: .success(uniqueSamples()), for: {
+            
+            store.complete(with: uniqueSamples())
+        })
     }
     
     //MARK: - Helpers
@@ -143,6 +123,36 @@ final class SamplesLoaderTests: XCTestCase {
         func complete(with samples: [Sample], at index: Int = 0) {
             completions[index].completion(.success(samples))
         }
+    }
+    
+    func expected(
+        _ sut: SamplesLoader<SamplesLocalStoreSpy>,
+        result expectedResult: SamplesLocalStore.Result,
+        for action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        var exp = expectation(description: "Waiting for completion")
+        sut.load(for: .drums) { receivedResult in
+            
+            switch (receivedResult, expectedResult) {
+            case let (.success(receivedSamples), .success(expectedSamples)):
+                XCTAssertEqual(receivedSamples, expectedSamples, "Expected samples: \(expectedSamples), got \(receivedSamples) instead", file: file, line: line)
+                
+            case let (.failure(receivedError as NSError), .failure(expectedError as NSError)):
+                XCTAssertEqual(receivedError, expectedError, "Expected error: \(expectedError), got \(receivedError) instead", file: file, line: line)
+                
+            default:
+                XCTFail("Expected \(expectedResult), got \(receivedResult) instead", file: file, line: line)
+            }
+            
+            exp.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [exp], timeout: 1.0)
     }
     
     private func anyNSError() -> NSError {
