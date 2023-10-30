@@ -41,6 +41,7 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     private func makeSUT(bundle: Bundle? = nil) -> BundleSamplesLocalStore {
         
         let sut = BundleSamplesLocalStore(bundle: bundle)
+        trackForMemoryLeaks(sut)
         
         return sut
     }
