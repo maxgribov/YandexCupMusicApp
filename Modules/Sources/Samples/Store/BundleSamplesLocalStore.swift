@@ -11,7 +11,7 @@ public final class BundleSamplesLocalStore {
     
     private let bundle: Bundle
     private let fileManager = FileManager.default
-    private let queue = DispatchConcurrentQueue(label: "BundleSamplesLocalStoreQueue")
+    private let queue = DispatchQueue(label: "BundleSamplesLocalStoreQueue", qos: .userInitiated, attributes: [.concurrent])
     
     public init(bundle: Bundle? = nil) {
         
