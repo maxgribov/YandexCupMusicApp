@@ -28,4 +28,11 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         
         XCTAssertEqual(resultError as? BundleSamplesLocalStore.Error, .unableRetrieveResourcePathForBundle)
     }
+    
+    func test_retrieveSamplesIDs_deliversErrorForResourcePathRetrievalError() {
+        
+        let sut = BundleSamplesLocalStore(bundle: Bundle())
+        
+        XCTAssertThrowsError(try sut.retrieveSamplesIDs(for: .brass))
+    }
 }

@@ -7,6 +7,8 @@
 
 import Foundation
 
+public typealias SampleID = String
+
 public struct Sample: Equatable {
 
     public let name: String

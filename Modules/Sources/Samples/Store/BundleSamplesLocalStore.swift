@@ -24,9 +24,26 @@ public final class BundleSamplesLocalStore {
         }
     }
     
+    public func retrieveSamplesIDs(for instrument: Instrument) throws -> [SampleID] {
+        
+        let path = try path()
+        
+        return try fileManager.contentsOfDirectory(atPath: path)
+            .filter { $0.hasPrefix(instrument.rawValue) }
+    }
+    
     public enum Error: Swift.Error {
         
         case unableRetrieveResourcePathForBundle
+    }
+    
+    private func path() throws -> String {
+        
+        guard let path = bundle.resourcePath else {
+            throw Error.unableRetrieveResourcePathForBundle
+        }
+        
+        return path
     }
 }
 
