@@ -95,10 +95,20 @@ final class SamplesLoaderTests: XCTestCase {
     
     //MARK: - Helpers
     
-    private func makeSUT() -> (sut: SamplesLoader, store: SamplesLocalStoreSpy) {
+    private func makeSUT(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (
+        sut: SamplesLoader,
+        store: SamplesLocalStoreSpy
+        
+    ) {
         
         let store = SamplesLocalStoreSpy()
         let sut = SamplesLoader(store: store)
+        
+        trackForMemoryLeaks(store, file: file, line: line)
+        trackForMemoryLeaks(sut, file: file, line: line)
         
         return (sut, store)
     }
