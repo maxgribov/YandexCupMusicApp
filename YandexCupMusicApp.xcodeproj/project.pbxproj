@@ -1,0 +1,593 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		772EEF422AF00AEC0066F12C /* YandexCupMusicAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF412AF00AEC0066F12C /* YandexCupMusicAppApp.swift */; };
+		772EEF442AF00AEC0066F12C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF432AF00AEC0066F12C /* ContentView.swift */; };
+		772EEF462AF00AEE0066F12C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 772EEF452AF00AEE0066F12C /* Assets.xcassets */; };
+		772EEF492AF00AEE0066F12C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 772EEF482AF00AEE0066F12C /* Preview Assets.xcassets */; };
+		772EEF532AF00AEE0066F12C /* YandexCupMusicAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF522AF00AEE0066F12C /* YandexCupMusicAppTests.swift */; };
+		772EEF5D2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF5C2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift */; };
+		772EEF5F2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF5E2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		772EEF4F2AF00AEE0066F12C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 772EEF362AF00AEC0066F12C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 772EEF3D2AF00AEC0066F12C;
+			remoteInfo = YandexCupMusicApp;
+		};
+		772EEF592AF00AEE0066F12C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 772EEF362AF00AEC0066F12C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 772EEF3D2AF00AEC0066F12C;
+			remoteInfo = YandexCupMusicApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		772EEF3E2AF00AEC0066F12C /* YandexCupMusicApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YandexCupMusicApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		772EEF412AF00AEC0066F12C /* YandexCupMusicAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppApp.swift; sourceTree = "<group>"; };
+		772EEF432AF00AEC0066F12C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		772EEF452AF00AEE0066F12C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		772EEF482AF00AEE0066F12C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		772EEF4E2AF00AEE0066F12C /* YandexCupMusicAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YandexCupMusicAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		772EEF522AF00AEE0066F12C /* YandexCupMusicAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppTests.swift; sourceTree = "<group>"; };
+		772EEF582AF00AEE0066F12C /* YandexCupMusicAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YandexCupMusicAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		772EEF5C2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppUITests.swift; sourceTree = "<group>"; };
+		772EEF5E2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		772EEF3B2AF00AEC0066F12C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		772EEF4B2AF00AEE0066F12C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		772EEF552AF00AEE0066F12C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		772EEF352AF00AEC0066F12C = {
+			isa = PBXGroup;
+			children = (
+				772EEF402AF00AEC0066F12C /* YandexCupMusicApp */,
+				772EEF512AF00AEE0066F12C /* YandexCupMusicAppTests */,
+				772EEF5B2AF00AEE0066F12C /* YandexCupMusicAppUITests */,
+				772EEF3F2AF00AEC0066F12C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		772EEF3F2AF00AEC0066F12C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				772EEF3E2AF00AEC0066F12C /* YandexCupMusicApp.app */,
+				772EEF4E2AF00AEE0066F12C /* YandexCupMusicAppTests.xctest */,
+				772EEF582AF00AEE0066F12C /* YandexCupMusicAppUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		772EEF402AF00AEC0066F12C /* YandexCupMusicApp */ = {
+			isa = PBXGroup;
+			children = (
+				772EEF412AF00AEC0066F12C /* YandexCupMusicAppApp.swift */,
+				772EEF432AF00AEC0066F12C /* ContentView.swift */,
+				772EEF452AF00AEE0066F12C /* Assets.xcassets */,
+				772EEF472AF00AEE0066F12C /* Preview Content */,
+			);
+			path = YandexCupMusicApp;
+			sourceTree = "<group>";
+		};
+		772EEF472AF00AEE0066F12C /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				772EEF482AF00AEE0066F12C /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		772EEF512AF00AEE0066F12C /* YandexCupMusicAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				772EEF522AF00AEE0066F12C /* YandexCupMusicAppTests.swift */,
+			);
+			path = YandexCupMusicAppTests;
+			sourceTree = "<group>";
+		};
+		772EEF5B2AF00AEE0066F12C /* YandexCupMusicAppUITests */ = {
+			isa = PBXGroup;
+			children = (
+				772EEF5C2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift */,
+				772EEF5E2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift */,
+			);
+			path = YandexCupMusicAppUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		772EEF3D2AF00AEC0066F12C /* YandexCupMusicApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 772EEF622AF00AEE0066F12C /* Build configuration list for PBXNativeTarget "YandexCupMusicApp" */;
+			buildPhases = (
+				772EEF3A2AF00AEC0066F12C /* Sources */,
+				772EEF3B2AF00AEC0066F12C /* Frameworks */,
+				772EEF3C2AF00AEC0066F12C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = YandexCupMusicApp;
+			productName = YandexCupMusicApp;
+			productReference = 772EEF3E2AF00AEC0066F12C /* YandexCupMusicApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		772EEF4D2AF00AEE0066F12C /* YandexCupMusicAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 772EEF652AF00AEE0066F12C /* Build configuration list for PBXNativeTarget "YandexCupMusicAppTests" */;
+			buildPhases = (
+				772EEF4A2AF00AEE0066F12C /* Sources */,
+				772EEF4B2AF00AEE0066F12C /* Frameworks */,
+				772EEF4C2AF00AEE0066F12C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				772EEF502AF00AEE0066F12C /* PBXTargetDependency */,
+			);
+			name = YandexCupMusicAppTests;
+			productName = YandexCupMusicAppTests;
+			productReference = 772EEF4E2AF00AEE0066F12C /* YandexCupMusicAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		772EEF572AF00AEE0066F12C /* YandexCupMusicAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 772EEF682AF00AEE0066F12C /* Build configuration list for PBXNativeTarget "YandexCupMusicAppUITests" */;
+			buildPhases = (
+				772EEF542AF00AEE0066F12C /* Sources */,
+				772EEF552AF00AEE0066F12C /* Frameworks */,
+				772EEF562AF00AEE0066F12C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				772EEF5A2AF00AEE0066F12C /* PBXTargetDependency */,
+			);
+			name = YandexCupMusicAppUITests;
+			productName = YandexCupMusicAppUITests;
+			productReference = 772EEF582AF00AEE0066F12C /* YandexCupMusicAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		772EEF362AF00AEC0066F12C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					772EEF3D2AF00AEC0066F12C = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					772EEF4D2AF00AEE0066F12C = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = 772EEF3D2AF00AEC0066F12C;
+					};
+					772EEF572AF00AEE0066F12C = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = 772EEF3D2AF00AEC0066F12C;
+					};
+				};
+			};
+			buildConfigurationList = 772EEF392AF00AEC0066F12C /* Build configuration list for PBXProject "YandexCupMusicApp" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 772EEF352AF00AEC0066F12C;
+			productRefGroup = 772EEF3F2AF00AEC0066F12C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				772EEF3D2AF00AEC0066F12C /* YandexCupMusicApp */,
+				772EEF4D2AF00AEE0066F12C /* YandexCupMusicAppTests */,
+				772EEF572AF00AEE0066F12C /* YandexCupMusicAppUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		772EEF3C2AF00AEC0066F12C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				772EEF492AF00AEE0066F12C /* Preview Assets.xcassets in Resources */,
+				772EEF462AF00AEE0066F12C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		772EEF4C2AF00AEE0066F12C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		772EEF562AF00AEE0066F12C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		772EEF3A2AF00AEC0066F12C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				772EEF442AF00AEC0066F12C /* ContentView.swift in Sources */,
+				772EEF422AF00AEC0066F12C /* YandexCupMusicAppApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		772EEF4A2AF00AEE0066F12C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				772EEF532AF00AEE0066F12C /* YandexCupMusicAppTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		772EEF542AF00AEE0066F12C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				772EEF5F2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift in Sources */,
+				772EEF5D2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		772EEF502AF00AEE0066F12C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 772EEF3D2AF00AEC0066F12C /* YandexCupMusicApp */;
+			targetProxy = 772EEF4F2AF00AEE0066F12C /* PBXContainerItemProxy */;
+		};
+		772EEF5A2AF00AEE0066F12C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 772EEF3D2AF00AEC0066F12C /* YandexCupMusicApp */;
+			targetProxy = 772EEF592AF00AEE0066F12C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		772EEF602AF00AEE0066F12C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		772EEF612AF00AEE0066F12C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		772EEF632AF00AEE0066F12C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"YandexCupMusicApp/Preview Content\"";
+				DEVELOPMENT_TEAM = 29E66XW7ZX;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pro.maxgribov.YandexCupMusicApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		772EEF642AF00AEE0066F12C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"YandexCupMusicApp/Preview Content\"";
+				DEVELOPMENT_TEAM = 29E66XW7ZX;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pro.maxgribov.YandexCupMusicApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		772EEF662AF00AEE0066F12C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 29E66XW7ZX;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pro.maxgribov.YandexCupMusicAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YandexCupMusicApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/YandexCupMusicApp";
+			};
+			name = Debug;
+		};
+		772EEF672AF00AEE0066F12C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 29E66XW7ZX;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pro.maxgribov.YandexCupMusicAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/YandexCupMusicApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/YandexCupMusicApp";
+			};
+			name = Release;
+		};
+		772EEF692AF00AEE0066F12C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 29E66XW7ZX;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pro.maxgribov.YandexCupMusicAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = YandexCupMusicApp;
+			};
+			name = Debug;
+		};
+		772EEF6A2AF00AEE0066F12C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 29E66XW7ZX;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pro.maxgribov.YandexCupMusicAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = YandexCupMusicApp;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		772EEF392AF00AEC0066F12C /* Build configuration list for PBXProject "YandexCupMusicApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				772EEF602AF00AEE0066F12C /* Debug */,
+				772EEF612AF00AEE0066F12C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		772EEF622AF00AEE0066F12C /* Build configuration list for PBXNativeTarget "YandexCupMusicApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				772EEF632AF00AEE0066F12C /* Debug */,
+				772EEF642AF00AEE0066F12C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		772EEF652AF00AEE0066F12C /* Build configuration list for PBXNativeTarget "YandexCupMusicAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				772EEF662AF00AEE0066F12C /* Debug */,
+				772EEF672AF00AEE0066F12C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		772EEF682AF00AEE0066F12C /* Build configuration list for PBXNativeTarget "YandexCupMusicAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				772EEF692AF00AEE0066F12C /* Debug */,
+				772EEF6A2AF00AEE0066F12C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 772EEF362AF00AEC0066F12C /* Project object */;
+}
