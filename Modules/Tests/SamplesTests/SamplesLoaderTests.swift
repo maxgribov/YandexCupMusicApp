@@ -9,16 +9,16 @@ import XCTest
 
 final class SamplesLoader {
     
-    private let store: SamplesLoaderTests.SamplesStoreSpy
+    private let store: SamplesLoaderTests.SamplesLocalStoreSpy
     
-    init(store: SamplesLoaderTests.SamplesStoreSpy) {
+    init(store: SamplesLoaderTests.SamplesLocalStoreSpy) {
         
         self.store = store
     }
     
-    func load(for instrument: Instrument) {
+    func load(for instrument: Instrument, completion: @escaping (Result<Void, Error>) -> Void) {
         
-        store.retrieveSamples(for: instrument)
+        store.retrieveSamples(for: instrument, completion: completion)
     }
 }
 
@@ -42,32 +42,63 @@ final class SamplesLoaderTests: XCTestCase {
         
         let (sut, store) = makeSUT()
         
-        sut.load(for: .guitar)
+        sut.load(for: .guitar) { _ in }
         
         XCTAssertEqual(store.receivedRequests, [.retrieveSamplesFor(.guitar)])
     }
     
+    func test_load_failsOnRetrieveFail() {
+        
+        let (sut, store) = makeSUT()
+        
+        var receivedError: Error?
+        sut.load(for: .guitar) { result in
+            switch result {
+            case let .failure(error):
+                receivedError = error
+                
+            default:
+                break
+            }
+        }
+        
+        store.complete(with: anyNSError())
+        
+        XCTAssertEqual(receivedError as? NSError, anyNSError())
+    }
+    
     //MARK: - Helpers
     
-    private func makeSUT() -> (sut: SamplesLoader, store: SamplesStoreSpy) {
+    private func makeSUT() -> (sut: SamplesLoader, store: SamplesLocalStoreSpy) {
         
-        let store = SamplesStoreSpy()
+        let store = SamplesLocalStoreSpy()
         let sut = SamplesLoader(store: store)
         
         return (sut, store)
     }
     
-    final class SamplesStoreSpy {
+    final class SamplesLocalStoreSpy {
         
         enum Request: Equatable {
-            
             case retrieveSamplesFor(Instrument)
         }
         
-        private(set) var receivedRequests = [Request]()
+        private var completions = [(request: Request, completion: (Result<Void, Error>) -> Void)]()
         
-        func retrieveSamples(for instrument: Instrument) {
-            receivedRequests.append(.retrieveSamplesFor(instrument))
+        var receivedRequests: [Request] {
+            completions.map(\.request)
         }
+        
+        func retrieveSamples(for instrument: Instrument, completion: @escaping (Result<Void, Error>) -> Void) {
+            completions.append((.retrieveSamplesFor(instrument), completion))
+        }
+        
+        func complete(with error: Error, at index: Int = 0) {
+            completions[index].completion(.failure(error))
+        }
+    }
+    
+    private func anyNSError() -> NSError {
+        .init(domain: "", code: 0)
     }
 }
