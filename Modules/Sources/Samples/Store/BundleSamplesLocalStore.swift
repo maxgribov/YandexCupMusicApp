@@ -39,6 +39,18 @@ public final class BundleSamplesLocalStore {
         }
     }
     
+    public func retrieveSample(for sampleID: SampleID, completion: @escaping (Result<Sample, Swift.Error>) -> Void) {
+        
+        do {
+            
+            let path = try path()
+            
+        } catch {
+            
+            completion(.failure(error))
+        }
+    }
+    
     public enum Error: Swift.Error {
         
         case unableRetrieveResourcePathForBundle

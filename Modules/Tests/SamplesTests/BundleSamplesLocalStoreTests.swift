@@ -12,7 +12,7 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
 
     func test_retrieve_deliversErrorForResourcePathRetrievalError() throws {
         
-        let sut = makeSUT(bundle: Bundle())
+        let sut = makeSUT(bundle: invalidBundle())
         
         var resultError: Error? = nil
         sut.retrieveSamples(for: .brass) { result in
@@ -31,7 +31,7 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     
     func test_retrieveSamplesIDs_deliversErrorForResourcePathRetrievalError() {
         
-        let sut = makeSUT(bundle: Bundle())
+        let sut = makeSUT(bundle: invalidBundle())
         
         expect(sut, retrieveSamplesIDsResult: .failure(BundleSamplesLocalStore.Error.unableRetrieveResourcePathForBundle), for: .brass)
     }
@@ -58,6 +58,25 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         let expected = try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "brass")
         
         expect(sut, retrieveSamplesIDsResult: .success(expected), for: .brass)
+    }
+    
+    func test_retrieveSample_failsForResourcePathRetrievalError() {
+        
+        let sut = makeSUT(bundle: invalidBundle())
+        
+        var receivedError: Error? = nil
+        sut.retrieveSample(for: anySampleID()) { result in
+            
+            switch result {
+            case let .failure(error):
+                receivedError = error
+            
+            default:
+                break
+            }
+        }
+        
+        XCTAssertEqual(receivedError as? BundleSamplesLocalStore.Error, .unableRetrieveResourcePathForBundle)
     }
     
     //MARK: - Helpers
@@ -106,5 +125,13 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         
         return try FileManager.default.contentsOfDirectory(atPath: path)
             .filter { $0.hasPrefix(prefix) }
+    }
+    
+    private func invalidBundle() -> Bundle {
+        Bundle()
+    }
+    
+    private func anySampleID() -> SampleID {
+        "any-sample-file-name"
     }
 }
