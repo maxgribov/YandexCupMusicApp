@@ -6,46 +6,7 @@
 //
 
 import XCTest
-
-protocol SamplesLocalStore {
-    
-    typealias Result = Swift.Result<[Sample], Error>
-    
-    func retrieveSamples(for instrument: Instrument, completion: @escaping (Result) -> Void)
-}
-
-final class SamplesLoader<S> where S: SamplesLocalStore {
-    
-    private let store: S
-    
-    init(store: S) {
-        
-        self.store = store
-    }
-    
-    func load(for instrument: Instrument, completion: @escaping (Result<[Sample], Error>) -> Void) {
-        
-        store.retrieveSamples(for: instrument) { [weak self] result in
-        
-            guard self != nil else { return }
-            
-            completion(result)
-        }
-    }
-}
-
-enum Instrument {
-    
-    case guitar
-    case drums
-    case tube
-}
-
-struct Sample: Equatable {
-    
-    let name: String
-    let data: Data
-}
+import Samples
 
 final class SamplesLoaderTests: XCTestCase {
 
