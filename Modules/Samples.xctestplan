@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "83DE07B9-6F50-4D44-88C0-2A41E28B3C3C",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SamplesTests",
+        "name" : "SamplesTests"
+      }
+    }
+  ],
+  "version" : 1
+}

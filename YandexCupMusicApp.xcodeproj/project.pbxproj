@@ -46,6 +46,7 @@
 		772EEF5C2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppUITests.swift; sourceTree = "<group>"; };
 		772EEF5E2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		772EEF6E2AF00E5C0066F12C /* Modules */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Modules; sourceTree = "<group>"; };
+		772EEF6F2AF010EF0066F12C /* Samples.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = Samples.xctestplan; path = Modules/Samples.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +78,7 @@
 		772EEF352AF00AEC0066F12C = {
 			isa = PBXGroup;
 			children = (
+				772EEF6F2AF010EF0066F12C /* Samples.xctestplan */,
 				772EEF6E2AF00E5C0066F12C /* Modules */,
 				772EEF402AF00AEC0066F12C /* YandexCupMusicApp */,
 				772EEF512AF00AEE0066F12C /* YandexCupMusicAppTests */,
