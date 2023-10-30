@@ -9,9 +9,24 @@ import XCTest
 
 final class SamplesLoader {
     
+    private let store: SamplesLoaderTests.SamplesStoreSpy
+    
     init(store: SamplesLoaderTests.SamplesStoreSpy) {
         
+        self.store = store
     }
+    
+    func load(for instrument: Instrument) {
+        
+        store.retrieveSamples(for: instrument)
+    }
+}
+
+enum Instrument {
+    
+    case guitar
+    case drums
+    case tube
 }
 
 final class SamplesLoaderTests: XCTestCase {
@@ -24,10 +39,29 @@ final class SamplesLoaderTests: XCTestCase {
         XCTAssertEqual(store.receivedRequests.count, 0)
     }
     
+    func test_load_requestsSamplesRetrieval() {
+        
+        let store = SamplesStoreSpy()
+        let sut = SamplesLoader(store: store)
+        
+        sut.load(for: .guitar)
+        
+        XCTAssertEqual(store.receivedRequests, [.retrieveSamplesFor(.guitar)])
+    }
+    
     //MARK: - Helpers
     
     final class SamplesStoreSpy {
         
-        var receivedRequests = [Any]()
+        enum Request: Equatable {
+            
+            case retrieveSamplesFor(Instrument)
+        }
+        
+        private(set) var receivedRequests = [Request]()
+        
+        func retrieveSamples(for instrument: Instrument) {
+            receivedRequests.append(.retrieveSamplesFor(instrument))
+        }
     }
 }
