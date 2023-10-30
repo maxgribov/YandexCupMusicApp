@@ -25,7 +25,12 @@ final class SamplesLoader<S> where S: SamplesLocalStore {
     
     func load(for instrument: Instrument, completion: @escaping (Result<[Sample], Error>) -> Void) {
         
-        store.retrieveSamples(for: instrument, completion: completion)
+        store.retrieveSamples(for: instrument) { [weak self] result in
+        
+            guard self != nil else { return }
+            
+            completion(result)
+        }
     }
 }
 
@@ -88,6 +93,20 @@ final class SamplesLoaderTests: XCTestCase {
             
             store.complete(with: [])
         })
+    }
+    
+    func test_load_doesNotDeliverResultAfterSUTInstanceDeinit() {
+        
+        let store = SamplesLocalStoreSpy()
+        var sut: SamplesLoader<SamplesLocalStoreSpy>? = .init(store: store)
+        
+        var receivedResult: Result<[Sample], Error>? = nil
+        sut?.load(for: .tube) { receivedResult = $0 }
+        sut = nil
+        
+        store.complete(with: uniqueSamples())
+        
+        XCTAssertNil(receivedResult)
     }
     
     //MARK: - Helpers
