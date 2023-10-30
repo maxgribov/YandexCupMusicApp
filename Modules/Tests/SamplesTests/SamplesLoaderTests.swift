@@ -80,6 +80,16 @@ final class SamplesLoaderTests: XCTestCase {
         })
     }
     
+    func test_load_deliversEmptyOnEmptyRetrieval() {
+        
+        let (sut, store) = makeSUT()
+        
+        expected(sut, result: .success([]), for: {
+            
+            store.complete(with: [])
+        })
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
