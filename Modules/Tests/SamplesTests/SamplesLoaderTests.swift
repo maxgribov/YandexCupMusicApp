@@ -7,11 +7,18 @@
 
 import XCTest
 
-final class SamplesLoader {
+protocol SamplesLocalStore {
     
-    private let store: SamplesLoaderTests.SamplesLocalStoreSpy
+    typealias Result = Swift.Result<[Sample], Error>
     
-    init(store: SamplesLoaderTests.SamplesLocalStoreSpy) {
+    func retrieveSamples(for instrument: Instrument, completion: @escaping (Result) -> Void)
+}
+
+final class SamplesLoader<S> where S: SamplesLocalStore {
+    
+    private let store: S
+    
+    init(store: S) {
         
         self.store = store
     }
@@ -99,7 +106,7 @@ final class SamplesLoaderTests: XCTestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> (
-        sut: SamplesLoader,
+        sut: SamplesLoader<SamplesLocalStoreSpy>,
         store: SamplesLocalStoreSpy
         
     ) {
@@ -113,19 +120,19 @@ final class SamplesLoaderTests: XCTestCase {
         return (sut, store)
     }
     
-    final class SamplesLocalStoreSpy {
+    final class SamplesLocalStoreSpy: SamplesLocalStore {
         
         enum Request: Equatable {
             case retrieveSamplesFor(Instrument)
         }
         
-        private var completions = [(request: Request, completion: (Result<[Sample], Error>) -> Void)]()
+        private var completions = [(request: Request, completion: (SamplesLocalStore.Result) -> Void)]()
         
         var receivedRequests: [Request] {
             completions.map(\.request)
         }
         
-        func retrieveSamples(for instrument: Instrument, completion: @escaping (Result<[Sample], Error>) -> Void) {
+        func retrieveSamples(for instrument: Instrument, completion: @escaping (SamplesLocalStore.Result) -> Void) {
             completions.append((.retrieveSamplesFor(instrument), completion))
         }
         
