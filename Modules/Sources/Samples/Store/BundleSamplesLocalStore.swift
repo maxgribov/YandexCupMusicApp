@@ -50,9 +50,11 @@ public final class BundleSamplesLocalStore {
             
             queue.async {
                 
-                guard let result = try? Data(contentsOf: url) else {
+                guard let data = try? Data(contentsOf: url) else {
                     return completion(.failure(Error.retrieveSampleFileFailed))
                 }
+                
+                completion(.success(Sample(name: sampleID, data: data)))
             }
             
         } catch {
