@@ -12,7 +12,8 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "Samples"),
+            name: "Samples",
+            resources: [.process("Store/Resources"),]),
         .testTarget(
             name: "SamplesTests",
             dependencies: ["Samples"]),
