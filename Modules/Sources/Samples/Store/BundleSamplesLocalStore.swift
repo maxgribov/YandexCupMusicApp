@@ -24,12 +24,19 @@ public final class BundleSamplesLocalStore {
         }
     }
     
-    public func retrieveSamplesIDs(for instrument: Instrument) throws -> [SampleID] {
+    public func retrieveSamplesIDs(for instrument: Instrument, complete: @escaping (Result<[SampleID], Swift.Error>) -> Void) {
         
-        let path = try path()
-        
-        return try fileManager.contentsOfDirectory(atPath: path)
-            .filter { $0.hasPrefix(instrument.rawValue) }
+        do {
+            let path = try path()
+            let fileNames = try fileManager.contentsOfDirectory(atPath: path)
+                .filter { $0.hasPrefix(instrument.rawValue) }
+            
+            complete(.success(fileNames))
+            
+        } catch {
+            
+            complete(.failure(error))
+        }
     }
     
     public enum Error: Swift.Error {

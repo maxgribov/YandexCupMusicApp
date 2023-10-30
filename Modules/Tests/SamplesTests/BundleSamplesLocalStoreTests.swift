@@ -33,17 +33,15 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         
         let sut = makeSUT(bundle: Bundle())
         
-        XCTAssertThrowsError(try sut.retrieveSamplesIDs(for: .brass))
+        expect(sut, retrieveSamplesIDsResult: .failure(BundleSamplesLocalStore.Error.unableRetrieveResourcePathForBundle), for: .brass)
     }
-    
+
     func test_retrieveSamplesIDs_deliversGuitarFilesNamesAsIDsForGuitarInstrument() throws {
         
         let sut = makeSUT()
         let expected = try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "guitar")
         
-        let result = try sut.retrieveSamplesIDs(for: .guitar)
-        
-        XCTAssertEqual(result, expected)
+        expect(sut, retrieveSamplesIDsResult: .success(expected), for: .guitar)
     }
     
     func test_retrieveSamplesIDs_deliversDrumsFilesNamesAsIDsForDrumsInstrument() throws {
@@ -51,9 +49,7 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         let sut = makeSUT()
         let expected = try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "drums")
         
-        let result = try sut.retrieveSamplesIDs(for: .drums)
-        
-        XCTAssertEqual(result, expected)
+        expect(sut, retrieveSamplesIDsResult: .success(expected), for: .drums)
     }
     
     func test_retrieveSamplesIDs_deliversBrassFilesNamesAsIDsForBrassInstrument() throws {
@@ -61,9 +57,7 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         let sut = makeSUT()
         let expected = try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "brass")
         
-        let result = try sut.retrieveSamplesIDs(for: .brass)
-        
-        XCTAssertEqual(result, expected)
+        expect(sut, retrieveSamplesIDsResult: .success(expected), for: .brass)
     }
     
     //MARK: - Helpers
@@ -74,6 +68,34 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         trackForMemoryLeaks(sut)
         
         return sut
+    }
+    
+    private func expect(
+        _ sut: BundleSamplesLocalStore,
+        retrieveSamplesIDsResult expectedResult: Result<[SampleID], Error>,
+        for instrument: Instrument,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        let exp = expectation(description: "Wait for completion")
+        sut.retrieveSamplesIDs(for: instrument) { receivedResult in
+            
+            switch (receivedResult, expectedResult) {
+            case let (.success(receivedIds), .success(expectedIds)):
+                XCTAssertEqual(receivedIds, expectedIds, "Expected IDs: \(expectedIds), got \(receivedIds) instead", file: file, line: line)
+                
+            case let (.failure(receivedError), .failure(expectedError)):
+                XCTAssertEqual(receivedError as NSError, expectedError as NSError, "Expected error: \(expectedError), got \(receivedError) instead", file: file, line: line)
+                
+            default:
+                XCTFail("Expected result: \(expectedResult), got \(receivedResult) instead", file: file, line: line)
+            }
+            
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 1.0)
     }
     
     private func fileNames(bundle: Bundle, prefix: String) throws -> [String] {
