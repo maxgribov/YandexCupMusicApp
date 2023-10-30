@@ -36,6 +36,36 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         XCTAssertThrowsError(try sut.retrieveSamplesIDs(for: .brass))
     }
     
+    func test_retrieveSamplesIDs_deliversGuitarFilesNamesAsIDsForGuitarInstrument() throws {
+        
+        let sut = makeSUT()
+        let expected = try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "guitar")
+        
+        let result = try sut.retrieveSamplesIDs(for: .guitar)
+        
+        XCTAssertEqual(result, expected)
+    }
+    
+    func test_retrieveSamplesIDs_deliversDrumsFilesNamesAsIDsForDrumsInstrument() throws {
+        
+        let sut = makeSUT()
+        let expected = try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "drums")
+        
+        let result = try sut.retrieveSamplesIDs(for: .drums)
+        
+        XCTAssertEqual(result, expected)
+    }
+    
+    func test_retrieveSamplesIDs_deliversBrassFilesNamesAsIDsForBrassInstrument() throws {
+        
+        let sut = makeSUT()
+        let expected = try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "brass")
+        
+        let result = try sut.retrieveSamplesIDs(for: .brass)
+        
+        XCTAssertEqual(result, expected)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(bundle: Bundle? = nil) -> BundleSamplesLocalStore {
@@ -44,5 +74,15 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         trackForMemoryLeaks(sut)
         
         return sut
+    }
+    
+    private func fileNames(bundle: Bundle, prefix: String) throws -> [String] {
+        
+        guard let path = bundle.resourcePath else {
+            throw NSError(domain: "BundleSamplesLocalStoreTestsError", code: 1)
+        }
+        
+        return try FileManager.default.contentsOfDirectory(atPath: path)
+            .filter { $0.hasPrefix(prefix) }
     }
 }
