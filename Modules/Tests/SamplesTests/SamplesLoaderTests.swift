@@ -33,16 +33,14 @@ final class SamplesLoaderTests: XCTestCase {
 
     func test_init_doesNotRequestData() {
         
-        let store = SamplesStoreSpy()
-        let _ = SamplesLoader(store: store)
+        let (_, store) = makeSUT()
         
         XCTAssertEqual(store.receivedRequests.count, 0)
     }
     
     func test_load_requestsSamplesRetrieval() {
         
-        let store = SamplesStoreSpy()
-        let sut = SamplesLoader(store: store)
+        let (sut, store) = makeSUT()
         
         sut.load(for: .guitar)
         
@@ -50,6 +48,14 @@ final class SamplesLoaderTests: XCTestCase {
     }
     
     //MARK: - Helpers
+    
+    private func makeSUT() -> (sut: SamplesLoader, store: SamplesStoreSpy) {
+        
+        let store = SamplesStoreSpy()
+        let sut = SamplesLoader(store: store)
+        
+        return (sut, store)
+    }
     
     final class SamplesStoreSpy {
         
