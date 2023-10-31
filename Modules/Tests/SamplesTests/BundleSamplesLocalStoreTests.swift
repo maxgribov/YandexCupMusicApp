@@ -69,10 +69,14 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     
     //MARK: - Helpers
     
-    private func makeSUT(bundle: Bundle? = nil) -> BundleSamplesLocalStore {
+    private func makeSUT(
+        bundle: Bundle? = nil,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> BundleSamplesLocalStore {
         
         let sut = BundleSamplesLocalStore(bundle: bundle)
-        trackForMemoryLeaks(sut)
+        trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
     }

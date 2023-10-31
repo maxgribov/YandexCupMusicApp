@@ -52,11 +52,13 @@ final class InstrumentSelectorViewModelTests: XCTestCase {
     //MARK: - Helpers
     
     private func makeSUT(
-        buttons: [InstrumentButtonViewModel] = InstrumentSelectorViewModelTests.sampleButtons()
+        buttons: [InstrumentButtonViewModel] = InstrumentSelectorViewModelTests.sampleButtons(),
+        file: StaticString = #filePath,
+        line: UInt = #line
     ) -> InstrumentSelectorViewModel {
         
         let sut = InstrumentSelectorViewModel(buttons: buttons)
-        trackForMemoryLeaks(sut)
+        trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
     }

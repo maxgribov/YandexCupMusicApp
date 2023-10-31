@@ -96,10 +96,15 @@ final class SampleSelectorViewModelTests: XCTestCase {
     
     //MARK: - Helpers
     
-    private func makeSUT(items: [SampleItemViewModel] = SampleSelectorViewModelTests.sampleItems(), loadSample: @escaping () -> AnyPublisher<Sample, Error> = SampleSelectorViewModelTests.loadSampleDummy) -> SampleSelectorViewModel {
+    private func makeSUT(
+        items: [SampleItemViewModel] = SampleSelectorViewModelTests.sampleItems(),
+        loadSample: @escaping () -> AnyPublisher<Sample, Error> = SampleSelectorViewModelTests.loadSampleDummy,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> SampleSelectorViewModel {
         
         let sut = SampleSelectorViewModel(items: items, loadSample: loadSample)
-        trackForMemoryLeaks(sut)
+        trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
     }
