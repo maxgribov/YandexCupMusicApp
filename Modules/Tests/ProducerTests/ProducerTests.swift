@@ -139,7 +139,17 @@ final class Producer {
         do {
             
             recording = try recorder.startRecording()
-                .sink(receiveCompletion: { completion in
+                .sink(receiveCompletion: {[weak self] completion in
+                    
+                    switch completion {
+                    case .failure:
+                        self?.delegateActionSubject.send(.recordingFailed)
+                        
+                    case .finished:
+                        break
+                    }
+                    
+                    self?.recording = nil
                     
                 }, receiveValue: { data in
                     
@@ -237,6 +247,7 @@ extension Producer {
     enum DelegateAction: Equatable {
         
         case startRecordingFailed
+        case recordingFailed
     }
 }
 
@@ -501,6 +512,20 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(recorder.messages, [.stopRecoding])
     }
     
+    func test_stopRecording_isRecordingBecomeFalseAndInformDelegate() {
+        
+        let (sut, _, recorder) = makeSUT()
+        let isRecordingSpy = ValueSpy(sut.isRecording())
+        let delegateSpy = ValueSpy(sut.delegateActionSubject)
+        sut.startRecording()
+        
+        sut.stopRecording()
+        recorder.recodingSubject.send(completion: .failure(anyNSError()))
+        
+        XCTAssertEqual(isRecordingSpy.values, [false, true, false])
+        XCTAssertEqual(delegateSpy.values, [.recordingFailed])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT
@@ -549,7 +574,7 @@ final class ProducerTests: XCTestCase {
     private class RecorderSpy: Recorder {
         
         private(set) var messages = [Message]()
-        private let recodingSubject = PassthroughSubject<Data, Error>()
+        let recodingSubject = PassthroughSubject<Data, Error>()
         private let isRecordingSubject = CurrentValueSubject<Bool, Never>(false)
         
         func isRecording() -> AnyPublisher<Bool, Never> {
@@ -593,11 +618,17 @@ final class ProducerTests: XCTestCase {
     }
     
     private func someSample() -> Sample {
+        
         .init(id: UUID().uuidString, data: Data(UUID().uuidString.utf8))
     }
     
     private func someRecordingData() -> Data {
+        
         Data(UUID().uuidString.utf8)
     }
     
+    private func anyNSError() -> NSError {
+        
+        NSError(domain: "", code: 0)
+    }
 }
