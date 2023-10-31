@@ -27,6 +27,8 @@ final class Producer {
     
     @Published private(set) var layers: [Layer]
     @Published private(set) var active: Layer.ID?
+    @Published private(set) var isRecording: Bool
+    let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
     private var payloads: [Layer.ID: Payload]
     
@@ -34,11 +36,13 @@ final class Producer {
     private let recorder: Recorder
     
     private var cancellable: AnyCancellable?
+    private var recording: AnyCancellable?
     
     init(player: Player, recorder: Recorder) {
         
         self.layers = []
         self.active = nil
+        self.isRecording = false
         self.payloads = [:]
         self.player = player
         self.recorder = recorder
@@ -128,7 +132,22 @@ final class Producer {
     
     func startRecording() {
         
-        _ = try? recorder.startRecording()
+        do {
+            
+            recording = try recorder.startRecording()
+                .sink(receiveCompletion: { completion in
+                    
+                }, receiveValue: { data in
+                    
+                    
+                })
+            
+        } catch {
+            
+            isRecording = false
+            recording = nil
+            delegateActionSubject.send(.startRecordingFailed)
+        }
     }
     
     private func handleUpdate(layers: [Layer]) {
@@ -207,6 +226,11 @@ extension Producer {
             }
         }
     }
+    
+    enum DelegateAction: Equatable {
+        
+        case startRecordingFailed
+    }
 }
 
 final class ProducerTests: XCTestCase {
@@ -223,6 +247,13 @@ final class ProducerTests: XCTestCase {
         let (sut, _, _) = makeSUT()
         
         XCTAssertNil(sut.active)
+    }
+    
+    func test_init_isRecordingFalse() {
+        
+        let (sut, _, _) = makeSUT()
+        
+        XCTAssertFalse(sut.isRecording)
     }
     
     func test_init_doesNotMessagePlayer() {
@@ -431,6 +462,17 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(recorder.messages, [.startRecording])
     }
     
+    func test_startRecording_setIsRecordingToFalseAndMessageDelegateOnFailure() {
+        
+        let sut = Producer(player: PlayerSpy(), recorder: AlwaysFailingRecorderStub())
+        let delegateSpy = ValueSpy(sut.delegateActionSubject)
+        
+        sut.startRecording()
+        
+        XCTAssertFalse(sut.isRecording)
+        XCTAssertEqual(delegateSpy.values, [.startRecordingFailed])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT
@@ -497,6 +539,16 @@ final class ProducerTests: XCTestCase {
             case startRecording
             case stopRecoding
         }
+    }
+    
+    private class AlwaysFailingRecorderStub: Recorder {
+        
+        func startRecording() throws -> AnyPublisher<Data, Error> {
+            
+            throw NSError(domain: "", code: 0)
+        }
+        
+        func stopRecording() {}
     }
     
     private func someSample() -> Sample {
