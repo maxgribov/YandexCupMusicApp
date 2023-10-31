@@ -117,7 +117,7 @@ final class Producer {
     
     private func handleUpdate(layers: [Layer]) {
         
-        let layersShouldPlay = layers.filter(\.isPlaying)
+        let layersShouldPlay = layers.filter{ $0.isPlaying == true && $0.isMuted == false }
         
         for layerID in player.playing {
             
@@ -334,6 +334,27 @@ final class ProducerTests: XCTestCase {
         
         sut.set(isMuted: false, for: sut.layers[1].id)
         XCTAssertEqual(sut.layers.map(\.isMuted), [true, false, false])
+    }
+    
+    func test_setIsMutedForLayerID_messagesPlayerWithPlayAndStopCommands() {
+        
+        let (sut, player) = makeSUT()
+        let guitarSample = someSample()
+        sut.addLayer(for: .guitar, with: guitarSample)
+        sut.addLayer(for: .drums, with: someSample())
+        sut.addLayer(forRecording: someRecordingData())
+        
+        sut.set(isPlaying: true, for: sut.layers[0].id)
+        XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control)])
+        
+        sut.set(isMuted: true, for: sut.layers[0].id)
+        XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control),
+                                         .stop(sut.layers[0].id)])
+        
+        sut.set(isMuted: false, for: sut.layers[0].id)
+        XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control),
+                                         .stop(sut.layers[0].id),
+                                         .play(sut.layers[0].id, guitarSample.data, sut.layers[0].control)])
     }
     
     func test_deleteLayerID_removesLayerForID() {
