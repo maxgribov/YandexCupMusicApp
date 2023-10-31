@@ -17,20 +17,31 @@ protocol Player {
     func stop(id: Layer.ID)
 }
 
+protocol Recorder {
+    
+    func startRecording() throws -> AnyPublisher<Data, Error>
+    func stopRecording()
+}
+
 final class Producer {
     
     @Published private(set) var layers: [Layer]
     @Published private(set) var active: Layer.ID?
+    
     private var payloads: [Layer.ID: Payload]
+    
     private let player: Player
+    private let recorder: Recorder
+    
     private var cancellable: AnyCancellable?
     
-    init(player: Player) {
+    init(player: Player, recorder: Recorder) {
         
         self.layers = []
         self.active = nil
         self.payloads = [:]
         self.player = player
+        self.recorder = recorder
         
         cancellable = $layers
             .sink { [unowned self] layers in handleUpdate(layers: layers) }
@@ -115,6 +126,11 @@ final class Producer {
         active = layerID
     }
     
+    func startRecording() {
+        
+        _ = try? recorder.startRecording()
+    }
+    
     private func handleUpdate(layers: [Layer]) {
         
         let layersShouldPlay = layers.filter{ $0.isPlaying == true && $0.isMuted == false }
@@ -197,28 +213,35 @@ final class ProducerTests: XCTestCase {
     
     func test_init_emptyLayers() {
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         
         XCTAssertTrue(sut.layers.isEmpty)
     }
     
     func test_init_activeLayerIsNil() {
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         
         XCTAssertNil(sut.active)
     }
     
     func test_init_doesNotMessagePlayer() {
         
-        let (_, player) = makeSUT()
+        let (_, player, _) = makeSUT()
         
         XCTAssertTrue(player.messages.isEmpty)
     }
     
+    func test_init_doesNotMessageRecorder() {
+        
+        let (_, _, recorder) = makeSUT()
+        
+        XCTAssertTrue(recorder.messages.isEmpty)
+    }
+    
     func test_addLayerForInstrumentWithSample_addsLayerWithCorrectPropertiesAndIncrementingNumber() {
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         
         let firstLayerID = UUID()
         sut.addLayer(id: firstLayerID, for: .guitar, with: someSample())
@@ -236,7 +259,7 @@ final class ProducerTests: XCTestCase {
     
     func test_addLayerForInstrumentWithSample_setNewLayerToActive() {
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         
         let firstLayerID = UUID()
         sut.addLayer(id: firstLayerID, for: .guitar, with: someSample())
@@ -249,7 +272,7 @@ final class ProducerTests: XCTestCase {
     
     func test_addLayerForRecording_addsLayerWithCorrectPropertiesAndIncrementingNumber() {
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         
         let firstLayerID = UUID()
         sut.addLayer(id: firstLayerID, forRecording: someRecordingData())
@@ -267,7 +290,7 @@ final class ProducerTests: XCTestCase {
     
     func test_addLayerForRecording_setNewLayerToActive() {
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         
         let firstLayerID = UUID()
         sut.addLayer(id: firstLayerID, forRecording: someRecordingData())
@@ -280,7 +303,7 @@ final class ProducerTests: XCTestCase {
     
     func test_setIsPlayingForLayerID_updatesLayersIsPlayingState(){
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         sut.addLayer(for: .guitar, with: someSample())
         sut.addLayer(for: .drums, with: someSample())
         sut.addLayer(forRecording: someRecordingData())
@@ -297,7 +320,7 @@ final class ProducerTests: XCTestCase {
     
     func test_setIsPlayingForLayerID_messagesPlayerWithPlayAndStopCommands() {
         
-        let (sut, player) = makeSUT()
+        let (sut, player, _) = makeSUT()
         let guitarSample = someSample()
         sut.addLayer(for: .guitar, with: guitarSample)
         let drumsSample = someSample()
@@ -321,7 +344,7 @@ final class ProducerTests: XCTestCase {
     
     func test_setIsMutedForLayerID_updateLayerState() {
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         sut.addLayer(for: .guitar, with: someSample())
         sut.addLayer(for: .drums, with: someSample())
         sut.addLayer(forRecording: someRecordingData())
@@ -338,7 +361,7 @@ final class ProducerTests: XCTestCase {
     
     func test_setIsMutedForLayerID_messagesPlayerWithPlayAndStopCommands() {
         
-        let (sut, player) = makeSUT()
+        let (sut, player, _) = makeSUT()
         let guitarSample = someSample()
         sut.addLayer(for: .guitar, with: guitarSample)
         sut.addLayer(for: .drums, with: someSample())
@@ -359,7 +382,7 @@ final class ProducerTests: XCTestCase {
     
     func test_deleteLayerID_removesLayerForID() {
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         sut.addLayer(for: .guitar, with: someSample())
         sut.addLayer(for: .drums, with: someSample())
         sut.addLayer(forRecording: someRecordingData())
@@ -377,7 +400,7 @@ final class ProducerTests: XCTestCase {
     
     func test_selectLayerID_doNothingOnIncorrectID() {
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         sut.addLayer(for: .guitar, with: someSample())
         sut.addLayer(for: .drums, with: someSample())
         sut.addLayer(forRecording: someRecordingData())
@@ -389,7 +412,7 @@ final class ProducerTests: XCTestCase {
     
     func test_selectLayerID_updatesActiveLayerForCorrectLayerID() {
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         sut.addLayer(for: .guitar, with: someSample())
         sut.addLayer(for: .drums, with: someSample())
         sut.addLayer(forRecording: someRecordingData())
@@ -399,14 +422,24 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(sut.active, sut.layers[0].id)
     }
     
+    func test_startRecording_messagesRecorder() {
+        
+        let (sut, _, recorder) = makeSUT()
+        
+        sut.startRecording()
+        
+        XCTAssertEqual(recorder.messages, [.startRecording])
+    }
+    
     //MARK: - Helpers
     
-    private func makeSUT() -> (sut: Producer, player: PlayerSpy) {
+    private func makeSUT() -> (sut: Producer, player: PlayerSpy, recorderSpy: RecorderSpy) {
         
         let player = PlayerSpy()
-        let sut = Producer(player: player)
+        let recorder = RecorderSpy()
+        let sut = Producer(player: player, recorder: recorder)
         
-        return (sut, player)
+        return (sut, player, recorder)
     }
     
     class PlayerSpy: Player {
@@ -429,6 +462,29 @@ final class ProducerTests: XCTestCase {
             
             messages.append(.stop(id))
             playing.remove(id)
+        }
+    }
+    
+    private class RecorderSpy: Recorder {
+        
+        private(set) var messages = [Message]()
+        private let recodingSubject = PassthroughSubject<Data, Error>()
+        
+        func startRecording() throws -> AnyPublisher<Data, Error> {
+            
+            messages.append(.startRecording)
+            return recodingSubject.eraseToAnyPublisher()
+        }
+        
+        func stopRecording() {
+            
+            messages.append(.stopRecoding)
+        }
+        
+        enum Message: Equatable {
+            
+            case startRecording
+            case stopRecoding
         }
     }
     
