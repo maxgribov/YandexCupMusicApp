@@ -95,7 +95,11 @@ final class Producer {
     
     func select(layerID: Layer.ID) {
         
+        guard layers.map(\.id).contains(layerID) else {
+            return
+        }
         
+        active = layerID
     }
     
     private func sampleLayerName(for instrument: Instrument) -> String {
@@ -288,6 +292,20 @@ final class ProducerTests: XCTestCase {
         
         XCTAssertEqual(sut.active, sut.layers[2].id)
     }
+    
+    func test_selectLayerID_updatesActiveLayerForCorrectLayerID() {
+        
+        let (sut, _) = makeSUT()
+        sut.addLayer(for: .guitar, with: someSample())
+        sut.addLayer(for: .drums, with: someSample())
+        sut.addLayer(forRecording: someRecordingData())
+        
+        sut.select(layerID: sut.layers[0].id)
+        
+        XCTAssertEqual(sut.active, sut.layers[0].id)
+    }
+    
+    //MARK: - Helpers
     
     private func makeSUT() -> (sut: Producer, player: PlayerSpy) {
         
