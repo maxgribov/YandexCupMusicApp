@@ -28,6 +28,7 @@ final class Producer {
     
     @Published private(set) var layers: [Layer]
     @Published private(set) var active: Layer.ID?
+    @Published private(set) var isPlayingAll: Bool
     let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
     private var payloads: [Layer.ID: Payload]
@@ -42,6 +43,7 @@ final class Producer {
         
         self.layers = []
         self.active = nil
+        self.isPlayingAll = false
         self.payloads = [:]
         self.player = player
         self.recorder = recorder
@@ -165,6 +167,33 @@ final class Producer {
     func stopRecording() {
         
         recorder.stopRecording()
+    }
+    
+    func set(isPlayingAll: Bool) {
+        
+        switch isPlayingAll {
+        case true:
+            var updated = [Layer]()
+            
+            for layer in layers {
+                
+                if layer.isMuted == false {
+                    
+                    var updatedLayer = layer
+                    updatedLayer.isPlaying = true
+                    updated.append(updatedLayer)
+                    
+                } else {
+                    
+                    updated.append(layer)
+                }
+            }
+            
+            layers = updated
+            
+        case false:
+            break
+        }
     }
     
     private func handleUpdate(layers: [Layer]) {
@@ -544,6 +573,22 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(player.messagesData, [recordedData])
     }
     
+    func test_setIsPlayingAllTrue_startPlayingAllNotMutedLayers() {
+        
+        let (sut, player, _) = makeSUT()
+        let guitarSample = someSample()
+        sut.addLayer(for: .guitar, with: guitarSample)
+        let drumsData = someSample()
+        sut.addLayer(for: .drums, with: drumsData)
+        sut.addLayer(forRecording: someRecordingData())
+        sut.set(isMuted: true, for: sut.layers[2].id)
+        
+        sut.set(isPlayingAll: true)
+        
+        XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control),
+                                         .play(sut.layers[1].id, drumsData.data, sut.layers[1].control)])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT
@@ -570,6 +615,7 @@ final class ProducerTests: XCTestCase {
         
         private (set) var playing = Set<Layer.ID>()
         private (set) var messages = [Message]()
+        
         var messagesData: [Data] {
             
             messages.compactMap { message in
