@@ -9,10 +9,11 @@ import XCTest
 import Samples
 import Combine
 
-final class SampleSelectorViewModel {
+final class SampleSelectorViewModel: ObservableObject {
     
     let items: [SampleItemViewModel]
     let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
+    @Published private(set) var isSampleLoading: Bool
     
     private let loadSample: () -> AnyPublisher<Sample, Error>
     private var cancellable: AnyCancellable?
@@ -21,6 +22,7 @@ final class SampleSelectorViewModel {
         
         self.items = items
         self.loadSample = loadSample
+        self.isSampleLoading = false
     }
     
     func itemDidSelected(for itemID: SampleItemViewModel.ID) {
@@ -78,6 +80,13 @@ final class SampleSelectorViewModelTests: XCTestCase {
         let sut = makeSUT(items: items)
         
         XCTAssertEqual(sut.items, items)
+    }
+    
+    func test_init_isSampleLoadingFalse() {
+        
+        let sut = makeSUT()
+        
+        XCTAssertFalse(sut.isSampleLoading)
     }
     
     func test_itemDidSelected_doesNotInformDelegateForWrongItemID() {
