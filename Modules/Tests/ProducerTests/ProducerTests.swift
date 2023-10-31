@@ -62,6 +62,27 @@ final class Producer {
         layers = updated
     }
     
+    func set(isMuted: Bool, for layerID: Layer.ID) {
+        
+        var updated = [Layer]()
+        
+        for layer in layers {
+            
+            if layer.id == layerID {
+                
+                var updatedLayer = layer
+                updatedLayer.isMuted = isMuted
+                updated.append(updatedLayer)
+                
+            } else {
+                
+                updated.append(layer)
+            }
+        }
+        
+        layers = updated
+    }
+    
     private func sampleLayerName(for instrument: Instrument) -> String {
         
         let currentLayersCount = payloads.values.compactMap(\.instrument).filter { $0 == instrument }.count
@@ -171,6 +192,23 @@ final class ProducerTests: XCTestCase {
         
         sut.set(isPlaying: false, for: sut.layers[1].id)
         XCTAssertEqual(sut.layers.map(\.isPlaying), [false, false, false])
+    }
+    
+    func test_setIsMutedForLayerID_updateLayerState() {
+        
+        let (sut, _) = makeSUT()
+        sut.addLayer(for: .guitar, with: someSample())
+        sut.addLayer(for: .drums, with: someSample())
+        sut.addLayer(forRecording: someRecordingData())
+        
+        sut.set(isMuted: true, for: sut.layers[0].id)
+        XCTAssertEqual(sut.layers.map(\.isMuted), [true, false, false])
+        
+        sut.set(isMuted: true, for: sut.layers[1].id)
+        XCTAssertEqual(sut.layers.map(\.isMuted), [true, true, false])
+        
+        sut.set(isMuted: false, for: sut.layers[1].id)
+        XCTAssertEqual(sut.layers.map(\.isMuted), [true, false, false])
     }
     
     private func makeSUT() -> (sut: Producer, player: PlayerSpy) {
