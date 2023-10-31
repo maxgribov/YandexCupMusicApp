@@ -30,7 +30,15 @@ final class SampleSelectorViewModel {
         }
         
         cancellable = loadSample()
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
+                
+                switch completion {
+                case .failure:
+                    self?.delegateActionSubject.send(.failedSelectSample(itemID))
+                    
+                case .finished:
+                    break
+                }
                 
             }, receiveValue: { sample in
                 
@@ -43,6 +51,7 @@ extension SampleSelectorViewModel {
     enum DelegateAction: Equatable {
         
         case sampleDidSelected(Sample)
+        case failedSelectSample(SampleID)
     }
 }
 
@@ -92,6 +101,21 @@ final class SampleSelectorViewModelTests: XCTestCase {
         XCTWaiter().wait(for: [], timeout: 0.01)
         
         XCTAssertTrue(isSubscribed)
+    }
+    
+    func test_itemDidSelected_informDelegateSampleSelectionFailForSampleLoadingError() {
+        
+        let loadSampleStub = PassthroughSubject<Sample, Error>()
+        let sut = makeSUT(loadSample: { loadSampleStub.eraseToAnyPublisher() })
+        
+        let selectedItem = sut.items[0]
+        sut.itemDidSelected(for: selectedItem.id)
+        XCTWaiter().wait(for: [], timeout: 0.01)
+        
+        expect(sut, delegateAction: .failedSelectSample(selectedItem.id), for: {
+            
+            loadSampleStub.send(completion: .failure(anyNSError()))
+        })
     }
     
     //MARK: - Helpers
@@ -145,5 +169,10 @@ final class SampleSelectorViewModelTests: XCTestCase {
         Just(Sample(id: "", data: Data()))
             .mapError{ _ in NSError(domain: "", code: 0) }
             .eraseToAnyPublisher()
+    }
+    
+    private func anyNSError() -> NSError {
+        
+        NSError(domain: "", code: 0)
     }
 }
