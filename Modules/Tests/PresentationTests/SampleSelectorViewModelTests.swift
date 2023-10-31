@@ -31,6 +31,7 @@ final class SampleSelectorViewModel: ObservableObject {
             return
         }
         
+        isSampleLoading = true
         cancellable = loadSample()
             .sink(receiveCompletion: {[weak self] completion in
                 
@@ -144,13 +145,22 @@ final class SampleSelectorViewModelTests: XCTestCase {
         })
     }
     
-    func test_isSampleLoading_falseOnWrongItemIDTapped() {
+    func test_isSampleLoading_falseOnWrongItemIDSelected() {
         
         let sut = makeSUT()
         
         sut.itemDidSelected(for: wrongItemID())
         
         XCTAssertFalse(sut.isSampleLoading)
+    }
+    
+    func test_isSampleLoading_trueOnCorrectItemSelected() {
+        
+        let sut = makeSUT()
+        
+        sut.itemDidSelected(for: sut.items[0].id)
+        
+        XCTAssertTrue(sut.isSampleLoading)
     }
     
     //MARK: - Helpers
