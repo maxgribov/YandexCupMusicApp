@@ -19,6 +19,7 @@ protocol Player {
 
 protocol Recorder {
     
+    func isRecording() -> AnyPublisher<Bool, Never>
     func startRecording() throws -> AnyPublisher<Data, Error>
     func stopRecording()
 }
@@ -27,7 +28,6 @@ final class Producer {
     
     @Published private(set) var layers: [Layer]
     @Published private(set) var active: Layer.ID?
-    @Published private(set) var isRecording: Bool
     let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
     private var payloads: [Layer.ID: Payload]
@@ -42,7 +42,6 @@ final class Producer {
         
         self.layers = []
         self.active = nil
-        self.isRecording = false
         self.payloads = [:]
         self.player = player
         self.recorder = recorder
@@ -130,6 +129,11 @@ final class Producer {
         active = layerID
     }
     
+    func isRecording() -> AnyPublisher<Bool, Never> {
+        
+        recorder.isRecording()
+    }
+    
     func startRecording() {
         
         do {
@@ -141,12 +145,9 @@ final class Producer {
                     
                     
                 })
-            isRecording = true
             
         } catch {
             
-            isRecording = false
-            recording = nil
             delegateActionSubject.send(.startRecordingFailed)
         }
     }
@@ -258,8 +259,9 @@ final class ProducerTests: XCTestCase {
     func test_init_isRecordingFalse() {
         
         let (sut, _, _) = makeSUT()
+        let isRecordingSpy = ValueSpy(sut.isRecording())
         
-        XCTAssertFalse(sut.isRecording)
+        XCTAssertEqual(isRecordingSpy.values, [false])
     }
     
     func test_init_doesNotMessagePlayer() {
@@ -471,21 +473,23 @@ final class ProducerTests: XCTestCase {
     func test_startRecording_setIsRecordingToFalseAndMessageDelegateOnFailure() {
         
         let sut = Producer(player: PlayerSpy(), recorder: AlwaysFailingRecorderStub())
+        let isRecordingSpy = ValueSpy(sut.isRecording())
         let delegateSpy = ValueSpy(sut.delegateActionSubject)
         
         sut.startRecording()
         
-        XCTAssertFalse(sut.isRecording)
+        XCTAssertEqual(isRecordingSpy.values, [false])
         XCTAssertEqual(delegateSpy.values, [.startRecordingFailed])
     }
     
     func test_startRecording_setIsRecodingToTrueOnSuccess() {
         
-        let (sut, _, _) = makeSUT()
-        
+        let (sut, _, _) = makeSUT()        
+        let isRecordingSpy = ValueSpy(sut.isRecording())
+
         sut.startRecording()
         
-        XCTAssertTrue(sut.isRecording)
+        XCTAssertEqual(isRecordingSpy.values, [false, true])
     }
     
     func test_stopRecording_messagesRecorder() {
@@ -546,16 +550,24 @@ final class ProducerTests: XCTestCase {
         
         private(set) var messages = [Message]()
         private let recodingSubject = PassthroughSubject<Data, Error>()
+        private let isRecordingSubject = CurrentValueSubject<Bool, Never>(false)
+        
+        func isRecording() -> AnyPublisher<Bool, Never> {
+            
+            isRecordingSubject.eraseToAnyPublisher()
+        }
         
         func startRecording() throws -> AnyPublisher<Data, Error> {
             
             messages.append(.startRecording)
+            isRecordingSubject.send(true)
             return recodingSubject.eraseToAnyPublisher()
         }
         
         func stopRecording() {
             
             messages.append(.stopRecoding)
+            isRecordingSubject.send(false)
         }
         
         enum Message: Equatable {
@@ -566,6 +578,11 @@ final class ProducerTests: XCTestCase {
     }
     
     private class AlwaysFailingRecorderStub: Recorder {
+        
+        func isRecording() -> AnyPublisher<Bool, Never> {
+            
+            Just(false).eraseToAnyPublisher()
+        }
         
         func startRecording() throws -> AnyPublisher<Data, Error> {
             
