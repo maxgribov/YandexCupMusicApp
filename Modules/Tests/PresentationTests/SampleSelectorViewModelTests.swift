@@ -7,41 +7,8 @@
 
 import XCTest
 import Samples
+import Presentation
 import Combine
-
-final class SampleSelectorViewModel {
-    
-    let buttons: [InstrumentButtonViewModel]
-    let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
-    
-    init(buttons: [InstrumentButtonViewModel]) {
-        
-        self.buttons = buttons
-    }
-    
-    func buttonDidTapped(for buttonID: InstrumentButtonViewModel.ID) {
-        
-        guard let buttonViewModel = buttons.first(where: { $0.id == buttonID }) else {
-            return
-        }
-        
-        delegateActionSubject.send(.instrumentDidSelected(buttonViewModel.instrument))
-    }
-}
-
-extension SampleSelectorViewModel {
-    
-    enum DelegateAction: Equatable {
-        
-        case instrumentDidSelected(Instrument)
-    }
-}
-
-struct InstrumentButtonViewModel: Identifiable, Equatable {
-    
-    var id: String { instrument.rawValue }
-    let instrument: Instrument
-}
 
 final class SampleSelectorViewModelTests: XCTestCase {
     

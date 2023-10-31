@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "8B94A250-1BBD-4151-80AB-C105BE995210",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "PresentationTests",
+        "name" : "PresentationTests"
+      }
+    }
+  ],
+  "version" : 1
+}

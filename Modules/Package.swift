@@ -10,13 +10,22 @@ let package = Package(
         .library(
             name: "Samples",
             targets: ["Samples"]),
+        .library(
+            name: "Presentation",
+            targets: ["Presentation"]),
     ],
     targets: [
         .target(
             name: "Samples",
             resources: [.process("Store/Resources"),]),
+        .target(
+            name: "Presentation",
+            dependencies: ["Samples"]),
         .testTarget(
             name: "SamplesTests",
             dependencies: ["Samples"]),
+        .testTarget(
+            name: "PresentationTests",
+            dependencies: ["Samples", "Presentation"]),
     ]
 )

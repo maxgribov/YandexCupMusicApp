@@ -35,6 +35,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7717EB242AF0F1C500C3FB34 /* Presentation.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = Presentation.xctestplan; path = Modules/Presentation.xctestplan; sourceTree = "<group>"; };
 		772EEF3E2AF00AEC0066F12C /* YandexCupMusicApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YandexCupMusicApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		772EEF412AF00AEC0066F12C /* YandexCupMusicAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppApp.swift; sourceTree = "<group>"; };
 		772EEF432AF00AEC0066F12C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -78,6 +79,7 @@
 		772EEF352AF00AEC0066F12C = {
 			isa = PBXGroup;
 			children = (
+				7717EB242AF0F1C500C3FB34 /* Presentation.xctestplan */,
 				772EEF6F2AF010EF0066F12C /* Samples.xctestplan */,
 				772EEF6E2AF00E5C0066F12C /* Modules */,
 				772EEF402AF00AEC0066F12C /* YandexCupMusicApp */,
