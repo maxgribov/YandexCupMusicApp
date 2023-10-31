@@ -15,10 +15,10 @@ final class SampleSelectorViewModel: ObservableObject {
     let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     @Published private(set) var isSampleLoading: Bool
     
-    private let loadSample: () -> AnyPublisher<Sample, Error>
+    private let loadSample: (SampleID) -> AnyPublisher<Sample, Error>
     private var cancellable: AnyCancellable?
     
-    init(items: [SampleItemViewModel], loadSample: @escaping () -> AnyPublisher<Sample, Error>) {
+    init(items: [SampleItemViewModel], loadSample: @escaping (SampleID) -> AnyPublisher<Sample, Error>) {
         
         self.items = items
         self.loadSample = loadSample
@@ -33,12 +33,12 @@ final class SampleSelectorViewModel: ObservableObject {
         }
         
         isSampleLoading = true
-        cancellable = loadSample()
+        cancellable = loadSample(item.id)
             .sink(receiveCompletion: {[weak self] completion in
                 
                 switch completion {
                 case .failure:
-                    self?.delegateActionSubject.send(.failedSelectSample(itemID))
+                    self?.delegateActionSubject.send(.failedSelectSample(item.id))
                     
                 case .finished:
                     break
@@ -107,7 +107,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
         let loadSampleSpy = PassthroughSubject<Sample, Error>()
             .handleEvents(receiveSubscription: { _ in isSubscribed = true })
             .eraseToAnyPublisher()
-        let sut = makeSUT(loadSample: { loadSampleSpy })
+        let sut = makeSUT(loadSample: { _ in loadSampleSpy })
         
         sut.itemDidSelected(for: sut.items[0].id)
         XCTWaiter().wait(for: [], timeout: 0.01)
@@ -118,7 +118,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
     func test_itemDidSelected_informDelegateSampleSelectionFailForSampleLoadingError() {
         
         let loadSampleStub = PassthroughSubject<Sample, Error>()
-        let sut = makeSUT(loadSample: { loadSampleStub.eraseToAnyPublisher() })
+        let sut = makeSUT(loadSample: { _ in loadSampleStub.eraseToAnyPublisher() })
         
         let selectedItem = sut.items[0]
         sut.itemDidSelected(for: selectedItem.id)
@@ -133,7 +133,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
     func test_itemDidSelected_informDelegateSampleSelectionForSuccessSampleLoading() {
         
         let loadSampleStub = PassthroughSubject<Sample, Error>()
-        let sut = makeSUT(loadSample: { loadSampleStub.eraseToAnyPublisher() })
+        let sut = makeSUT(loadSample: { _ in loadSampleStub.eraseToAnyPublisher() })
         
         let selectedItem = sut.items[0]
         sut.itemDidSelected(for: selectedItem.id)
@@ -170,7 +170,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
         let loadSampleSpy = PassthroughSubject<Sample, Error>()
             .handleEvents(receiveCancel: { isCancelled = true })
             .eraseToAnyPublisher()
-        let sut = makeSUT(loadSample: { loadSampleSpy })
+        let sut = makeSUT(loadSample: { _ in loadSampleSpy })
         
         sut.itemDidSelected(for: sut.items[0].id)
         XCTWaiter().wait(for: [], timeout: 0.01)
@@ -185,7 +185,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
     
     private func makeSUT(
         items: [SampleItemViewModel] = SampleSelectorViewModelTests.sampleItems(),
-        loadSample: @escaping () -> AnyPublisher<Sample, Error> = SampleSelectorViewModelTests.loadSampleDummy,
+        loadSample: @escaping (SampleID) -> AnyPublisher<Sample, Error> = SampleSelectorViewModelTests.loadSampleDummy,
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> SampleSelectorViewModel {
@@ -227,7 +227,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
         "wrong item id"
     }
     
-    private static func loadSampleDummy() -> AnyPublisher<Sample, Error> {
+    private static func loadSampleDummy(_ sampleID: SampleID) -> AnyPublisher<Sample, Error> {
         
         Just(Sample(id: "", data: Data()))
             .mapError{ _ in NSError(domain: "", code: 0) }
