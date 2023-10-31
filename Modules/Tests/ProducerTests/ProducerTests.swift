@@ -35,6 +35,33 @@ final class Producer {
         layers.append(layer)
     }
     
+    func set(isPlaying: Bool, for layerID: Layer.ID) {
+        
+        var updated = [Layer]()
+        
+        for layer in layers {
+            
+            if layer.id == layerID {
+                
+                var updatedLayer = layer
+                updatedLayer.isPlaying = isPlaying
+                updated.append(updatedLayer)
+                
+            } else if isPlaying == true, layer.isPlaying == true {
+                
+                var updatedLayer = layer
+                updatedLayer.isPlaying = false
+                updated.append(updatedLayer)
+                
+            } else {
+                
+                updated.append(layer)
+            }
+        }
+        
+        layers = updated
+    }
+    
     private func sampleLayerName(for instrument: Instrument) -> String {
         
         let currentLayersCount = payloads.values.compactMap(\.instrument).filter { $0 == instrument }.count
@@ -129,7 +156,22 @@ final class ProducerTests: XCTestCase {
                                     .init(id: thirdLayerID, name: "Запись 3", isPlaying: false, isMuted: false, control: .initial)])
     }
     
-
+    func test_setIsPlayingForLayerID_updatesLayersIsPlayingState(){
+        
+        let (sut, _) = makeSUT()
+        sut.addLayer(for: .guitar, with: someSample())
+        sut.addLayer(for: .drums, with: someSample())
+        sut.addLayer(forRecording: someRecordingData())
+        
+        sut.set(isPlaying: true, for: sut.layers[0].id)
+        XCTAssertEqual(sut.layers.map(\.isPlaying), [true, false, false])
+        
+        sut.set(isPlaying: true, for: sut.layers[1].id)
+        XCTAssertEqual(sut.layers.map(\.isPlaying), [false, true, false])
+        
+        sut.set(isPlaying: false, for: sut.layers[1].id)
+        XCTAssertEqual(sut.layers.map(\.isPlaying), [false, false, false])
+    }
     
     private func makeSUT() -> (sut: Producer, player: PlayerSpy) {
         
