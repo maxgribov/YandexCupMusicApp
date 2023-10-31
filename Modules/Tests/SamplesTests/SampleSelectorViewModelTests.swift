@@ -101,6 +101,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
     ) -> SampleSelectorViewModel {
         
         let sut = SampleSelectorViewModel(buttons: buttons)
+        trackForMemoryLeaks(sut)
         
         return sut
     }
