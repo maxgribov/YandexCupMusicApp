@@ -13,16 +13,38 @@ final class Producer {
     
     @Published private(set) var layers: [Layer]
     
-    init() { self.layers = [] }
+    init(player: ProducerTests.PlayerSpy) {
+        
+        self.layers = []
+    }
 }
 
 final class ProducerTests: XCTestCase {
 
     func test_init_emptyLayers() {
         
-        let sut = Producer()
+        let (sut, _) = makeSUT()
         
         XCTAssertTrue(sut.layers.isEmpty)
     }
-
+    
+    func test_init_doesNotMessagePlayer() {
+        
+        let (_, player) = makeSUT()
+        
+        XCTAssertTrue(player.messages.isEmpty)
+    }
+    
+    private func makeSUT() -> (sut: Producer, player: PlayerSpy) {
+        
+        let player = PlayerSpy()
+        let sut = Producer(player: player)
+        
+        return (sut, player)
+    }
+    
+    class PlayerSpy {
+        
+        var messages = [Any]()
+    }
 }
