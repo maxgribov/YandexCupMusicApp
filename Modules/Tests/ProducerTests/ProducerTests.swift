@@ -28,6 +28,7 @@ final class Producer {
         let layer = Layer(id: id, name: sampleLayerName(for: instrument), isPlaying: false, isMuted: false, control: .initial)
         payloads[layer.id] = .sample(instrument, sample)
         layers.append(layer)
+        active = layer.id
     }
     
     func addLayer(id: UUID = UUID(), forRecording data: Data) {
@@ -35,6 +36,7 @@ final class Producer {
         let layer = Layer(id: id, name: recordingLayerName(), isPlaying: false, isMuted: false, control: .initial)
         payloads[layer.id] = .recording(data)
         layers.append(layer)
+        active = layer.id
     }
     
     func set(isPlaying: Bool, for layerID: Layer.ID) {
@@ -174,6 +176,19 @@ final class ProducerTests: XCTestCase {
                                     .init(id: thirdLayerID, name: "Ударные 1", isPlaying: false, isMuted: false, control: .initial)])
     }
     
+    func test_addLayerForInstrumentWithSample_setNewLayerToActive() {
+        
+        let (sut, _) = makeSUT()
+        
+        let firstLayerID = UUID()
+        sut.addLayer(id: firstLayerID, for: .guitar, with: someSample())
+        XCTAssertEqual(sut.active, firstLayerID)
+        
+        let secondLayerID = UUID()
+        sut.addLayer(id: secondLayerID, for: .guitar, with: someSample())
+        XCTAssertEqual(sut.active, secondLayerID)
+    }
+    
     func test_addLayerForRecording_addsLayerWithCorrectPropertiesAndIncrementingNumber() {
         
         let (sut, _) = makeSUT()
@@ -190,6 +205,19 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(sut.layers, [.init(id: firstLayerID, name: "Запись 1", isPlaying: false, isMuted: false, control: .initial),
                                     .init(id: secondLayerID, name: "Запись 2", isPlaying: false, isMuted: false, control: .initial),
                                     .init(id: thirdLayerID, name: "Запись 3", isPlaying: false, isMuted: false, control: .initial)])
+    }
+    
+    func test_addLayerForRecording_setNewLayerToActive() {
+        
+        let (sut, _) = makeSUT()
+        
+        let firstLayerID = UUID()
+        sut.addLayer(id: firstLayerID, forRecording: someRecordingData())
+        XCTAssertEqual(sut.active, firstLayerID)
+        
+        let secondLayerID = UUID()
+        sut.addLayer(id: secondLayerID, forRecording: someRecordingData())
+        XCTAssertEqual(sut.active, secondLayerID)
     }
     
     func test_setIsPlayingForLayerID_updatesLayersIsPlayingState(){
