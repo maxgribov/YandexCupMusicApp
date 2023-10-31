@@ -40,6 +40,11 @@ final class LayerViewModel: Identifiable {
         isMuted.toggle()
         delegateActionSubject.send(.isMutedDidChanged(isMuted))
     }
+    
+    func deleteButtonDidTapped() {
+        
+        delegateActionSubject.send(.deleteLayer(id))
+    }
 }
 
 extension LayerViewModel {
@@ -48,6 +53,7 @@ extension LayerViewModel {
         
         case isPlayingDidChanged(Bool)
         case isMutedDidChanged(Bool)
+        case deleteLayer(Layer.ID)
     }
 }
 
@@ -124,6 +130,16 @@ final class LayerViewModelTests: XCTestCase {
         expect(sut, delegateAction: .isMutedDidChanged(true), for: {
             
             sut.muteButtonDidTapped()
+        })
+    }
+    
+    func test_deleteButtonDidTapped_informDelegateDeleteLayerWithID() {
+        
+        let sut = makeSUT()
+        
+        expect(sut, delegateAction: .deleteLayer(sut.id), for: {
+            
+            sut.deleteButtonDidTapped()
         })
     }
     
