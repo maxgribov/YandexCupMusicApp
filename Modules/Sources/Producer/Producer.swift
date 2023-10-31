@@ -88,6 +88,7 @@ public extension Producer {
         }
         
         layers = updated
+        isPlayingAll = false
     }
     
     func set(isMuted: Bool, for layerID: Layer.ID) {
