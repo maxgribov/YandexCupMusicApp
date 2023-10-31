@@ -64,17 +64,11 @@ final class SampleSelectorViewModelTests: XCTestCase {
     func test_buttonDidTapped_doesNotInformDelegateForWrongID() {
         
         let sut = makeSUT()
-
-        var receivedDelegateAction: SampleSelectorViewModel.DelegateAction? = nil
-        sut.delegateActionSubject
-            .sink { receivedDelegateAction = $0 }
-            .store(in: &cancellables)
         
-        sut.buttonDidTapped(for: wrongInstrumentButtonViewModelID())
-        
-        XCTWaiter().wait(for: [], timeout: 0.01)
-        
-        XCTAssertNil(receivedDelegateAction)
+        expect(sut, delegateAction: nil, for: {
+            
+            sut.buttonDidTapped(for: wrongInstrumentButtonViewModelID())
+        })
     }
     
     func test_buttonDidTapped_informDelegateInstrumentSelectedForInstrumentButtonID() {
@@ -82,16 +76,10 @@ final class SampleSelectorViewModelTests: XCTestCase {
         let sut = makeSUT()
         let selectedButton = sut.buttons[0]
         
-        var receivedDelegateAction: SampleSelectorViewModel.DelegateAction? = nil
-        sut.delegateActionSubject
-            .sink { receivedDelegateAction = $0 }
-            .store(in: &cancellables)
-        
-        sut.buttonDidTapped(for: selectedButton.id)
-        
-        XCTWaiter().wait(for: [], timeout: 0.01)
-        
-        XCTAssertEqual(receivedDelegateAction, .instrumentDidSelected(selectedButton.instrument))
+        expect(sut, delegateAction: .instrumentDidSelected(selectedButton.instrument), for: {
+            
+            sut.buttonDidTapped(for: selectedButton.id)
+        })
     }
 
     //MARK: - Helpers
@@ -104,6 +92,26 @@ final class SampleSelectorViewModelTests: XCTestCase {
         trackForMemoryLeaks(sut)
         
         return sut
+    }
+    
+    private func expect(
+        _ sut: SampleSelectorViewModel,
+        delegateAction expectedDelegateAction: SampleSelectorViewModel.DelegateAction?,
+        for action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        var receivedDelegateAction: SampleSelectorViewModel.DelegateAction? = nil
+        sut.delegateActionSubject
+            .sink { receivedDelegateAction = $0 }
+            .store(in: &cancellables)
+        
+        action()
+        
+        XCTWaiter().wait(for: [], timeout: 0.01)
+        
+        XCTAssertEqual(receivedDelegateAction, expectedDelegateAction, "Expected \(String(describing: expectedDelegateAction)), got \(String(describing: receivedDelegateAction)) instead", file: file, line: line)
     }
     
     private static func sampleButtons() -> [InstrumentButtonViewModel] {
