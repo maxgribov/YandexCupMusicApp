@@ -93,6 +93,18 @@ final class LayersControlViewModelTests: XCTestCase {
         XCTAssertEqual(sut.layers.map(\.isPlaying), [false, false, true])
     }
     
+    func test_isPlayingDidChangedToFalse_updateNothing() {
+        
+        let sut = makeSUT(initial: [makeLayerViewModel(isPlaying: false),
+                                    makeLayerViewModel(isPlaying: true),
+                                    makeLayerViewModel(isPlaying: false)])
+        
+        sut.layers[1].playButtonDidTaped()
+        
+        XCTAssertEqual(sut.layers.map(\.isPlaying), [false, false, false])
+        
+    }
+    
     private func makeSUT(
         initial layers: [LayerViewModel] = [],
         updates: AnyPublisher<[LayerViewModel], Never> = LayersControlViewModelTests.updatesDummy(),
