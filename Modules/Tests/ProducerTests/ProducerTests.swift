@@ -141,6 +141,7 @@ final class Producer {
                     
                     
                 })
+            isRecording = true
             
         } catch {
             
@@ -471,6 +472,15 @@ final class ProducerTests: XCTestCase {
         
         XCTAssertFalse(sut.isRecording)
         XCTAssertEqual(delegateSpy.values, [.startRecordingFailed])
+    }
+    
+    func test_startRecording_setIsRecodingToTrueOnSuccess() {
+        
+        let (sut, _, _) = makeSUT()
+        
+        sut.startRecording()
+        
+        XCTAssertTrue(sut.isRecording)
     }
     
     //MARK: - Helpers
