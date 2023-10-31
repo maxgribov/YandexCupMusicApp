@@ -13,6 +13,7 @@ import Combine
 final class LayersControlViewModel: ObservableObject {
     
     @Published var layers: [LayerViewModel]
+    let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
     private var bindings = Set<AnyCancellable>()
     private var layersDelegateBindings = Set<AnyCancellable>()
@@ -45,11 +46,8 @@ final class LayersControlViewModel: ObservableObject {
                 
                 switch delegateAction {
                 case let .isPlayingDidChanged(isPlaying):
-                    guard isPlaying == true else { return }
-                    layers
-                        .filter { $0.id != layer.id }
-                        .forEach { $0.update(isPlaying: false)}
-                    
+                    delegateActionSubject.send(.isPlayingDidChanged(layer.id, isPlaying))
+
                 default:
                     break
                 }
@@ -57,6 +55,15 @@ final class LayersControlViewModel: ObservableObject {
             }.store(in: &layersDelegateBindings)
     }
 }
+
+extension LayersControlViewModel {
+    
+    enum DelegateAction: Equatable {
+        
+        case isPlayingDidChanged(Layer.ID, Bool)
+    }
+}
+
 
 final class LayersControlViewModelTests: XCTestCase {
 
@@ -81,28 +88,17 @@ final class LayersControlViewModelTests: XCTestCase {
     }
     
     //MARK: - LayerViewModel integration
-    
-    func test_isPlayingDidChangedToTrue_otherLayersIsPlayingUpdateToFalse() {
+
+    func test_isPlayingDidChanged_informDelegateIsPlayingChangedForLayerWithID() {
         
         let sut = makeSUT(initial: [makeLayerViewModel(isPlaying: false),
                                     makeLayerViewModel(isPlaying: true),
                                     makeLayerViewModel(isPlaying: false)])
+        let delegateActionSpy = ValueSpy(sut.delegateActionSubject)
         
         sut.layers[2].playButtonDidTaped()
         
-        XCTAssertEqual(sut.layers.map(\.isPlaying), [false, false, true])
-    }
-    
-    func test_isPlayingDidChangedToFalse_updateNothing() {
-        
-        let sut = makeSUT(initial: [makeLayerViewModel(isPlaying: false),
-                                    makeLayerViewModel(isPlaying: true),
-                                    makeLayerViewModel(isPlaying: false)])
-        
-        sut.layers[1].playButtonDidTaped()
-        
-        XCTAssertEqual(sut.layers.map(\.isPlaying), [false, false, false])
-        
+        XCTAssertEqual(delegateActionSpy.values, [.isPlayingDidChanged(sut.layers[2].id, true)])
     }
     
     private func makeSUT(
