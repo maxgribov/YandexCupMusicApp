@@ -144,6 +144,15 @@ final class SampleSelectorViewModelTests: XCTestCase {
         })
     }
     
+    func test_isSampleLoading_falseOnWrongItemIDTapped() {
+        
+        let sut = makeSUT()
+        
+        sut.itemDidSelected(for: wrongItemID())
+        
+        XCTAssertFalse(sut.isSampleLoading)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
