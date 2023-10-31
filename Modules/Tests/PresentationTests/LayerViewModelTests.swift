@@ -14,19 +14,22 @@ final class LayerViewModel: Identifiable {
     let name: String
     @Published private(set) var isPlaying: Bool
     @Published private(set) var isMuted: Bool
+    @Published private(set) var isActive: Bool
+    
     let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
-    init(id: Layer.ID, name: String, isPlaying: Bool, isMuted: Bool) {
+    init(id: Layer.ID, name: String, isPlaying: Bool, isMuted: Bool, isActive: Bool) {
         
         self.id = id
         self.name = name
         self.isPlaying = isPlaying
         self.isMuted = isMuted
+        self.isActive = isActive
     }
     
-    convenience init(with layer: Layer) {
+    convenience init(with layer: Layer, isActive: Bool) {
         
-        self.init(id: layer.id, name: layer.name, isPlaying: layer.isPlaying, isMuted: layer.isMuted)
+        self.init(id: layer.id, name: layer.name, isPlaying: layer.isPlaying, isMuted: layer.isMuted, isActive: isActive)
     }
     
     func playButtonDidTaped() {
@@ -45,6 +48,11 @@ final class LayerViewModel: Identifiable {
         
         delegateActionSubject.send(.deleteLayer(id))
     }
+    
+    func selectDidTapped() {
+        
+        delegateActionSubject.send(.selectLayer(id))
+    }
 }
 
 extension LayerViewModel {
@@ -54,6 +62,7 @@ extension LayerViewModel {
         case isPlayingDidChanged(Bool)
         case isMutedDidChanged(Bool)
         case deleteLayer(Layer.ID)
+        case selectLayer(Layer.ID)
     }
 }
 
@@ -87,12 +96,13 @@ final class LayerViewModelTests: XCTestCase {
     func test_initWitLayer_correctlySetup() {
         
         let layer = Layer(id: UUID(), name: "some layer", isPlaying: true, isMuted: false, control: .init(volume: 0, speed: 0))
-        let sut = LayerViewModel(with: layer)
+        let sut = LayerViewModel(with: layer, isActive: true)
         
         XCTAssertEqual(sut.id, layer.id)
         XCTAssertEqual(sut.name, layer.name)
         XCTAssertEqual(sut.isPlaying, layer.isPlaying)
         XCTAssertEqual(sut.isMuted, layer.isMuted)
+        XCTAssertEqual(sut.isActive, true)
     }
     
     func test_playButtonDidTapped_togglesIsPlayingState() {
@@ -143,11 +153,21 @@ final class LayerViewModelTests: XCTestCase {
         })
     }
     
+    func test_selectDidTapped_informDelegateToSelectLayerWithID() {
+        
+        let sut = makeSUT()
+        
+        expect(sut, delegateAction: .selectLayer(sut.id), for: {
+            
+            sut.selectDidTapped()
+        })
+    }
+    
     //MARK: - Helpers
     
-    private func makeSUT(id: Layer.ID = UUID(), name: String = "", isPlaying: Bool = false, isMuted: Bool = false) -> LayerViewModel {
+    private func makeSUT(id: Layer.ID = UUID(), name: String = "", isPlaying: Bool = false, isMuted: Bool = false, isActive: Bool = true) -> LayerViewModel {
         
-        let sut = LayerViewModel(id: id, name: name, isPlaying: isPlaying, isMuted: isMuted)
+        let sut = LayerViewModel(id: id, name: name, isPlaying: isPlaying, isMuted: isMuted, isActive: isActive)
         
         return sut
     }
