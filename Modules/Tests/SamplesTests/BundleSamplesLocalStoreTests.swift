@@ -64,7 +64,7 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         let sut = makeSUT()
         let expectedFile = try firstFile(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "guitar")
         
-        expect(sut, retrieveSample: .success(Sample(name: expectedFile.name, data: expectedFile.data)), for: expectedFile.name)
+        expect(sut, retrieveSample: .success(Sample(id: expectedFile.name, data: expectedFile.data)), for: expectedFile.name)
     }
     
     //MARK: - Helpers

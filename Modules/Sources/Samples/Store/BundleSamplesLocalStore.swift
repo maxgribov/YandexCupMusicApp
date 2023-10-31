@@ -47,7 +47,7 @@ public final class BundleSamplesLocalStore {
                     return completion(.failure(Error.retrieveSampleFileFailed))
                 }
                 
-                completion(.success(Sample(name: sampleID, data: data)))
+                completion(.success(Sample(id: sampleID, data: data)))
             }
             
         } catch {
