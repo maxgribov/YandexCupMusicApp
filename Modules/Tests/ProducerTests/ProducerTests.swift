@@ -315,11 +315,13 @@ final class ProducerTests: XCTestCase {
         
         sut.set(isPlayingAll: true)
         
+        XCTAssertTrue(sut.isPlayingAll)
         XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control),
                                          .play(sut.layers[1].id, drumsData.data, sut.layers[1].control)])
         
         sut.set(isPlayingAll: false)
         
+        XCTAssertFalse(sut.isPlayingAll)
         XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control),
                                          .play(sut.layers[1].id, drumsData.data, sut.layers[1].control),
                                          .stop(sut.layers[0].id),

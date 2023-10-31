@@ -214,6 +214,7 @@ public extension Producer {
         }
         
         layers = updated
+        self.isPlayingAll = isPlayingAll
     }
 }
 
