@@ -65,14 +65,14 @@ final class SampleSelectorViewModelTests: XCTestCase {
     func test_init_itemsConstructorInjected() {
         
         let items = [SampleItemViewModel(id: "1", name: "sample 1")]
-        let sut = SampleSelectorViewModel(items: items, loadSample: loadSampleDummy)
+        let sut = makeSUT(items: items)
         
         XCTAssertEqual(sut.items, items)
     }
     
     func test_itemDidSelected_doesNotInformDelegateForWrongItemID() {
         
-        let sut = SampleSelectorViewModel(items: sampleItems(), loadSample: loadSampleDummy)
+        let sut = makeSUT()
         
         expect(sut, delegateAction: nil, for: {
             
@@ -86,17 +86,22 @@ final class SampleSelectorViewModelTests: XCTestCase {
         let loadSampleSpy = PassthroughSubject<Sample, Error>()
             .handleEvents(receiveSubscription: { _ in isSubscribed = true })
             .eraseToAnyPublisher()
-        let sut = SampleSelectorViewModel(items: sampleItems(), loadSample: { loadSampleSpy })
-        let selectedItem = sut.items[0]
+        let sut = makeSUT(loadSample: { loadSampleSpy })
         
-        sut.itemDidSelected(for: selectedItem.id)
-        
+        sut.itemDidSelected(for: sut.items[0].id)
         XCTWaiter().wait(for: [], timeout: 0.01)
         
         XCTAssertTrue(isSubscribed)
     }
     
     //MARK: - Helpers
+    
+    private func makeSUT(items: [SampleItemViewModel] = SampleSelectorViewModelTests.sampleItems(), loadSample: @escaping () -> AnyPublisher<Sample, Error> = SampleSelectorViewModelTests.loadSampleDummy) -> SampleSelectorViewModel {
+        
+        let sut = SampleSelectorViewModel(items: items, loadSample: loadSample)
+        
+        return sut
+    }
     
     private func expect(
         _ sut: SampleSelectorViewModel,
@@ -118,7 +123,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
         XCTAssertEqual(receivedDelegateAction, expectedDelegateAction, "Expected \(String(describing: expectedDelegateAction)), got \(String(describing: receivedDelegateAction)) instead", file: file, line: line)
     }
     
-    private func sampleItems() -> [SampleItemViewModel] {
+    private static func sampleItems() -> [SampleItemViewModel] {
         
         [.init(id: "1", name: "sample 1"),
          .init(id: "2", name: "sample 2"),
@@ -129,7 +134,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
         "wrong item id"
     }
     
-    private func loadSampleDummy() -> AnyPublisher<Sample, Error> {
+    private static func loadSampleDummy() -> AnyPublisher<Sample, Error> {
         
         Just(Sample(id: "", data: Data()))
             .mapError{ _ in NSError(domain: "", code: 0) }
