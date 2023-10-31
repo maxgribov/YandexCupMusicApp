@@ -26,6 +26,11 @@ final class LayerViewModel: Identifiable {
         
         self.init(id: layer.id, name: layer.name, isPlaying: layer.isPlaying, isMuted: layer.isMuted)
     }
+    
+    func playButtonDidTaped() {
+        
+        isPlaying.toggle()
+    }
 }
 
 struct Layer {
@@ -56,6 +61,24 @@ final class LayerViewModelTests: XCTestCase {
         XCTAssertEqual(sut.name, layer.name)
         XCTAssertEqual(sut.isPlaying, layer.isPlaying)
         XCTAssertEqual(sut.isMuted, layer.isMuted)
+    }
+    
+    func test_playButtonDidTapped_togglesIsPlayingState() {
+        
+        let sut = makeSUT(isPlaying: false)
+        
+        sut.playButtonDidTaped()
+        
+        XCTAssertEqual(sut.isPlaying, true)
+    }
+    
+    //MARK: - Helpers
+    
+    private func makeSUT(id: Layer.ID = UUID(), name: String = "", isPlaying: Bool = false, isMuted: Bool = false) -> LayerViewModel {
+        
+        let sut = LayerViewModel(id: id, name: name, isPlaying: isPlaying, isMuted: isMuted)
+        
+        return sut
     }
 
 }
