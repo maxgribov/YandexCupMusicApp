@@ -50,6 +50,9 @@ final class LayersControlViewModel: ObservableObject {
                     
                 case let .isMutedDidChanged(isMuted):
                     delegateActionSubject.send(.isMutedDidChanged(layer.id, isMuted))
+                    
+                case .deleteLayer:
+                    delegateActionSubject.send(.deleteLayer(layer.id))
 
                 default:
                     break
@@ -65,6 +68,7 @@ extension LayersControlViewModel {
         
         case isPlayingDidChanged(Layer.ID, Bool)
         case isMutedDidChanged(Layer.ID, Bool)
+        case deleteLayer(Layer.ID)
     }
 }
 
@@ -115,6 +119,18 @@ final class LayersControlViewModelTests: XCTestCase {
         sut.layers[1].muteButtonDidTapped()
         
         XCTAssertEqual(delegateActionSpy.values, [.isMutedDidChanged(sut.layers[1].id, false)])
+    }
+    
+    func test_deleteLayer_informDelegateDeleteLayerWithID() {
+        
+        let sut = makeSUT(initial: [makeLayerViewModel(),
+                                    makeLayerViewModel(),
+                                    makeLayerViewModel()])
+        let delegateActionSpy = ValueSpy(sut.delegateActionSubject)
+        
+        sut.layers[0].deleteButtonDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.deleteLayer(sut.layers[0].id)])
     }
     
     private func makeSUT(

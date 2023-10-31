@@ -47,7 +47,7 @@ public final class LayerViewModel: Identifiable, ObservableObject {
     
     public func deleteButtonDidTapped() {
         
-        delegateActionSubject.send(.deleteLayer(id))
+        delegateActionSubject.send(.deleteLayer)
     }
     
     public func selectDidTapped() {
@@ -72,7 +72,7 @@ public extension LayerViewModel {
         
         case isPlayingDidChanged(Bool)
         case isMutedDidChanged(Bool)
-        case deleteLayer(Layer.ID)
+        case deleteLayer
         case selectLayer(Layer.ID)
     }
 }

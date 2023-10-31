@@ -74,7 +74,7 @@ final class LayerViewModelTests: XCTestCase {
         
         let sut = makeSUT()
         
-        expect(sut, delegateAction: .deleteLayer(sut.id), for: {
+        expect(sut, delegateAction: .deleteLayer, for: {
             
             sut.deleteButtonDidTapped()
         })
