@@ -433,11 +433,22 @@ final class ProducerTests: XCTestCase {
     
     //MARK: - Helpers
     
-    private func makeSUT() -> (sut: Producer, player: PlayerSpy, recorderSpy: RecorderSpy) {
+    private func makeSUT
+    (
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (
+        sut: Producer,
+        player: PlayerSpy,
+        recorderSpy: RecorderSpy
+    ) {
         
         let player = PlayerSpy()
         let recorder = RecorderSpy()
         let sut = Producer(player: player, recorder: recorder)
+        trackForMemoryLeaks(player, file: file, line: line)
+        trackForMemoryLeaks(recorder, file: file, line: line)
+        trackForMemoryLeaks(sut, file: file, line: line)
         
         return (sut, player, recorder)
     }
