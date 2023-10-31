@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import Combine
 
 final class LayerViewModel: Identifiable {
 
@@ -13,6 +14,7 @@ final class LayerViewModel: Identifiable {
     let name: String
     @Published private(set) var isPlaying: Bool
     @Published private(set) var isMuted: Bool
+    let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
     init(id: Layer.ID, name: String, isPlaying: Bool, isMuted: Bool) {
         
@@ -30,6 +32,15 @@ final class LayerViewModel: Identifiable {
     func playButtonDidTaped() {
         
         isPlaying.toggle()
+        delegateActionSubject.send(.isPlayingDidChanged(isPlaying))
+    }
+}
+
+extension LayerViewModel {
+    
+    enum DelegateAction: Equatable {
+        
+        case isPlayingDidChanged(Bool)
     }
 }
 
@@ -51,6 +62,14 @@ struct Layer {
 }
 
 final class LayerViewModelTests: XCTestCase {
+    
+    var cancellables = Set<AnyCancellable>()
+    
+    override func setUp() async throws {
+        try await super.setUp()
+        
+        cancellables = []
+    }
 
     func test_initWitLayer_correctlySetup() {
         
@@ -72,6 +91,16 @@ final class LayerViewModelTests: XCTestCase {
         XCTAssertEqual(sut.isPlaying, true)
     }
     
+    func test_playButtonDidTapped_informDelegateIsPlayingDidChanged() {
+        
+        let sut = makeSUT(isPlaying: false)
+        
+        expect(sut, delegateAction: .isPlayingDidChanged(true), for: {
+            
+            sut.playButtonDidTaped()
+        })
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(id: Layer.ID = UUID(), name: String = "", isPlaying: Bool = false, isMuted: Bool = false) -> LayerViewModel {
@@ -81,4 +110,23 @@ final class LayerViewModelTests: XCTestCase {
         return sut
     }
 
+    private func expect(
+        _ sut: LayerViewModel,
+        delegateAction expectedDelegateAction: LayerViewModel.DelegateAction?,
+        for action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        var receivedDelegateAction: LayerViewModel.DelegateAction? = nil
+        sut.delegateActionSubject
+            .sink { receivedDelegateAction = $0 }
+            .store(in: &cancellables)
+        
+        action()
+        
+        XCTWaiter().wait(for: [], timeout: 0.01)
+        
+        XCTAssertEqual(receivedDelegateAction, expectedDelegateAction, "Expected \(String(describing: expectedDelegateAction)), got \(String(describing: receivedDelegateAction)) instead", file: file, line: line)
+    }
 }
