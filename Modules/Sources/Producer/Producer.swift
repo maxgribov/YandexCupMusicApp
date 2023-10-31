@@ -270,15 +270,16 @@ private extension Producer {
     
     func handleUpdate(layers: [Layer]) {
         
+        let layersPlaying = layers.filter { player.playing.contains($0.id) }
         let layersShouldPlay = layers.filter{ $0.isPlaying == true && $0.isMuted == false }
-        
-        for layerID in player.playing {
+    
+        for layer in layersPlaying {
             
-            guard layersShouldPlay.map(\.id).contains(layerID) == false else {
+            guard layersShouldPlay.map(\.id).contains(layer.id) == false else {
                 continue
             }
             
-            player.stop(id: layerID)
+            player.stop(id: layer.id)
         }
         
         for layer in layersShouldPlay {
