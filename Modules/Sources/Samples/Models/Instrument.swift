@@ -13,3 +13,16 @@ public enum Instrument: String, CaseIterable {
     case drums
     case brass
 }
+
+public extension Instrument {
+    
+    //TODO: localisation required
+    var name: String {
+        
+        switch self {
+        case .guitar: return "Гитара"
+        case .drums: return "Ударные"
+        case .brass: return "Духовые"
+        }
+    }
+}

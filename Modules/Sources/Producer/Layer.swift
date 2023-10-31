@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Layer {
+public struct Layer: Equatable {
 
     public typealias ID = UUID
     
@@ -28,7 +28,7 @@ public struct Layer {
 
 public extension Layer {
     
-    struct Control {
+    struct Control: Equatable {
 
         public let volume: Double
         public let speed: Double
@@ -38,5 +38,7 @@ public extension Layer {
             self.volume = volume
             self.speed = speed
         }
+        
+        public static let initial = Control(volume: 1.0, speed: 0.5)
     }
 }
