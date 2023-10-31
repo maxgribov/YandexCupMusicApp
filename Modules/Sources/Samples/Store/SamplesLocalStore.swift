@@ -9,7 +9,6 @@ import Foundation
 
 public protocol SamplesLocalStore {
     
-    typealias Result = Swift.Result<[Sample], Error>
-    
-    func retrieveSamples(for instrument: Instrument, completion: @escaping (Result) -> Void)
+    func retrieveSamplesIDs(for instrument: Instrument, complete: @escaping (Result<[SampleID], Swift.Error>) -> Void)
+    func retrieveSample(for sampleID: SampleID, completion: @escaping (Result<Sample, Swift.Error>) -> Void)
 }
