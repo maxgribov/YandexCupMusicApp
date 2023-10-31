@@ -83,6 +83,12 @@ final class Producer {
         layers = updated
     }
     
+    func delete(layerID: Layer.ID) {
+        
+        layers = layers.filter { $0.id != layerID }
+        payloads.removeValue(forKey: layerID)
+    }
+    
     private func sampleLayerName(for instrument: Instrument) -> String {
         
         let currentLayersCount = payloads.values.compactMap(\.instrument).filter { $0 == instrument }.count
@@ -209,6 +215,24 @@ final class ProducerTests: XCTestCase {
         
         sut.set(isMuted: false, for: sut.layers[1].id)
         XCTAssertEqual(sut.layers.map(\.isMuted), [true, false, false])
+    }
+    
+    func test_deleteLayerID_removesLayerForID() {
+        
+        let (sut, _) = makeSUT()
+        sut.addLayer(for: .guitar, with: someSample())
+        sut.addLayer(for: .drums, with: someSample())
+        sut.addLayer(forRecording: someRecordingData())
+        
+        var remainLayersIds = sut.layers.map(\.id)
+        
+        sut.delete(layerID: sut.layers[0].id)
+        remainLayersIds.removeFirst()
+        XCTAssertEqual(sut.layers.map(\.id), remainLayersIds)
+        
+        sut.delete(layerID: sut.layers[1].id)
+        remainLayersIds.removeLast()
+        XCTAssertEqual(sut.layers.map(\.id), remainLayersIds)
     }
     
     private func makeSUT() -> (sut: Producer, player: PlayerSpy) {
