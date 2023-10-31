@@ -177,6 +177,16 @@ final class LayerViewModelTests: XCTestCase {
         XCTAssertFalse(sut.isPlaying)
     }
     
+    func test_updateIsPlaying_doesNotInformDelegate() {
+        
+        let sut = makeSUT(isPlaying: true)
+        
+        expect(sut, delegateAction: nil, for: {
+            
+            sut.update(isPlaying: false)
+        })
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(id: Layer.ID = UUID(), name: String = "", isPlaying: Bool = false, isMuted: Bool = false, isActive: Bool = true) -> LayerViewModel {
