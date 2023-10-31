@@ -7,16 +7,54 @@
 
 import XCTest
 import Presentation
+import Samples
 import Combine
 
 final class LayersControlViewModel: ObservableObject {
     
     @Published var layers: [LayerViewModel]
     
+    private var bindings = Set<AnyCancellable>()
+    private var layersDelegateBindings = Set<AnyCancellable>()
+    
     init(initial layers: [LayerViewModel], updates: AnyPublisher<[LayerViewModel], Never>) {
         
         self.layers = layers
         updates.assign(to: &$layers)
+        
+        bind()
+    }
+    
+    private func bind() {
+        
+        $layers
+            .sink { [unowned self] layers in
+                
+                layersDelegateBindings = []
+                layers.forEach(bind(layer:))
+                
+            }.store(in: &bindings)
+    }
+    
+    private func bind(layer: LayerViewModel) {
+        
+        layer.delegateActionSubject
+            .sink { [weak self] delegateAction in
+                
+                guard let self else { return }
+                
+                switch delegateAction {
+                case let .isPlayingDidChanged(isPlaying):
+                    guard isPlaying == true else { return }
+                    layers
+                        .filter { $0.id != layer.id }
+                        .forEach { $0.update(isPlaying: false)}
+                    
+                default:
+                    break
+                }
+                
+            }.store(in: &layersDelegateBindings)
     }
 }
 
@@ -42,6 +80,19 @@ final class LayersControlViewModelTests: XCTestCase {
         XCTAssertEqual(layersSpy.values, [[], updatedLayers])
     }
     
+    //MARK: - LayerViewModel integration
+    
+    func test_isPlayingDidChangedToTrue_otherLayersIsPlayingUpdateToFalse() {
+        
+        let sut = makeSUT(initial: [makeLayerViewModel(isPlaying: false),
+                                    makeLayerViewModel(isPlaying: true),
+                                    makeLayerViewModel(isPlaying: false)])
+        
+        sut.layers[2].playButtonDidTaped()
+        
+        XCTAssertEqual(sut.layers.map(\.isPlaying), [false, false, true])
+    }
+    
     private func makeSUT(
         initial layers: [LayerViewModel] = [],
         updates: AnyPublisher<[LayerViewModel], Never> = LayersControlViewModelTests.updatesDummy(),
@@ -63,6 +114,11 @@ final class LayersControlViewModelTests: XCTestCase {
     private func someLayerViewModel() -> LayerViewModel {
         
         .init(id: UUID(), name: "some layer", isPlaying: true, isMuted: false, isActive: true)
+    }
+    
+    private func makeLayerViewModel(id: Layer.ID = UUID(), name: String = "", isPlaying: Bool = false, isMuted: Bool = false, isActive: Bool = false) -> LayerViewModel {
+        
+        .init(id: id, name: name, isPlaying: isPlaying, isMuted: isMuted, isActive: isActive)
     }
 }
 
