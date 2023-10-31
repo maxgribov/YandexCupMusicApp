@@ -99,6 +99,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
     private func makeSUT(items: [SampleItemViewModel] = SampleSelectorViewModelTests.sampleItems(), loadSample: @escaping () -> AnyPublisher<Sample, Error> = SampleSelectorViewModelTests.loadSampleDummy) -> SampleSelectorViewModel {
         
         let sut = SampleSelectorViewModel(items: items, loadSample: loadSample)
+        trackForMemoryLeaks(sut)
         
         return sut
     }
