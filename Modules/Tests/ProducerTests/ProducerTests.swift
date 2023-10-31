@@ -151,9 +151,9 @@ final class Producer {
                     
                     self?.recording = nil
                     
-                }, receiveValue: { data in
+                }, receiveValue: {[weak self] data in
                     
-                    
+                    self?.addLayer(forRecording: data)
                 })
             
         } catch {
@@ -526,6 +526,24 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(delegateSpy.values, [.recordingFailed])
     }
     
+    func test_stopRecording_addNewRecordingLayerOnSuccess() {
+        
+        let (sut, player, recorder) = makeSUT()
+        let isRecordingSpy = ValueSpy(sut.isRecording())
+        sut.startRecording()
+        
+        sut.stopRecording()
+        let recordedData = Data()
+        recorder.recodingSubject.send(recordedData)
+        recorder.recodingSubject.send(completion: .finished)
+        
+        XCTAssertEqual(isRecordingSpy.values, [false, true, false])
+        XCTAssertEqual(sut.layers.first?.name, "Запись 1")
+        
+        sut.set(isPlaying: true, for: sut.layers[0].id)
+        XCTAssertEqual(player.messagesData, [recordedData])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT
@@ -551,7 +569,18 @@ final class ProducerTests: XCTestCase {
     class PlayerSpy: Player {
         
         private (set) var playing = Set<Layer.ID>()
-        var messages = [Message]()
+        private (set) var messages = [Message]()
+        var messagesData: [Data] {
+            
+            messages.compactMap { message in
+                
+                guard case .play(_, let data, _) = message else {
+                    return nil
+                }
+                
+                return data
+            }
+        }
         
         enum Message: Equatable {
             case play(Layer.ID, Data, Layer.Control)
