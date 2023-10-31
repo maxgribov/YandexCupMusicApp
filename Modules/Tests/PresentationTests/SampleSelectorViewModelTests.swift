@@ -30,7 +30,7 @@ final class SampleSelectorViewModel {
         }
         
         cancellable = loadSample()
-            .sink(receiveCompletion: { [weak self] completion in
+            .sink(receiveCompletion: {[weak self] completion in
                 
                 switch completion {
                 case .failure:
@@ -40,8 +40,9 @@ final class SampleSelectorViewModel {
                     break
                 }
                 
-            }, receiveValue: { sample in
+            }, receiveValue: {[weak self] sample in
                 
+                self?.delegateActionSubject.send(.sampleDidSelected(sample))
             })
     }
 }
@@ -118,6 +119,22 @@ final class SampleSelectorViewModelTests: XCTestCase {
         })
     }
     
+    func test_itemDidSelected_informDelegateSampleSelectionForSuccessSampleLoading() {
+        
+        let loadSampleStub = PassthroughSubject<Sample, Error>()
+        let sut = makeSUT(loadSample: { loadSampleStub.eraseToAnyPublisher() })
+        
+        let selectedItem = sut.items[0]
+        sut.itemDidSelected(for: selectedItem.id)
+        XCTWaiter().wait(for: [], timeout: 0.01)
+        
+        let loadedSample = anySample()
+        expect(sut, delegateAction: .sampleDidSelected(loadedSample), for: {
+            
+            loadSampleStub.send(loadedSample)
+        })
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -174,5 +191,10 @@ final class SampleSelectorViewModelTests: XCTestCase {
     private func anyNSError() -> NSError {
         
         NSError(domain: "", code: 0)
+    }
+    
+    private func anySample() -> Sample {
+        
+        Sample(id: "123", data: Data("sample-data".utf8))
     }
 }
