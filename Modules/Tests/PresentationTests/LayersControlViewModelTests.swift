@@ -47,6 +47,9 @@ final class LayersControlViewModel: ObservableObject {
                 switch delegateAction {
                 case let .isPlayingDidChanged(isPlaying):
                     delegateActionSubject.send(.isPlayingDidChanged(layer.id, isPlaying))
+                    
+                case let .isMutedDidChanged(isMuted):
+                    delegateActionSubject.send(.isMutedDidChanged(layer.id, isMuted))
 
                 default:
                     break
@@ -61,6 +64,7 @@ extension LayersControlViewModel {
     enum DelegateAction: Equatable {
         
         case isPlayingDidChanged(Layer.ID, Bool)
+        case isMutedDidChanged(Layer.ID, Bool)
     }
 }
 
@@ -99,6 +103,18 @@ final class LayersControlViewModelTests: XCTestCase {
         sut.layers[2].playButtonDidTaped()
         
         XCTAssertEqual(delegateActionSpy.values, [.isPlayingDidChanged(sut.layers[2].id, true)])
+    }
+    
+    func test_isMutedDidChanged_informDelegateIsMutedChangedForLayerWithID() {
+        
+        let sut = makeSUT(initial: [makeLayerViewModel(isMuted: false),
+                                    makeLayerViewModel(isMuted: true),
+                                    makeLayerViewModel(isMuted: false)])
+        let delegateActionSpy = ValueSpy(sut.delegateActionSubject)
+        
+        sut.layers[1].muteButtonDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.isMutedDidChanged(sut.layers[1].id, false)])
     }
     
     private func makeSUT(
