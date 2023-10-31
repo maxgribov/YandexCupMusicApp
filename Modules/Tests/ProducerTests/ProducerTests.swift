@@ -171,9 +171,10 @@ final class Producer {
     
     func set(isPlayingAll: Bool) {
         
+        var updated = [Layer]()
+        
         switch isPlayingAll {
         case true:
-            var updated = [Layer]()
             
             for layer in layers {
                 
@@ -188,12 +189,26 @@ final class Producer {
                     updated.append(layer)
                 }
             }
-            
-            layers = updated
-            
+
         case false:
+            
+            for layer in layers {
+                
+                if layer.isPlaying == true {
+                    
+                    var updatedLayer = layer
+                    updatedLayer.isPlaying = false
+                    updated.append(updatedLayer)
+                    
+                } else {
+                    
+                    updated.append(layer)
+                }
+            }
             break
         }
+        
+        layers = updated
     }
     
     private func handleUpdate(layers: [Layer]) {
@@ -573,7 +588,7 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(player.messagesData, [recordedData])
     }
     
-    func test_setIsPlayingAllTrue_startPlayingAllNotMutedLayers() {
+    func test_setIsPlayingAll_startPlayingAllNotMutedLayersAndStopsPlayingAllLayer() {
         
         let (sut, player, _) = makeSUT()
         let guitarSample = someSample()
@@ -587,8 +602,14 @@ final class ProducerTests: XCTestCase {
         
         XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control),
                                          .play(sut.layers[1].id, drumsData.data, sut.layers[1].control)])
+        
+        sut.set(isPlayingAll: false)
+        
+        XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control),
+                                         .play(sut.layers[1].id, drumsData.data, sut.layers[1].control),
+                                         .stop(sut.layers[0].id),
+                                         .stop(sut.layers[1].id)])
     }
-    
     //MARK: - Helpers
     
     private func makeSUT
