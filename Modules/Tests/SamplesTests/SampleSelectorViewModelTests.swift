@@ -50,15 +50,14 @@ final class SampleSelectorViewModelTests: XCTestCase {
     func test_init_buttonsConstructorInjected() {
         
         let buttons: [InstrumentButtonViewModel] = [.init(instrument: .guitar)]
-        let sut = SampleSelectorViewModel(buttons: buttons)
+        let sut = makeSUT(buttons: buttons)
         
         XCTAssertEqual(sut.buttons, buttons)
     }
     
     func test_buttonDidTapped_doesNotInformDelegateForWrongID() {
         
-        let buttons: [InstrumentButtonViewModel] = [.init(instrument: .guitar)]
-        let sut = SampleSelectorViewModel(buttons: buttons)
+        let sut = makeSUT()
 
         var receivedDelegateAction: SampleSelectorViewModel.DelegateAction? = nil
         sut.delegateActionSubject
@@ -73,6 +72,20 @@ final class SampleSelectorViewModelTests: XCTestCase {
     }
 
     //MARK: - Helpers
+    
+    private func makeSUT(
+        buttons: [InstrumentButtonViewModel] = SampleSelectorViewModelTests.sampleButtons()
+    ) -> SampleSelectorViewModel {
+        
+        let sut = SampleSelectorViewModel(buttons: buttons)
+        
+        return sut
+    }
+    
+    private static func sampleButtons() -> [InstrumentButtonViewModel] {
+        
+        Instrument.allCases.map(InstrumentButtonViewModel.init)
+    }
     
     private func wrongInstrumentButtonViewModelID() -> InstrumentButtonViewModel.ID {
         "wrong id"

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum Instrument: String {
+public enum Instrument: String, CaseIterable {
     
     case guitar
     case drums
