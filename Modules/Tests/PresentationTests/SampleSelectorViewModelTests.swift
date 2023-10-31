@@ -14,14 +14,27 @@ final class SampleSelectorViewModel {
     let items: [SampleItemViewModel]
     let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
-    init(items: [SampleItemViewModel]) {
+    private let loadSample: () -> AnyPublisher<Sample, Error>
+    private var cancellable: AnyCancellable?
+    
+    init(items: [SampleItemViewModel], loadSample: @escaping () -> AnyPublisher<Sample, Error>) {
         
         self.items = items
+        self.loadSample = loadSample
     }
     
     func itemDidSelected(for itemID: SampleItemViewModel.ID) {
         
+        guard let item = items.first(where: { $0.id == itemID }) else {
+            return
+        }
         
+        cancellable = loadSample()
+            .sink(receiveCompletion: { completion in
+                
+            }, receiveValue: { sample in
+                
+            })
     }
 }
 
@@ -29,7 +42,7 @@ extension SampleSelectorViewModel {
     
     enum DelegateAction: Equatable {
         
-        case sampleDidSelected(SampleID)
+        case sampleDidSelected(Sample)
     }
 }
 
@@ -52,19 +65,35 @@ final class SampleSelectorViewModelTests: XCTestCase {
     func test_init_itemsConstructorInjected() {
         
         let items = [SampleItemViewModel(id: "1", name: "sample 1")]
-        let sut = SampleSelectorViewModel(items: items)
+        let sut = SampleSelectorViewModel(items: items, loadSample: loadSampleDummy)
         
         XCTAssertEqual(sut.items, items)
     }
     
     func test_itemDidSelected_doesNotInformDelegateForWrongItemID() {
         
-        let sut = SampleSelectorViewModel(items: sampleItems())
+        let sut = SampleSelectorViewModel(items: sampleItems(), loadSample: loadSampleDummy)
         
         expect(sut, delegateAction: nil, for: {
             
             sut.itemDidSelected(for: wrongItemID())
         })
+    }
+    
+    func test_itemDidSelected_startSampleLoadingForCorrectID() {
+        
+        var isSubscribed: Bool = false
+        let loadSampleSpy = PassthroughSubject<Sample, Error>()
+            .handleEvents(receiveSubscription: { _ in isSubscribed = true })
+            .eraseToAnyPublisher()
+        let sut = SampleSelectorViewModel(items: sampleItems(), loadSample: { loadSampleSpy })
+        let selectedItem = sut.items[0]
+        
+        sut.itemDidSelected(for: selectedItem.id)
+        
+        XCTWaiter().wait(for: [], timeout: 0.01)
+        
+        XCTAssertTrue(isSubscribed)
     }
     
     //MARK: - Helpers
@@ -98,5 +127,12 @@ final class SampleSelectorViewModelTests: XCTestCase {
     
     private func wrongItemID() -> SampleItemViewModel.ID {
         "wrong item id"
+    }
+    
+    private func loadSampleDummy() -> AnyPublisher<Sample, Error> {
+        
+        Just(Sample(id: "", data: Data()))
+            .mapError{ _ in NSError(domain: "", code: 0) }
+            .eraseToAnyPublisher()
     }
 }
