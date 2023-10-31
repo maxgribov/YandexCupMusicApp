@@ -27,7 +27,8 @@ final class SampleSelectorViewModel: ObservableObject {
     
     func itemDidSelected(for itemID: SampleItemViewModel.ID) {
         
-        guard let item = items.first(where: { $0.id == itemID }) else {
+        guard let item = items.first(where: { $0.id == itemID }),
+              isSampleLoading == false else {
             return
         }
         
@@ -161,6 +162,23 @@ final class SampleSelectorViewModelTests: XCTestCase {
         sut.itemDidSelected(for: sut.items[0].id)
         
         XCTAssertTrue(sut.isSampleLoading)
+    }
+    
+    func test_itemDidSelected_ignoreIfSampleAlreadyLoading() {
+        
+        var isCancelled: Bool = false
+        let loadSampleSpy = PassthroughSubject<Sample, Error>()
+            .handleEvents(receiveCancel: { isCancelled = true })
+            .eraseToAnyPublisher()
+        let sut = makeSUT(loadSample: { loadSampleSpy })
+        
+        sut.itemDidSelected(for: sut.items[0].id)
+        XCTWaiter().wait(for: [], timeout: 0.01)
+        
+        sut.itemDidSelected(for: sut.items[1].id)
+        XCTWaiter().wait(for: [], timeout: 0.01)
+        
+        XCTAssertFalse(isCancelled)
     }
     
     //MARK: - Helpers
