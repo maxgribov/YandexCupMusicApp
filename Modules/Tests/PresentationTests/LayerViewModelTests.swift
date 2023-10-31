@@ -38,6 +38,7 @@ final class LayerViewModel: Identifiable {
     func muteButtonDidTapped() {
         
         isMuted.toggle()
+        delegateActionSubject.send(.isMutedDidChanged(isMuted))
     }
 }
 
@@ -46,6 +47,7 @@ extension LayerViewModel {
     enum DelegateAction: Equatable {
         
         case isPlayingDidChanged(Bool)
+        case isMutedDidChanged(Bool)
     }
 }
 
@@ -113,6 +115,16 @@ final class LayerViewModelTests: XCTestCase {
         sut.muteButtonDidTapped()
         
         XCTAssertTrue(sut.isMuted)
+    }
+    
+    func test_muteButtonDidTapped_informsDelegateIsMutedDidChanged() {
+        
+        let sut = makeSUT(isMuted: false)
+        
+        expect(sut, delegateAction: .isMutedDidChanged(true), for: {
+            
+            sut.muteButtonDidTapped()
+        })
     }
     
     //MARK: - Helpers
