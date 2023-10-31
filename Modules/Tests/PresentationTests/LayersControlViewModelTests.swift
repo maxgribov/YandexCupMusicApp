@@ -16,9 +16,7 @@ final class LayersControlViewModel: ObservableObject {
     init(initial layers: [LayerViewModel], updates: AnyPublisher<[LayerViewModel], Never>) {
         
         self.layers = layers
-        
-        updates
-            .assign(to: &$layers)
+        updates.assign(to: &$layers)
     }
 }
 
@@ -27,12 +25,37 @@ final class LayersControlViewModelTests: XCTestCase {
     func test_init_setupInitialLayers() {
         
         let initialLayers = [someLayerViewModel()]
-        let sut = LayersControlViewModel(initial: initialLayers, updates: updatesDummy())
+        let sut = makeSUT(initial: initialLayers)
         
         XCTAssertEqual(sut.layers, initialLayers)
     }
     
-    private func updatesDummy() -> AnyPublisher<[LayerViewModel], Never> {
+    func test_updates_correctlyUpdatesLayers() {
+        
+        let updatesStub = PassthroughSubject<[LayerViewModel], Never>()
+        let sut = makeSUT(updates: updatesStub.eraseToAnyPublisher())
+        let layersSpy = ValueSpy(sut.$layers)
+        
+        let updatedLayers = [someLayerViewModel()]
+        updatesStub.send(updatedLayers)
+        
+        XCTAssertEqual(layersSpy.values, [[], updatedLayers])
+    }
+    
+    private func makeSUT(
+        initial layers: [LayerViewModel] = [],
+        updates: AnyPublisher<[LayerViewModel], Never> = LayersControlViewModelTests.updatesDummy(),
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> LayersControlViewModel {
+        
+        let sut = LayersControlViewModel(initial: layers, updates: updates)
+        trackForMemoryLeaks(sut, file: file, line: line)
+        
+        return sut
+    }
+    
+    private static func updatesDummy() -> AnyPublisher<[LayerViewModel], Never> {
         
         PassthroughSubject<[LayerViewModel], Never>().eraseToAnyPublisher()
     }
