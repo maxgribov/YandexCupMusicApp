@@ -7,64 +7,8 @@
 
 import XCTest
 import Samples
+import Presentation
 import Combine
-
-final class SampleSelectorViewModel: ObservableObject {
-    
-    let items: [SampleItemViewModel]
-    let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
-    @Published private(set) var isSampleLoading: Bool
-    
-    private let loadSample: (Sample.ID) -> AnyPublisher<Sample, Error>
-    private var cancellable: AnyCancellable?
-    
-    init(items: [SampleItemViewModel], loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error>) {
-        
-        self.items = items
-        self.loadSample = loadSample
-        self.isSampleLoading = false
-    }
-    
-    func itemDidSelected(for itemID: SampleItemViewModel.ID) {
-        
-        guard let item = items.first(where: { $0.id == itemID }),
-              isSampleLoading == false else {
-            return
-        }
-        
-        isSampleLoading = true
-        cancellable = loadSample(item.id)
-            .sink(receiveCompletion: {[weak self] completion in
-                
-                switch completion {
-                case .failure:
-                    self?.delegateActionSubject.send(.failedSelectSample(item.id))
-                    
-                case .finished:
-                    break
-                }
-                
-            }, receiveValue: {[weak self] sample in
-                
-                self?.delegateActionSubject.send(.sampleDidSelected(sample))
-            })
-    }
-}
-
-extension SampleSelectorViewModel {
-    
-    enum DelegateAction: Equatable {
-        
-        case sampleDidSelected(Sample)
-        case failedSelectSample(Sample.ID)
-    }
-}
-
-struct SampleItemViewModel: Identifiable, Equatable {
-    
-    let id: Sample.ID
-    let name: String
-}
 
 final class SampleSelectorViewModelTests: XCTestCase {
     
