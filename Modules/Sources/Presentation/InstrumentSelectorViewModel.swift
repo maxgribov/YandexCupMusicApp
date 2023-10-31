@@ -1,5 +1,5 @@
 //
-//  SampleSelectorViewModel.swift
+//  InstrumentSelectorViewModel.swift
 //  
 //
 //  Created by Max Gribov on 31.10.2023.
@@ -9,7 +9,7 @@ import Foundation
 import Samples
 import Combine
 
-public final class SampleSelectorViewModel {
+public final class InstrumentSelectorViewModel {
     
     public let buttons: [InstrumentButtonViewModel]
     public let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
@@ -29,7 +29,7 @@ public final class SampleSelectorViewModel {
     }
 }
 
-public extension SampleSelectorViewModel {
+public extension InstrumentSelectorViewModel {
     
     enum DelegateAction: Equatable {
         

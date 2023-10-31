@@ -1,5 +1,5 @@
 //
-//  SampleSelectorViewModelTests.swift
+//  InstrumentSelectorViewModelTests.swift
 //  
 //
 //  Created by Max Gribov on 31.10.2023.
@@ -10,7 +10,7 @@ import Samples
 import Presentation
 import Combine
 
-final class SampleSelectorViewModelTests: XCTestCase {
+final class InstrumentSelectorViewModelTests: XCTestCase {
     
     var cancellables = Set<AnyCancellable>()
     
@@ -52,24 +52,24 @@ final class SampleSelectorViewModelTests: XCTestCase {
     //MARK: - Helpers
     
     private func makeSUT(
-        buttons: [InstrumentButtonViewModel] = SampleSelectorViewModelTests.sampleButtons()
-    ) -> SampleSelectorViewModel {
+        buttons: [InstrumentButtonViewModel] = InstrumentSelectorViewModelTests.sampleButtons()
+    ) -> InstrumentSelectorViewModel {
         
-        let sut = SampleSelectorViewModel(buttons: buttons)
+        let sut = InstrumentSelectorViewModel(buttons: buttons)
         trackForMemoryLeaks(sut)
         
         return sut
     }
     
     private func expect(
-        _ sut: SampleSelectorViewModel,
-        delegateAction expectedDelegateAction: SampleSelectorViewModel.DelegateAction?,
+        _ sut: InstrumentSelectorViewModel,
+        delegateAction expectedDelegateAction: InstrumentSelectorViewModel.DelegateAction?,
         for action: () -> Void,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
         
-        var receivedDelegateAction: SampleSelectorViewModel.DelegateAction? = nil
+        var receivedDelegateAction: InstrumentSelectorViewModel.DelegateAction? = nil
         sut.delegateActionSubject
             .sink { receivedDelegateAction = $0 }
             .store(in: &cancellables)
