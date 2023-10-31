@@ -53,6 +53,11 @@ final class LayerViewModel: Identifiable {
         
         delegateActionSubject.send(.selectLayer(id))
     }
+    
+    func update(isPlaying: Bool) {
+        
+        self.isPlaying = isPlaying
+    }
 }
 
 extension LayerViewModel {
@@ -161,6 +166,15 @@ final class LayerViewModelTests: XCTestCase {
             
             sut.selectDidTapped()
         })
+    }
+    
+    func test_updateIsPlaying_updatesIsPlayingState() {
+        
+        let sut = makeSUT(isPlaying: true)
+        
+        sut.update(isPlaying: false)
+        
+        XCTAssertFalse(sut.isPlaying)
     }
     
     //MARK: - Helpers
