@@ -13,11 +13,13 @@ import Producer
 final class Producer {
     
     @Published private(set) var layers: [Layer]
+    @Published private(set) var active: Layer.ID?
     private var payloads: [Layer.ID: Payload]
     
     init(player: ProducerTests.PlayerSpy) {
         
         self.layers = []
+        self.active = nil
         self.payloads = [:]
     }
     
@@ -138,6 +140,13 @@ final class ProducerTests: XCTestCase {
         let (sut, _) = makeSUT()
         
         XCTAssertTrue(sut.layers.isEmpty)
+    }
+    
+    func test_init_activeLayerIsNil() {
+        
+        let (sut, _) = makeSUT()
+        
+        XCTAssertNil(sut.active)
     }
     
     func test_init_doesNotMessagePlayer() {
