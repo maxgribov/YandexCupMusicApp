@@ -83,7 +83,7 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     
     private func expect(
         _ sut: BundleSamplesLocalStore,
-        retrieveSamplesIDsResult expectedResult: Result<[SampleID], Error>,
+        retrieveSamplesIDsResult expectedResult: Result<[Sample.ID], Error>,
         for instrument: Instrument,
         file: StaticString = #filePath,
         line: UInt = #line
@@ -112,7 +112,7 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     private func expect(
         _ sut: BundleSamplesLocalStore,
         retrieveSample expectedResult: Result<Sample, Error>,
-        for sampleID: SampleID,
+        for sampleID: Sample.ID,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -168,11 +168,11 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         Bundle()
     }
     
-    private func anySampleID() -> SampleID {
+    private func anySampleID() -> Sample.ID {
         "any-sample-file-name"
     }
     
-    private func notExistingSampleID() -> SampleID {
+    private func notExistingSampleID() -> Sample.ID {
         "Sample file not exists"
     }
 }

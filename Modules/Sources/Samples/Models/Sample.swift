@@ -7,11 +7,10 @@
 
 import Foundation
 
-public typealias SampleID = String
-
 public struct Sample: Equatable {
 
-    public let id: SampleID
+    public typealias ID = String
+    public let id: ID
     public let data: Data
     
     public init(id: String, data: Data) {

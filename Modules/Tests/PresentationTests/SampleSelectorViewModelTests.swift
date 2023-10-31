@@ -15,10 +15,10 @@ final class SampleSelectorViewModel: ObservableObject {
     let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     @Published private(set) var isSampleLoading: Bool
     
-    private let loadSample: (SampleID) -> AnyPublisher<Sample, Error>
+    private let loadSample: (Sample.ID) -> AnyPublisher<Sample, Error>
     private var cancellable: AnyCancellable?
     
-    init(items: [SampleItemViewModel], loadSample: @escaping (SampleID) -> AnyPublisher<Sample, Error>) {
+    init(items: [SampleItemViewModel], loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error>) {
         
         self.items = items
         self.loadSample = loadSample
@@ -56,13 +56,13 @@ extension SampleSelectorViewModel {
     enum DelegateAction: Equatable {
         
         case sampleDidSelected(Sample)
-        case failedSelectSample(SampleID)
+        case failedSelectSample(Sample.ID)
     }
 }
 
 struct SampleItemViewModel: Identifiable, Equatable {
     
-    let id: SampleID
+    let id: Sample.ID
     let name: String
 }
 
@@ -185,7 +185,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
     
     private func makeSUT(
         items: [SampleItemViewModel] = SampleSelectorViewModelTests.sampleItems(),
-        loadSample: @escaping (SampleID) -> AnyPublisher<Sample, Error> = SampleSelectorViewModelTests.loadSampleDummy,
+        loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error> = SampleSelectorViewModelTests.loadSampleDummy,
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> SampleSelectorViewModel {
@@ -227,7 +227,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
         "wrong item id"
     }
     
-    private static func loadSampleDummy(_ sampleID: SampleID) -> AnyPublisher<Sample, Error> {
+    private static func loadSampleDummy(_ sampleID: Sample.ID) -> AnyPublisher<Sample, Error> {
         
         Just(Sample(id: "", data: Data()))
             .mapError{ _ in NSError(domain: "", code: 0) }

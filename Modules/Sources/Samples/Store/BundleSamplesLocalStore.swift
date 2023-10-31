@@ -18,7 +18,7 @@ public final class BundleSamplesLocalStore {
         self.bundle = bundle ?? Self.moduleBundle
     }
         
-    public func retrieveSamplesIDs(for instrument: Instrument, complete: @escaping (Result<[SampleID], Swift.Error>) -> Void) {
+    public func retrieveSamplesIDs(for instrument: Instrument, complete: @escaping (Result<[Sample.ID], Swift.Error>) -> Void) {
         
         do {
             let path = try path()
@@ -33,7 +33,7 @@ public final class BundleSamplesLocalStore {
         }
     }
     
-    public func retrieveSample(for sampleID: SampleID, completion: @escaping (Result<Sample, Swift.Error>) -> Void) {
+    public func retrieveSample(for sampleID: Sample.ID, completion: @escaping (Result<Sample, Swift.Error>) -> Void) {
         
         do {
             
