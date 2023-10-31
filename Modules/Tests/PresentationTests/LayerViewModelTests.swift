@@ -34,6 +34,11 @@ final class LayerViewModel: Identifiable {
         isPlaying.toggle()
         delegateActionSubject.send(.isPlayingDidChanged(isPlaying))
     }
+    
+    func muteButtonDidTapped() {
+        
+        isMuted.toggle()
+    }
 }
 
 extension LayerViewModel {
@@ -88,7 +93,7 @@ final class LayerViewModelTests: XCTestCase {
         
         sut.playButtonDidTaped()
         
-        XCTAssertEqual(sut.isPlaying, true)
+        XCTAssertTrue(sut.isPlaying)
     }
     
     func test_playButtonDidTapped_informDelegateIsPlayingDidChanged() {
@@ -99,6 +104,15 @@ final class LayerViewModelTests: XCTestCase {
             
             sut.playButtonDidTaped()
         })
+    }
+    
+    func test_muteButtonDidTapped_toggleIsMutedState() {
+        
+        let sut = makeSUT(isMuted: false)
+        
+        sut.muteButtonDidTapped()
+        
+        XCTAssertTrue(sut.isMuted)
     }
     
     //MARK: - Helpers
