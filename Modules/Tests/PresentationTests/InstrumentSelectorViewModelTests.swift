@@ -71,16 +71,20 @@ final class InstrumentSelectorViewModelTests: XCTestCase {
         line: UInt = #line
     ) {
         
-        var receivedDelegateAction: InstrumentSelectorViewModel.DelegateAction? = nil
-        sut.delegateActionSubject
-            .sink { receivedDelegateAction = $0 }
-            .store(in: &cancellables)
+        let delegateSpy = ValueSpy(sut.delegateActionSubject)
         
         action()
         
         XCTWaiter().wait(for: [], timeout: 0.01)
         
-        XCTAssertEqual(receivedDelegateAction, expectedDelegateAction, "Expected \(String(describing: expectedDelegateAction)), got \(String(describing: receivedDelegateAction)) instead", file: file, line: line)
+        if let expectedDelegateAction {
+            
+            XCTAssertEqual(delegateSpy.values, [expectedDelegateAction], "Expected action: \(expectedDelegateAction), got \(delegateSpy.values) instead", file: file, line: line)
+            
+        } else {
+            
+            XCTAssertTrue(delegateSpy.values.isEmpty, "Expected no actions, got \(delegateSpy.values) instead", file: file, line: line)
+        }
     }
     
     private static func sampleButtons() -> [InstrumentButtonViewModel] {
