@@ -151,6 +151,11 @@ final class Producer {
         }
     }
     
+    func stopRecording() {
+        
+        recorder.stopRecording()
+    }
+    
     private func handleUpdate(layers: [Layer]) {
         
         let layersShouldPlay = layers.filter{ $0.isPlaying == true && $0.isMuted == false }
@@ -481,6 +486,15 @@ final class ProducerTests: XCTestCase {
         sut.startRecording()
         
         XCTAssertTrue(sut.isRecording)
+    }
+    
+    func test_stopRecording_messagesRecorder() {
+        
+        let (sut, _, recorder) = makeSUT()
+        
+        sut.stopRecording()
+        
+        XCTAssertEqual(recorder.messages, [.stopRecoding])
     }
     
     //MARK: - Helpers
