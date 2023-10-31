@@ -58,6 +58,11 @@ final class LayerViewModel: Identifiable {
         
         self.isPlaying = isPlaying
     }
+    
+    func update(isActive: Bool) {
+        
+        self.isActive = isActive
+    }
 }
 
 extension LayerViewModel {
@@ -185,6 +190,15 @@ final class LayerViewModelTests: XCTestCase {
             
             sut.update(isPlaying: false)
         })
+    }
+    
+    func test_updateIsActive_updatesIsActiveState() {
+        
+        let sut = makeSUT(isActive: true)
+        
+        sut.update(isActive: false)
+        
+        XCTAssertFalse(sut.isActive)
     }
     
     //MARK: - Helpers
