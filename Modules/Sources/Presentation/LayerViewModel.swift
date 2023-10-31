@@ -52,7 +52,7 @@ public final class LayerViewModel: Identifiable, ObservableObject {
     
     public func selectDidTapped() {
         
-        delegateActionSubject.send(.selectLayer(id))
+        delegateActionSubject.send(.selectLayer)
     }
     
     public func update(isPlaying: Bool) {
@@ -73,6 +73,6 @@ public extension LayerViewModel {
         case isPlayingDidChanged(Bool)
         case isMutedDidChanged(Bool)
         case deleteLayer
-        case selectLayer(Layer.ID)
+        case selectLayer
     }
 }

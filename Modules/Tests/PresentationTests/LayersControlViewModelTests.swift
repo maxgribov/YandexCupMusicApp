@@ -53,9 +53,9 @@ final class LayersControlViewModel: ObservableObject {
                     
                 case .deleteLayer:
                     delegateActionSubject.send(.deleteLayer(layer.id))
-
-                default:
-                    break
+                    
+                case .selectLayer:
+                    delegateActionSubject.send(.selectLayer(layer.id))
                 }
                 
             }.store(in: &layersDelegateBindings)
@@ -69,6 +69,7 @@ extension LayersControlViewModel {
         case isPlayingDidChanged(Layer.ID, Bool)
         case isMutedDidChanged(Layer.ID, Bool)
         case deleteLayer(Layer.ID)
+        case selectLayer(Layer.ID)
     }
 }
 
@@ -131,6 +132,18 @@ final class LayersControlViewModelTests: XCTestCase {
         sut.layers[0].deleteButtonDidTapped()
         
         XCTAssertEqual(delegateActionSpy.values, [.deleteLayer(sut.layers[0].id)])
+    }
+    
+    func test_selectLayer_informDelegateDeleteLayerWithID() {
+        
+        let sut = makeSUT(initial: [makeLayerViewModel(),
+                                    makeLayerViewModel(),
+                                    makeLayerViewModel()])
+        let delegateActionSpy = ValueSpy(sut.delegateActionSubject)
+        
+        sut.layers[2].selectDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.selectLayer(sut.layers[2].id)])
     }
     
     private func makeSUT(

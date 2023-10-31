@@ -84,7 +84,7 @@ final class LayerViewModelTests: XCTestCase {
         
         let sut = makeSUT()
         
-        expect(sut, delegateAction: .selectLayer(sut.id), for: {
+        expect(sut, delegateAction: .selectLayer, for: {
             
             sut.selectDidTapped()
         })
