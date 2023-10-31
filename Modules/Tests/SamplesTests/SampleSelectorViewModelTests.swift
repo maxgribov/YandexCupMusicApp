@@ -20,12 +20,18 @@ final class SampleSelectorViewModel {
     }
     
     func buttonDidTapped(for buttonID: InstrumentButtonViewModel.ID) {
+        
+        guard let buttonViewModel = buttons.first(where: { $0.id == buttonID }) else {
+            return
+        }
+        
+        delegateActionSubject.send(.instrumentDidSelected(buttonViewModel.instrument))
     }
 }
 
 extension SampleSelectorViewModel {
     
-    enum DelegateAction {
+    enum DelegateAction: Equatable {
         
         case instrumentDidSelected(Instrument)
     }
@@ -69,6 +75,23 @@ final class SampleSelectorViewModelTests: XCTestCase {
         XCTWaiter().wait(for: [], timeout: 0.01)
         
         XCTAssertNil(receivedDelegateAction)
+    }
+    
+    func test_buttonDidTapped_informDelegateInstrumentSelectedForInstrumentButtonID() {
+        
+        let sut = makeSUT()
+        let selectedButton = sut.buttons[0]
+        
+        var receivedDelegateAction: SampleSelectorViewModel.DelegateAction? = nil
+        sut.delegateActionSubject
+            .sink { receivedDelegateAction = $0 }
+            .store(in: &cancellables)
+        
+        sut.buttonDidTapped(for: selectedButton.id)
+        
+        XCTWaiter().wait(for: [], timeout: 0.01)
+        
+        XCTAssertEqual(receivedDelegateAction, .instrumentDidSelected(selectedButton.instrument))
     }
 
     //MARK: - Helpers
