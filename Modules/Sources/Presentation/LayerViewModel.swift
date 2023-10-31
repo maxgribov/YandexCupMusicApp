@@ -7,6 +7,7 @@
 
 import Foundation
 import Samples
+import Producer
 import Combine
 
 public final class LayerViewModel: Identifiable, ObservableObject {

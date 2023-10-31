@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "51C09DAD-3150-4B96-BE53-3F28481871E3",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ProducerTests",
+        "name" : "ProducerTests"
+      }
+    }
+  ],
+  "version" : 1
+}

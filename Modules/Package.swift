@@ -13,6 +13,9 @@ let package = Package(
         .library(
             name: "Presentation",
             targets: ["Presentation"]),
+        .library(
+            name: "Producer",
+            targets: ["Producer"]),
     ],
     targets: [
         .target(
@@ -20,6 +23,9 @@ let package = Package(
             resources: [.process("Store/Resources"),]),
         .target(
             name: "Presentation",
+            dependencies: ["Samples", "Producer"]),
+        .target(
+            name: "Producer",
             dependencies: ["Samples"]),
         .testTarget(
             name: "SamplesTests",
@@ -27,5 +33,8 @@ let package = Package(
         .testTarget(
             name: "PresentationTests",
             dependencies: ["Samples", "Presentation"]),
+        .testTarget(
+            name: "ProducerTests",
+            dependencies: ["Samples", "Producer"]),
     ]
 )
