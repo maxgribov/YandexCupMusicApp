@@ -10,17 +10,30 @@ import Combine
 import Samples
 import Producer
 
+protocol Player {
+    
+    var playing: Set<Layer.ID> { get }
+    func play(id: Layer.ID, data: Data, control: Layer.Control)
+    func stop(id: Layer.ID)
+}
+
 final class Producer {
     
     @Published private(set) var layers: [Layer]
     @Published private(set) var active: Layer.ID?
     private var payloads: [Layer.ID: Payload]
+    private let player: Player
+    private var cancellable: AnyCancellable?
     
-    init(player: ProducerTests.PlayerSpy) {
+    init(player: Player) {
         
         self.layers = []
         self.active = nil
         self.payloads = [:]
+        self.player = player
+        
+        cancellable = $layers
+            .sink { [unowned self] layers in handleUpdate(layers: layers) }
     }
     
     func addLayer(id: UUID = UUID(), for instrument: Instrument, with sample: Sample) {
@@ -102,6 +115,31 @@ final class Producer {
         active = layerID
     }
     
+    private func handleUpdate(layers: [Layer]) {
+        
+        let layersShouldPlay = layers.filter(\.isPlaying)
+        
+        for layerID in player.playing {
+            
+            guard layersShouldPlay.map(\.id).contains(layerID) == false else {
+                continue
+            }
+            
+            player.stop(id: layerID)
+        }
+        
+        for layer in layersShouldPlay {
+            
+            guard player.playing.contains(layer.id) == false,
+                  let soundData = payloads[layer.id]?.soundData else {
+                
+                continue
+            }
+            
+            player.play(id: layer.id, data: soundData, control: layer.control)
+        }
+    }
+    
     private func sampleLayerName(for instrument: Instrument) -> String {
         
         let currentLayersCount = payloads.values.compactMap(\.instrument).filter { $0 == instrument }.count
@@ -139,6 +177,17 @@ extension Producer {
             switch self {
             case .recording: return true
             default: return false
+            }
+        }
+        
+        var soundData: Data {
+            
+            switch self {
+            case .sample(_, let sample):
+                return sample.data
+                
+            case .recording(let data):
+                return data
             }
         }
     }
@@ -246,6 +295,30 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(sut.layers.map(\.isPlaying), [false, false, false])
     }
     
+    func test_setIsPlayingForLayerID_messagesPlayerWithPlayAndStopCommands() {
+        
+        let (sut, player) = makeSUT()
+        let guitarSample = someSample()
+        sut.addLayer(for: .guitar, with: guitarSample)
+        let drumsSample = someSample()
+        sut.addLayer(for: .drums, with: drumsSample)
+        sut.addLayer(forRecording: someRecordingData())
+        
+        sut.set(isPlaying: true, for: sut.layers[0].id)
+        XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control)])
+        
+        sut.set(isPlaying: true, for: sut.layers[1].id)
+        XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control),
+                                         .stop(sut.layers[0].id),
+                                         .play(sut.layers[1].id, drumsSample.data, sut.layers[1].control)])
+        
+        sut.set(isPlaying: false, for: sut.layers[1].id)
+        XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control),
+                                         .stop(sut.layers[0].id),
+                                         .play(sut.layers[1].id, drumsSample.data, sut.layers[1].control),
+                                         .stop(sut.layers[1].id)])
+    }
+    
     func test_setIsMutedForLayerID_updateLayerState() {
         
         let (sut, _) = makeSUT()
@@ -315,9 +388,27 @@ final class ProducerTests: XCTestCase {
         return (sut, player)
     }
     
-    class PlayerSpy {
+    class PlayerSpy: Player {
         
-        var messages = [Any]()
+        private (set) var playing = Set<Layer.ID>()
+        var messages = [Message]()
+        
+        enum Message: Equatable {
+            case play(Layer.ID, Data, Layer.Control)
+            case stop(Layer.ID)
+        }
+        
+        func play(id: Layer.ID, data: Data, control: Layer.Control) {
+            
+            messages.append(.play(id, data, control))
+            playing.insert(id)
+        }
+        
+        func stop(id: Layer.ID) {
+            
+            messages.append(.stop(id))
+            playing.remove(id)
+        }
     }
     
     private func someSample() -> Sample {
