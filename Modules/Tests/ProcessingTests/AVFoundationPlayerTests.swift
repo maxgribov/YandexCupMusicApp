@@ -18,6 +18,7 @@ protocol AVAudioPlayerProtocol: AnyObject {
     var enableRate: Bool { get set }
     var rate: Float { get set }
     var numberOfLoops: Int { get set }
+    var currentTime: TimeInterval { get set }
     
     @discardableResult
     func play() -> Bool
@@ -204,6 +205,15 @@ final class AVFoundationPlayerTests: XCTestCase {
         XCTAssertEqual(self.player?.messages, [.initWithData(data), .play, .stop])
     }
     
+    func test_play_doesNotChangeCurrentTimeValueForFirstPlayer() {
+        
+        let sut = makeSUT()
+        
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        XCTAssertEqual(player?.currentTime, AVAudioPlayerSpy.defaultCurrentTimeValue)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -228,6 +238,7 @@ final class AVFoundationPlayerTests: XCTestCase {
         var enableRate: Bool = false
         var rate: Float = 1.0
         var numberOfLoops: Int = 0
+        var currentTime: TimeInterval = AVAudioPlayerSpy.defaultCurrentTimeValue
         
         enum Message: Equatable {
             
@@ -252,6 +263,8 @@ final class AVFoundationPlayerTests: XCTestCase {
             
             messages.append(.stop)
         }
+        
+        static let defaultCurrentTimeValue: TimeInterval = 0
     }
     
     class AlwaysFailingAVAudioPlayerStub: AVAudioPlayerProtocol {
@@ -260,7 +273,7 @@ final class AVFoundationPlayerTests: XCTestCase {
         var enableRate: Bool = false
         var rate: Float = 1.0
         var numberOfLoops: Int = 0
-
+        var currentTime: TimeInterval = 0
         
         required init(data: Data) throws {
             
