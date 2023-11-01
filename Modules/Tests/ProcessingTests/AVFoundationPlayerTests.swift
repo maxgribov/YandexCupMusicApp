@@ -19,12 +19,14 @@ protocol AVAudioPlayerProtocol {
 
 final class AVFoundationPlayer {
     
-    private(set) var playing: Set<Layer.ID>
+    var playing: Set<Layer.ID> { Set(activePlayers.keys) }
+    
+    private var activePlayers: [Layer.ID: AVAudioPlayerProtocol]
     private let makePlayer: (Data) throws -> AVAudioPlayerProtocol
     
     init(makePlayer: @escaping (Data) throws -> AVAudioPlayerProtocol) {
         
-        self.playing = []
+        self.activePlayers = [:]
         self.makePlayer = makePlayer
     }
     
@@ -35,6 +37,7 @@ final class AVFoundationPlayer {
         }
         
         player.play()
+        activePlayers[id] = player
     }
 }
 
@@ -73,6 +76,16 @@ final class AVFoundationPlayerTests: XCTestCase {
         sut.play(id: anyLayerID(), data: anyData(), control: .initial)
         
         XCTAssertEqual(self.player?.messages, [.initWithData, .play])
+    }
+    
+    func test_play_addLayerIDToPlayingOnPlayerSuccessInit() {
+        
+        let sut = makeSUT()
+        
+        let layerID = anyLayerID()
+        sut.play(id: layerID, data: anyData(), control: .initial)
+        
+        XCTAssertEqual(sut.playing, [layerID])
     }
     
     //MARK: - Helpers
