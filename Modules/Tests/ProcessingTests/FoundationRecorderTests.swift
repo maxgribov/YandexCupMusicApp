@@ -38,7 +38,7 @@ final class FoundationRecorder {
         isRecordingSubject.eraseToAnyPublisher()
     }
     
-    func startRecording() throws -> AnyPublisher<Data, Error> {
+    func startRecording() -> AnyPublisher<Data, Error> {
         
         switch permissionsState {
         case .required:
@@ -105,7 +105,7 @@ final class FoundationRecorderTests: XCTestCase {
         
         let (sut, session) = makeSUT()
         
-        _ = try sut.startRecording()
+        _ = sut.startRecording()
         
         XCTAssertEqual(session.messages, [.setCategory(.playAndRecord, .default)])
     }

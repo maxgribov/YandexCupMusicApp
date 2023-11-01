@@ -249,7 +249,7 @@ final class ProducerTests: XCTestCase {
         sut.startRecording()
         
         XCTAssertEqual(isRecordingSpy.values, [false])
-        XCTAssertEqual(delegateSpy.values, [.startRecordingFailed])
+        XCTAssertEqual(delegateSpy.values, [.recordingFailed])
     }
     
     func test_startRecording_setIsRecodingToTrueOnSuccess() {
@@ -418,7 +418,7 @@ final class ProducerTests: XCTestCase {
             isRecordingSubject.eraseToAnyPublisher()
         }
         
-        func startRecording() throws -> AnyPublisher<Data, Error> {
+        func startRecording() -> AnyPublisher<Data, Error> {
             
             messages.append(.startRecording)
             isRecordingSubject.send(true)
@@ -445,9 +445,9 @@ final class ProducerTests: XCTestCase {
             Just(false).eraseToAnyPublisher()
         }
         
-        func startRecording() throws -> AnyPublisher<Data, Error> {
+        func startRecording() -> AnyPublisher<Data, Error> {
             
-            throw NSError(domain: "", code: 0)
+            Fail<Data, Error>(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
         }
         
         func stopRecording() {}

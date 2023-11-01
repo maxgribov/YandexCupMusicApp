@@ -139,30 +139,23 @@ public extension Producer {
     
     func startRecording() {
         
-        do {
-            
-            recording = try recorder.startRecording()
-                .sink(receiveCompletion: {[weak self] completion in
+        recording = recorder.startRecording()
+            .sink(receiveCompletion: {[weak self] completion in
+                
+                switch completion {
+                case .failure:
+                    self?.delegateActionSubject.send(.recordingFailed)
                     
-                    switch completion {
-                    case .failure:
-                        self?.delegateActionSubject.send(.recordingFailed)
-                        
-                    case .finished:
-                        break
-                    }
-                    
-                    self?.recording = nil
-                    
-                }, receiveValue: {[weak self] data in
-                    
-                    self?.addLayer(forRecording: data)
-                })
-            
-        } catch {
-            
-            delegateActionSubject.send(.startRecordingFailed)
-        }
+                case .finished:
+                    break
+                }
+                
+                self?.recording = nil
+                
+            }, receiveValue: {[weak self] data in
+                
+                self?.addLayer(forRecording: data)
+            })
     }
     
     func stopRecording() {
@@ -259,7 +252,6 @@ public extension Producer {
     
     enum DelegateAction: Equatable {
         
-        case startRecordingFailed
         case recordingFailed
     }
 }

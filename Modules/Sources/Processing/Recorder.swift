@@ -11,6 +11,6 @@ import Combine
 public protocol Recorder {
     
     func isRecording() -> AnyPublisher<Bool, Never>
-    func startRecording() throws -> AnyPublisher<Data, Error>
+    func startRecording() -> AnyPublisher<Data, Error>
     func stopRecording()
 }
