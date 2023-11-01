@@ -51,6 +51,7 @@ final class AVFoundationPlayer {
     
     func stop(id: Layer.ID) {
         
+        activePlayers[id]?.stop()
         activePlayers[id] = nil
     }
 }
@@ -175,6 +176,19 @@ final class AVFoundationPlayerTests: XCTestCase {
         sut.stop(id: layerID)
         
         XCTAssertTrue(sut.playing.isEmpty)
+    }
+    
+    func test_stop_invokesStopMethodOnPlayer() {
+        
+        let sut = makeSUT()
+        let layerID = anyLayerID()
+        let data = anyData()
+        sut.play(id: layerID, data: data, control: .initial)
+        XCTAssertEqual(sut.playing, [layerID])
+        
+        sut.stop(id: layerID)
+        
+        XCTAssertEqual(self.player?.messages, [.initWithData(data), .play, .stop])
     }
     
     //MARK: - Helpers
