@@ -49,6 +49,7 @@
 		772EEF5E2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		772EEF6E2AF00E5C0066F12C /* Modules */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Modules; sourceTree = "<group>"; };
 		772EEF6F2AF010EF0066F12C /* Samples.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = Samples.xctestplan; path = Modules/Samples.xctestplan; sourceTree = "<group>"; };
+		77E51C3E2AF252CE003EA732 /* AVAudioPlayerPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = AVAudioPlayerPlayground.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +116,7 @@
 		772EEF472AF00AEE0066F12C /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
+				77E51C3E2AF252CE003EA732 /* AVAudioPlayerPlayground.playground */,
 				772EEF482AF00AEE0066F12C /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
