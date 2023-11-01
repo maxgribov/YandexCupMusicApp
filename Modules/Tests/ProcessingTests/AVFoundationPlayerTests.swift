@@ -48,6 +48,12 @@ final class AVFoundationPlayer {
         player.enableRate = true
         player.rate = Self.rate(from: control.speed)
         player.numberOfLoops = Self.playForever
+        
+        if let firstActivePlayer = activePlayers.first?.value {
+            
+            player.currentTime = firstActivePlayer.currentTime
+        }
+        
         player.play()
         activePlayers[id] = player
     }
@@ -212,6 +218,21 @@ final class AVFoundationPlayerTests: XCTestCase {
         sut.play(id: anyLayerID(), data: anyData(), control: .initial)
         
         XCTAssertEqual(player?.currentTime, AVAudioPlayerSpy.defaultCurrentTimeValue)
+    }
+    
+    func test_play_setCurrentTimeValueOfAnyPlayingPlayer() {
+        
+        let sut = makeSUT()
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        // simulate first player currentTime value changed over time
+        let firstPlayer = player
+        firstPlayer?.currentTime = 100
+        
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        let secondPlayer = player
+        XCTAssertEqual(secondPlayer!.currentTime, 100, accuracy: .ulpOfOne)
     }
     
     //MARK: - Helpers
