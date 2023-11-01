@@ -34,9 +34,9 @@ extension AVAudioSession: AVAudioSessionProtocol {}
 
 final class FoundationRecorder {
     
-    private let isRecordingSubject = CurrentValueSubject<Bool, Never>(false)
     private let session: AVAudioSessionProtocol
-    private var permissionsState: Permissions
+    private var permissionsState: RecordingPermissions
+    private let recordingStatusSubject = CurrentValueSubject<RecordingStatus, Never>(.idle)
     
     init(session: AVAudioSessionProtocol) {
         
@@ -46,7 +46,15 @@ final class FoundationRecorder {
     
     func isRecording() -> AnyPublisher<Bool, Never> {
         
-        isRecordingSubject.eraseToAnyPublisher()
+        recordingStatusSubject
+            .map { status in
+                
+                switch status {
+                case .inProgress: return true
+                default: return false
+                }
+                
+            }.eraseToAnyPublisher()
     }
     
     func startRecording() -> AnyPublisher<Data, Error> {
@@ -54,26 +62,48 @@ final class FoundationRecorder {
         switch permissionsState {
         case .required:
             return configureSessionAndRequestPermissions()
-                .handleEvents(receiveOutput: { self.permissionsState = $0 ? .allowed : .rejected })
+                .handleEvents(
+                    receiveOutput: { self.permissionsState = $0 ? .allowed : .rejected }
+                )
                 .flatMap { result in
                     
-                    return Future<Data, Error> { promise in
+                    switch result {
+                    case true:
+                        return self._startRecording()
                         
-                        promise(.success(Data()))
+                    case false:
+                        return self.recordingPermissionRejectError()
                     }
                     
                 }.eraseToAnyPublisher()
             
         case .allowed:
-            return Future<Data, Error> { promise in
-                
-                promise(.success(Data()))
-                
-            }.eraseToAnyPublisher()
+            return _startRecording()
             
         case .rejected:
-            return Fail<Data, Error>(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
+            return self.recordingPermissionRejectError()
         }
+    }
+    
+    private func _startRecording() -> AnyPublisher<Data, Error> {
+        
+        // start recording here
+        
+        return self.recordingStatusSubject
+            .tryMap { status in
+                
+                switch status {
+                case let .complete(data): return data
+                default:
+                    throw NSError(domain: "", code: 0)
+                }
+                
+            }.eraseToAnyPublisher()
+    }
+    
+    private func recordingPermissionRejectError() -> AnyPublisher<Data, Error> {
+        
+        Fail<Data, Error>(error: FoundationRecorderError.recordingPermissionsNotGranted).eraseToAnyPublisher()
     }
     
     private func configureSessionAndRequestPermissions() -> AnyPublisher<Bool, Error> {
@@ -85,7 +115,8 @@ final class FoundationRecorder {
                 try self?.session.setCategory(.playAndRecord, mode: .default, options: [])
                 try self?.session.setActive(true, options: [])
                 self?.session.requestRecordPermission { result in
-                    promise(.success(true))
+                    
+                    promise(.success(result))
                 }
                 
             } catch {
@@ -96,16 +127,36 @@ final class FoundationRecorder {
         }.eraseToAnyPublisher()
     }
     
-    enum Permissions {
+    enum RecordingPermissions {
         
         case required
         case allowed
         case rejected
     }
+    
+    enum RecordingStatus {
+        
+        case idle
+        case inProgress(URL)
+        case complete(Data)
+        case failed
+    }
 }
 
+enum FoundationRecorderError: Error {
+    
+    case recordingPermissionsNotGranted
+}
 
 final class FoundationRecorderTests: XCTestCase {
+    
+    var cancellables = Set<AnyCancellable>()
+    
+    override func setUp() async throws {
+        try await super.setUp()
+        
+        cancellables = []
+    }
 
     func test_init_recordingNothing() {
         
@@ -122,6 +173,29 @@ final class FoundationRecorderTests: XCTestCase {
         _ = sut.startRecording()
         
         XCTAssertEqual(session.messages, [.setCategory(.playAndRecord, .default), .setActive(true), .requestPermission])
+    }
+    
+    func test_startRecording_receiveRejectPermissionsErrorOnPermissionsRequestFailureOnFirstAttempt() {
+        
+        let (sut, session) = makeSUT()
+        
+        var receivedError: Error? = nil
+        sut.startRecording()
+            .sink(receiveCompletion: { completion in
+                
+                switch completion {
+                case let .failure(error):
+                    receivedError = error
+                    
+                case .finished:
+                    break
+                }
+            }, receiveValue: { _ in })
+            .store(in: &cancellables)
+        
+        session.respondForRecordPermissionRequest(allowed: false)
+        
+        XCTAssertEqual(receivedError as? FoundationRecorderError, .recordingPermissionsNotGranted)
     }
     
     //MARK: - Helpers
@@ -169,6 +243,11 @@ final class FoundationRecorderTests: XCTestCase {
             
             messages.append(.requestPermission)
             responses.append(response)
+        }
+        
+        func respondForRecordPermissionRequest(allowed: Bool, at index: Int = 0) {
+            
+            responses[index](allowed)
         }
     }
 }
