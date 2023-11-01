@@ -29,8 +29,21 @@ final class AVFoundationPlayerTests: XCTestCase {
 
     func test_init_nothingPlaying() {
         
-        let sut = AVFoundationPlayer()
+        let sut = makeSUT()
         
         XCTAssertTrue(sut.playing.isEmpty)
+    }
+    
+    //MARK: - Helpers
+    
+    private func makeSUT(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> AVFoundationPlayer {
+        
+        let sut = AVFoundationPlayer()
+        trackForMemoryLeaks(sut)
+        
+        return sut
     }
 }
