@@ -8,7 +8,7 @@
 import AVFoundation
 import Domain
 
-public final class FoundationPlayer {
+public final class FoundationPlayer: Player {
     
     public var playing: Set<Layer.ID> { Set(activePlayers.keys) }
     
