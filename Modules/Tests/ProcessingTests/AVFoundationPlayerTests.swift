@@ -17,6 +17,7 @@ protocol AVAudioPlayerProtocol: AnyObject {
     var volume: Float { get set }
     var enableRate: Bool { get set }
     var rate: Float { get set }
+    var numberOfLoops: Int { get set }
     
     @discardableResult
     func play() -> Bool
@@ -45,6 +46,7 @@ final class AVFoundationPlayer {
         player.volume = Float(control.volume)
         player.enableRate = true
         player.rate = Self.rate(from: control.speed)
+        player.numberOfLoops = Self.playForever
         player.play()
         activePlayers[id] = player
     }
@@ -64,6 +66,8 @@ extension AVFoundationPlayer {
         
         return Float(((2.0 - 0.5) * _speed) + 0.5)
     }
+    
+    static let playForever: Int = -1
 }
 
 extension AVAudioPlayer: AVAudioPlayerProtocol {}
@@ -154,6 +158,15 @@ final class AVFoundationPlayerTests: XCTestCase {
         XCTAssertEqual(player?.rate, 2.0)
     }
     
+    func test_play_setNumberOfLoopsToPlayForever() {
+        
+        let sut = makeSUT()
+        
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        XCTAssertEqual(player?.numberOfLoops, playForeverValue())
+    }
+    
     func test_stop_doesNotAffectPlayingValueOnIncorrectLayerID() {
         
         let sut = makeSUT()
@@ -214,6 +227,7 @@ final class AVFoundationPlayerTests: XCTestCase {
         var volume: Float = 1.0
         var enableRate: Bool = false
         var rate: Float = 1.0
+        var numberOfLoops: Int = 0
         
         enum Message: Equatable {
             
@@ -245,6 +259,8 @@ final class AVFoundationPlayerTests: XCTestCase {
         var volume: Float = 1.0
         var enableRate: Bool = false
         var rate: Float = 1.0
+        var numberOfLoops: Int = 0
+
         
         required init(data: Data) throws {
             
@@ -259,6 +275,7 @@ final class AVFoundationPlayerTests: XCTestCase {
     
     private func anyLayerID() -> Layer.ID { UUID() }
     private func anyData() -> Data { Data(UUID().uuidString.utf8) }
+    private func playForeverValue() -> Int { AVFoundationPlayer.playForever }
 }
 
 
