@@ -10,21 +10,24 @@ import Domain
 import Processing
 import AVFoundation
 
-protocol AVAudioPlayerProtocol {
+protocol AVAudioPlayerProtocol: AnyObject {
     
     init(data: Data) throws
+    
     @discardableResult
     func play() -> Bool
+    
+    var volume: Float { get set }
 }
 
 final class AVFoundationPlayer {
     
     var playing: Set<Layer.ID> { Set(activePlayers.keys) }
     
-    private var activePlayers: [Layer.ID: AVAudioPlayerProtocol]
-    private let makePlayer: (Data) throws -> AVAudioPlayerProtocol
+    private var activePlayers: [Layer.ID: any AVAudioPlayerProtocol]
+    private let makePlayer: (Data) throws -> any AVAudioPlayerProtocol
     
-    init(makePlayer: @escaping (Data) throws -> AVAudioPlayerProtocol) {
+    init(makePlayer: @escaping (Data) throws -> any AVAudioPlayerProtocol) {
         
         self.activePlayers = [:]
         self.makePlayer = makePlayer
@@ -36,6 +39,7 @@ final class AVFoundationPlayer {
             return
         }
         
+        player.volume = Float(control.volume)
         player.play()
         activePlayers[id] = player
     }
@@ -73,9 +77,10 @@ final class AVFoundationPlayerTests: XCTestCase {
         
         let sut = makeSUT()
         
-        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        let data = anyData()
+        sut.play(id: anyLayerID(), data: data, control: .initial)
         
-        XCTAssertEqual(self.player?.messages, [.initWithData, .play])
+        XCTAssertEqual(self.player?.messages, [.initWithData(data), .play])
     }
     
     func test_play_addLayerIDToPlayingOnPlayerSuccessInit() {
@@ -86,6 +91,15 @@ final class AVFoundationPlayerTests: XCTestCase {
         sut.play(id: layerID, data: anyData(), control: .initial)
         
         XCTAssertEqual(sut.playing, [layerID])
+    }
+    
+    func test_play_setVolumeAccordingControlVolumeValues() {
+        
+        let sut = makeSUT()
+        
+        sut.play(id: anyLayerID(), data: anyData(), control: .init(volume: 0.5, speed: 1))
+        
+        XCTAssertEqual(player?.volume, 0.5)
     }
     
     //MARK: - Helpers
@@ -108,16 +122,17 @@ final class AVFoundationPlayerTests: XCTestCase {
     class AVAudioPlayerSpy: AVAudioPlayerProtocol {
         
         private(set) var messages = [Message]()
+        var volume: Float = 1.0
         
         enum Message: Equatable {
             
-            case initWithData
+            case initWithData(Data)
             case play
         }
         
         required init(data: Data) throws {
             
-            messages.append(.initWithData)
+            messages.append(.initWithData(data))
         }
         
         @discardableResult
@@ -129,6 +144,8 @@ final class AVFoundationPlayerTests: XCTestCase {
     }
     
     class AlwaysFailingAVAudioPlayerStub: AVAudioPlayerProtocol {
+        
+        var volume: Float = 1.0
         
         required init(data: Data) throws {
             
