@@ -10,13 +10,13 @@ import Samples
 import Producer
 import Combine
 
-public final class LayerViewModel: Identifiable, ObservableObject {
+public struct LayerViewModel: Identifiable {
 
     public let id: Layer.ID
     public let name: String
-    @Published public private(set) var isPlaying: Bool
-    @Published public private(set) var isMuted: Bool
-    @Published public private(set) var isActive: Bool
+    public let isPlaying: Bool
+    public let isMuted: Bool
+    public let isActive: Bool
     
     public let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
@@ -29,26 +29,19 @@ public final class LayerViewModel: Identifiable, ObservableObject {
         self.isActive = isActive
     }
     
-    public convenience init(with layer: Layer, isActive: Bool) {
+    public init(with layer: Layer, isActive: Bool) {
         
         self.init(id: layer.id, name: layer.name, isPlaying: layer.isPlaying, isMuted: layer.isMuted, isActive: isActive)
     }
     
     public func playButtonDidTaped() {
         
-        isPlaying.toggle()
-        delegateActionSubject.send(.isPlayingDidChanged(isPlaying))
+        delegateActionSubject.send(.isPlayingDidChanged(!isPlaying))
     }
     
     public func muteButtonDidTapped() {
         
-        isMuted.toggle()
-        delegateActionSubject.send(.isMutedDidChanged(isMuted))
-    }
-    
-    public func deleteButtonDidTapped() {
-        
-        delegateActionSubject.send(.deleteLayer)
+        delegateActionSubject.send(.isMutedDidChanged(!isMuted))
     }
     
     public func selectDidTapped() {
@@ -56,14 +49,9 @@ public final class LayerViewModel: Identifiable, ObservableObject {
         delegateActionSubject.send(.selectLayer)
     }
     
-    public func update(isPlaying: Bool) {
+    public func deleteButtonDidTapped() {
         
-        self.isPlaying = isPlaying
-    }
-    
-    public func update(isActive: Bool) {
-        
-        self.isActive = isActive
+        delegateActionSubject.send(.deleteLayer)
     }
 }
 
@@ -73,7 +61,7 @@ public extension LayerViewModel {
         
         case isPlayingDidChanged(Bool)
         case isMutedDidChanged(Bool)
-        case deleteLayer
         case selectLayer
+        case deleteLayer
     }
 }

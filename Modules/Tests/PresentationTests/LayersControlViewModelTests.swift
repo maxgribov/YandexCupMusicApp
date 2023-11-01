@@ -115,6 +115,6 @@ final class LayersControlViewModelTests: XCTestCase {
 extension LayerViewModel: Equatable {
     
     public static func == (lhs: Presentation.LayerViewModel, rhs: Presentation.LayerViewModel) -> Bool {
-        lhs === rhs
+        lhs.id == rhs.id && lhs.isPlaying == rhs.isPlaying && lhs.isMuted == rhs.isMuted && lhs.isActive == rhs.isActive
     }
 }

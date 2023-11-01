@@ -33,15 +33,6 @@ final class LayerViewModelTests: XCTestCase {
         XCTAssertEqual(sut.isActive, true)
     }
     
-    func test_playButtonDidTapped_togglesIsPlayingState() {
-        
-        let sut = makeSUT(isPlaying: false)
-        
-        sut.playButtonDidTaped()
-        
-        XCTAssertTrue(sut.isPlaying)
-    }
-    
     func test_playButtonDidTapped_informDelegateIsPlayingDidChanged() {
         
         let sut = makeSUT(isPlaying: false)
@@ -50,15 +41,6 @@ final class LayerViewModelTests: XCTestCase {
             
             sut.playButtonDidTaped()
         })
-    }
-    
-    func test_muteButtonDidTapped_toggleIsMutedState() {
-        
-        let sut = makeSUT(isMuted: false)
-        
-        sut.muteButtonDidTapped()
-        
-        XCTAssertTrue(sut.isMuted)
     }
     
     func test_muteButtonDidTapped_informsDelegateIsMutedDidChanged() {
@@ -88,44 +70,6 @@ final class LayerViewModelTests: XCTestCase {
         expect(sut, delegateAction: .selectLayer, for: {
             
             sut.selectDidTapped()
-        })
-    }
-    
-    func test_updateIsPlaying_updatesIsPlayingState() {
-        
-        let sut = makeSUT(isPlaying: true)
-        
-        sut.update(isPlaying: false)
-        
-        XCTAssertFalse(sut.isPlaying)
-    }
-    
-    func test_updateIsPlaying_doesNotInformDelegate() {
-        
-        let sut = makeSUT(isPlaying: true)
-        
-        expect(sut, delegateAction: nil, for: {
-            
-            sut.update(isPlaying: false)
-        })
-    }
-    
-    func test_updateIsActive_updatesIsActiveState() {
-        
-        let sut = makeSUT(isActive: true)
-        
-        sut.update(isActive: false)
-        
-        XCTAssertFalse(sut.isActive)
-    }
-    
-    func test_updateIsActive_doesNotInformDelegate() {
-        
-        let sut = makeSUT(isActive: true)
-        
-        expect(sut, delegateAction: nil, for: {
-            
-            sut.update(isActive: false)
         })
     }
     
