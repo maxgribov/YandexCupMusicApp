@@ -6,8 +6,9 @@
 //
 
 import Foundation
-import Samples
 import Combine
+import Domain
+import Samples
 
 public final class InstrumentSelectorViewModel {
     

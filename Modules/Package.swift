@@ -8,6 +8,9 @@ let package = Package(
     platforms: [.iOS(.v16), .macOS(.v13)],
     products: [
         .library(
+            name: "Domain",
+            targets: ["Domain"]),
+        .library(
             name: "Samples",
             targets: ["Samples"]),
         .library(
@@ -19,22 +22,25 @@ let package = Package(
     ],
     targets: [
         .target(
+            name: "Domain"),
+        .target(
             name: "Samples",
+            dependencies: ["Domain"],
             resources: [.process("Store/Resources"),]),
         .target(
             name: "Presentation",
-            dependencies: ["Samples", "Producer"]),
+            dependencies: ["Domain", "Samples", "Producer"]),
         .target(
             name: "Producer",
-            dependencies: ["Samples"]),
+            dependencies: ["Domain", "Samples"]),
         .testTarget(
             name: "SamplesTests",
-            dependencies: ["Samples"]),
+            dependencies: ["Domain", "Samples"]),
         .testTarget(
             name: "PresentationTests",
-            dependencies: ["Samples", "Presentation"]),
+            dependencies: ["Domain", "Samples", "Presentation"]),
         .testTarget(
             name: "ProducerTests",
-            dependencies: ["Samples", "Producer"]),
+            dependencies: ["Domain", "Samples", "Producer"]),
     ]
 )

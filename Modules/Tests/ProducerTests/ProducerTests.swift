@@ -7,6 +7,7 @@
 
 import XCTest
 import Combine
+import Domain
 import Samples
 import Producer
 

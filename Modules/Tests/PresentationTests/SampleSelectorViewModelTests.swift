@@ -7,6 +7,7 @@
 
 import XCTest
 import Samples
+import Domain
 import Presentation
 import Combine
 
