@@ -63,9 +63,16 @@ final class FoundationRecorder {
         case .required:
             return configureSessionAndRequestPermissions()
                 .handleEvents(
-                    receiveOutput: { self.permissionsState = $0 ? .allowed : .rejected }
+                    receiveOutput: { [weak self] result in
+                        
+                        self?.permissionsState = result ? .allowed : .rejected
+                    }
                 )
-                .flatMap { result in
+                .flatMap { [weak self] result in
+                    
+                    guard let self else {
+                        return Fail<Data, Error>(error: FoundationRecorderError.recorderInstanceDeinitedDuringRecording).eraseToAnyPublisher()
+                    }
                     
                     switch result {
                     case true:
@@ -87,7 +94,7 @@ final class FoundationRecorder {
     
     private func _startRecording() -> AnyPublisher<Data, Error> {
         
-        // start recording here
+        recordingStatusSubject.send(.inProgress(URL(string: "http://www.some-url.com")!))
         
         return self.recordingStatusSubject
             .tryMap { status in
@@ -146,6 +153,7 @@ final class FoundationRecorder {
 enum FoundationRecorderError: Error {
     
     case recordingPermissionsNotGranted
+    case recorderInstanceDeinitedDuringRecording
 }
 
 final class FoundationRecorderTests: XCTestCase {
@@ -170,7 +178,9 @@ final class FoundationRecorderTests: XCTestCase {
         
         let (sut, session) = makeSUT()
         
-        _ = sut.startRecording()
+        sut.startRecording()
+            .sink(receiveCompletion: { _ in}, receiveValue: { _ in  })
+            .store(in: &cancellables)
         
         XCTAssertEqual(session.messages, [.setCategory(.playAndRecord, .default), .setActive(true), .requestPermission])
     }
@@ -196,6 +206,20 @@ final class FoundationRecorderTests: XCTestCase {
         session.respondForRecordPermissionRequest(allowed: false)
         
         XCTAssertEqual(receivedError as? FoundationRecorderError, .recordingPermissionsNotGranted)
+    }
+    
+    func test_startRecording_startsRecordingOnPermissionsRequestSussessOnFirstAttempt() {
+        
+        let (sut, session) = makeSUT()
+        let isRecordingSpy = ValueSpy(sut.isRecording())
+        
+        sut.startRecording()
+            .sink(receiveCompletion: { _ in}, receiveValue: { _ in  })
+            .store(in: &cancellables)
+        
+        session.respondForRecordPermissionRequest(allowed: true)
+        
+        XCTAssertEqual(isRecordingSpy.values, [false, true])
     }
     
     //MARK: - Helpers
