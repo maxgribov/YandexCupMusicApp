@@ -22,6 +22,12 @@ protocol AVAudioSessionProtocol: AnyObject {
         _ active: Bool,
         options: AVAudioSession.SetActiveOptions
     ) throws
+    
+    func requestRecordPermission(
+        _ response: @escaping (
+            Bool
+        ) -> Void
+    )
 }
 
 extension AVAudioSession: AVAudioSessionProtocol {}
@@ -78,7 +84,9 @@ final class FoundationRecorder {
                 
                 try self?.session.setCategory(.playAndRecord, mode: .default, options: [])
                 try self?.session.setActive(true, options: [])
-                promise(.success(true))
+                self?.session.requestRecordPermission { result in
+                    promise(.success(true))
+                }
                 
             } catch {
                 
@@ -107,13 +115,13 @@ final class FoundationRecorderTests: XCTestCase {
         XCTAssertEqual(isRecordingSpy.values, [false])
     }
     
-    func test_startRecording_setCategoryForSessionAndActiveOnFirstAttempt() throws {
+    func test_startRecording_setCategoryForSessionAndActiveAndRequestedPermissionsOnFirstAttempt() throws {
         
         let (sut, session) = makeSUT()
         
         _ = sut.startRecording()
         
-        XCTAssertEqual(session.messages, [.setCategory(.playAndRecord, .default), .setActive(true)])
+        XCTAssertEqual(session.messages, [.setCategory(.playAndRecord, .default), .setActive(true), .requestPermission])
     }
     
     //MARK: - Helpers
@@ -138,11 +146,13 @@ final class FoundationRecorderTests: XCTestCase {
     private class AVAudioSessionSpy: AVAudioSessionProtocol {
         
         private(set) var messages = [Message]()
+        private var responses = [(Bool) -> Void]()
         
         enum Message: Equatable {
             
             case setCategory(AVAudioSession.Category, AVAudioSession.Mode)
             case setActive(Bool)
+            case requestPermission
         }
         
         func setCategory(_ category: AVAudioSession.Category, mode: AVAudioSession.Mode, options: AVAudioSession.CategoryOptions) throws {
@@ -153,6 +163,12 @@ final class FoundationRecorderTests: XCTestCase {
         func setActive(_ active: Bool, options: AVAudioSession.SetActiveOptions) throws {
             
             messages.append(.setActive(active))
+        }
+        
+        func requestRecordPermission(_ response: @escaping (Bool) -> Void) {
+            
+            messages.append(.requestPermission)
+            responses.append(response)
         }
     }
 }
