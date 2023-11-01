@@ -11,8 +11,8 @@ let package = Package(
             name: "Domain",
             targets: ["Domain"]),
         .library(
-            name: "Samples",
-            targets: ["Samples"]),
+            name: "Persistence",
+            targets: ["Persistence"]),
         .library(
             name: "Presentation",
             targets: ["Presentation"]),
@@ -24,23 +24,23 @@ let package = Package(
         .target(
             name: "Domain"),
         .target(
-            name: "Samples",
+            name: "Persistence",
             dependencies: ["Domain"],
-            resources: [.process("Store/Resources"),]),
+            resources: [.process("Resources"),]),
         .target(
             name: "Presentation",
-            dependencies: ["Domain", "Samples", "Producer"]),
+            dependencies: ["Domain"]),
         .target(
             name: "Producer",
-            dependencies: ["Domain", "Samples"]),
+            dependencies: ["Domain"]),
         .testTarget(
-            name: "SamplesTests",
-            dependencies: ["Domain", "Samples"]),
+            name: "PersistenceTests",
+            dependencies: ["Domain", "Persistence"]),
         .testTarget(
             name: "PresentationTests",
-            dependencies: ["Domain", "Samples", "Presentation"]),
+            dependencies: ["Domain", "Presentation"]),
         .testTarget(
             name: "ProducerTests",
-            dependencies: ["Domain", "Samples", "Producer"]),
+            dependencies: ["Domain", "Producer"]),
     ]
 )

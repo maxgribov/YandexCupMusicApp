@@ -8,7 +8,6 @@
 import Foundation
 import Combine
 import Domain
-import Samples
 
 public final class InstrumentSelectorViewModel {
     

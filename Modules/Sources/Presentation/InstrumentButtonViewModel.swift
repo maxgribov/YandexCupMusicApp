@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Samples
 import Domain
 
 public struct InstrumentButtonViewModel: Identifiable, Equatable {

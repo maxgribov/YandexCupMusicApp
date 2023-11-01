@@ -7,7 +7,6 @@
 
 import Foundation
 import Domain
-import Samples
 
 public struct SampleItemViewModel: Identifiable, Equatable {
     

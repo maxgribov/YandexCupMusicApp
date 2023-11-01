@@ -8,7 +8,6 @@
 import Foundation
 import Combine
 import Domain
-import Samples
 import Producer
 
 public final class LayersControlViewModel: ObservableObject {

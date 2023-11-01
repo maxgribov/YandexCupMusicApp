@@ -1,7 +1,7 @@
 {
   "configurations" : [
     {
-      "id" : "83DE07B9-6F50-4D44-88C0-2A41E28B3C3C",
+      "id" : "B20B1672-E0F6-49BF-9A79-9CFBB23D102D",
       "name" : "Test Scheme Action",
       "options" : {
 
@@ -9,15 +9,14 @@
     }
   ],
   "defaultOptions" : {
-    "codeCoverage" : false,
     "testExecutionOrdering" : "random"
   },
   "testTargets" : [
     {
       "target" : {
         "containerPath" : "container:",
-        "identifier" : "SamplesTests",
-        "name" : "SamplesTests"
+        "identifier" : "PersistenceTests",
+        "name" : "PersistenceTests"
       }
     }
   ],

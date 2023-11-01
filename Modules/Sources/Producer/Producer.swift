@@ -7,7 +7,6 @@
 
 import Foundation
 import Combine
-import Samples
 import Domain
 
 public final class Producer {

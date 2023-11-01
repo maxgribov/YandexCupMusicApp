@@ -7,7 +7,7 @@
 
 import XCTest
 import Domain
-import Samples
+import Persistence
 
 final class BundleSamplesLocalStoreTests: XCTestCase {
 
