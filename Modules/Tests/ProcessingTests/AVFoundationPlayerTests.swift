@@ -47,6 +47,16 @@ final class AVFoundationPlayer {
     }
 }
 
+extension AVFoundationPlayer {
+    
+    static func rate(from speed: Double) -> Float {
+        
+        let _speed = min(max(speed, 0), 1)
+        
+        return Float(((2.0 - 0.5) * _speed) + 0.5)
+    }
+}
+
 final class AVFoundationPlayerTests: XCTestCase {
     
     var player: AVAudioPlayerSpy? = nil
@@ -111,6 +121,16 @@ final class AVFoundationPlayerTests: XCTestCase {
         sut.play(id: anyLayerID(), data: anyData(), control: .initial)
         
         XCTAssertEqual(player?.enableRate, true)
+    }
+    
+    func test_rateFromSpeed_correctCalculations() {
+        
+        XCTAssertEqual(AVFoundationPlayer.rate(from: 0), 0.5, accuracy: .ulpOfOne)
+        XCTAssertEqual(AVFoundationPlayer.rate(from: 1), 2, accuracy: .ulpOfOne)
+        XCTAssertEqual(AVFoundationPlayer.rate(from: 0.5), 1.25, accuracy: .ulpOfOne)
+        
+        XCTAssertEqual(AVFoundationPlayer.rate(from: -1), 0.5, accuracy: .ulpOfOne)
+        XCTAssertEqual(AVFoundationPlayer.rate(from: 10), 2, accuracy: .ulpOfOne)
     }
     
     //MARK: - Helpers
