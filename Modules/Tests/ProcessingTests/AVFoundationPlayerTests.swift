@@ -18,6 +18,7 @@ protocol AVAudioPlayerProtocol: AnyObject {
     func play() -> Bool
     
     var volume: Float { get set }
+    var enableRate: Bool { get set }
 }
 
 final class AVFoundationPlayer {
@@ -40,6 +41,7 @@ final class AVFoundationPlayer {
         }
         
         player.volume = Float(control.volume)
+        player.enableRate = true
         player.play()
         activePlayers[id] = player
     }
@@ -97,9 +99,18 @@ final class AVFoundationPlayerTests: XCTestCase {
         
         let sut = makeSUT()
         
-        sut.play(id: anyLayerID(), data: anyData(), control: .init(volume: 0.5, speed: 1))
+        sut.play(id: anyLayerID(), data: anyData(), control: .init(volume: 0.5, speed: 0.5))
         
         XCTAssertEqual(player?.volume, 0.5)
+    }
+    
+    func test_play_setEnableRateToTrue() {
+        
+        let sut = makeSUT()
+        
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        XCTAssertEqual(player?.enableRate, true)
     }
     
     //MARK: - Helpers
@@ -123,6 +134,7 @@ final class AVFoundationPlayerTests: XCTestCase {
         
         private(set) var messages = [Message]()
         var volume: Float = 1.0
+        var enableRate: Bool = false
         
         enum Message: Equatable {
             
@@ -146,6 +158,7 @@ final class AVFoundationPlayerTests: XCTestCase {
     class AlwaysFailingAVAudioPlayerStub: AVAudioPlayerProtocol {
         
         var volume: Float = 1.0
+        var enableRate: Bool = false
         
         required init(data: Data) throws {
             
