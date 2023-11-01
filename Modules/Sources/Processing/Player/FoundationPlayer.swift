@@ -8,14 +8,14 @@
 import AVFoundation
 import Domain
 
-public final class FoundationPlayer: Player {
+public final class FoundationPlayer<P>: Player where P: AVAudioPlayerProtocol {
     
     public var playing: Set<Layer.ID> { Set(activePlayers.keys) }
     
-    private var activePlayers: [Layer.ID: any AVAudioPlayerProtocol]
-    private let makePlayer: (Data) throws -> any AVAudioPlayerProtocol
+    private var activePlayers: [Layer.ID: P]
+    private let makePlayer: (Data) throws -> P
     
-    public init(makePlayer: @escaping (Data) throws -> any AVAudioPlayerProtocol) {
+    public init(makePlayer: @escaping (Data) throws -> P) {
         
         self.activePlayers = [:]
         self.makePlayer = makePlayer
@@ -30,7 +30,7 @@ public final class FoundationPlayer: Player {
         player.volume = Float(control.volume)
         player.enableRate = true
         player.rate = Self.rate(from: control.speed)
-        player.numberOfLoops = Self.playForever
+        player.numberOfLoops = Self.playForever()
         
         if let firstActivePlayer = activePlayers.first?.value {
             
@@ -57,5 +57,5 @@ public extension FoundationPlayer {
         return Float(((2.0 - 0.5) * _speed) + 0.5)
     }
     
-    static let playForever: Int = -1
+    static func playForever() -> Int { -1 }
 }

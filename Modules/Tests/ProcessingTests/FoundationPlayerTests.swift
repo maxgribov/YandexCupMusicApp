@@ -10,8 +10,6 @@ import Domain
 import Processing
 import AVFoundation
 
-
-
 final class FoundationPlayerTests: XCTestCase {
     
     var player: AVAudioPlayerSpy? = nil
@@ -80,13 +78,13 @@ final class FoundationPlayerTests: XCTestCase {
     
     func test_rateFromSpeed_correctCalculations() {
         
-        XCTAssertEqual(FoundationPlayer.rate(from: 0), 0.5, accuracy: .ulpOfOne)
-        XCTAssertEqual(FoundationPlayer.rate(from: 1), 2, accuracy: .ulpOfOne)
-        XCTAssertEqual(FoundationPlayer.rate(from: 0.5), 1.25, accuracy: .ulpOfOne)
-        XCTAssertEqual(FoundationPlayer.rate(from: 0.34), 1.01, accuracy: .ulpOfOne)
+        XCTAssertEqual(FoundationPlayer<AVAudioPlayerSpy>.rate(from: 0), 0.5, accuracy: .ulpOfOne)
+        XCTAssertEqual(FoundationPlayer<AVAudioPlayerSpy>.rate(from: 1), 2, accuracy: .ulpOfOne)
+        XCTAssertEqual(FoundationPlayer<AVAudioPlayerSpy>.rate(from: 0.5), 1.25, accuracy: .ulpOfOne)
+        XCTAssertEqual(FoundationPlayer<AVAudioPlayerSpy>.rate(from: 0.34), 1.01, accuracy: .ulpOfOne)
         
-        XCTAssertEqual(FoundationPlayer.rate(from: -1), 0.5, accuracy: .ulpOfOne)
-        XCTAssertEqual(FoundationPlayer.rate(from: 10), 2, accuracy: .ulpOfOne)
+        XCTAssertEqual(FoundationPlayer<AVAudioPlayerSpy>.rate(from: -1), 0.5, accuracy: .ulpOfOne)
+        XCTAssertEqual(FoundationPlayer<AVAudioPlayerSpy>.rate(from: 10), 2, accuracy: .ulpOfOne)
     }
     
     func test_play_setRateToValueCalculatedFromSpeed() {
@@ -173,7 +171,7 @@ final class FoundationPlayerTests: XCTestCase {
     private func makeSUT(
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> FoundationPlayer {
+    ) -> FoundationPlayer<AVAudioPlayerSpy> {
         
         let sut = FoundationPlayer {[weak self] data in
             let _player = try AVAudioPlayerSpy(data: data)
@@ -242,7 +240,7 @@ final class FoundationPlayerTests: XCTestCase {
     
     private func anyLayerID() -> Layer.ID { UUID() }
     private func anyData() -> Data { Data(UUID().uuidString.utf8) }
-    private func playForeverValue() -> Int { FoundationPlayer.playForever }
+    private func playForeverValue() -> Int { FoundationPlayer<AVAudioPlayerSpy>.playForever() }
 }
 
 
