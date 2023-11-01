@@ -13,13 +13,14 @@ import AVFoundation
 protocol AVAudioPlayerProtocol: AnyObject {
     
     init(data: Data) throws
-    
-    @discardableResult
-    func play() -> Bool
-    
+
     var volume: Float { get set }
     var enableRate: Bool { get set }
     var rate: Float { get set }
+    
+    @discardableResult
+    func play() -> Bool
+    func stop()
 }
 
 final class AVFoundationPlayer {
@@ -50,7 +51,7 @@ final class AVFoundationPlayer {
     
     func stop(id: Layer.ID) {
         
-        
+        activePlayers[id] = nil
     }
 }
 
@@ -164,6 +165,18 @@ final class AVFoundationPlayerTests: XCTestCase {
         XCTAssertEqual(sut.playing, [layerID])
     }
     
+    func test_stop_removesLayerIDFromPlayingValue() {
+        
+        let sut = makeSUT()
+        let layerID = anyLayerID()
+        sut.play(id: layerID, data: anyData(), control: .initial)
+        XCTAssertEqual(sut.playing, [layerID])
+        
+        sut.stop(id: layerID)
+        
+        XCTAssertTrue(sut.playing.isEmpty)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -192,6 +205,7 @@ final class AVFoundationPlayerTests: XCTestCase {
             
             case initWithData(Data)
             case play
+            case stop
         }
         
         required init(data: Data) throws {
@@ -204,6 +218,11 @@ final class AVFoundationPlayerTests: XCTestCase {
             
             messages.append(.play)
             return true
+        }
+        
+        func stop() {
+            
+            messages.append(.stop)
         }
     }
     
@@ -220,6 +239,8 @@ final class AVFoundationPlayerTests: XCTestCase {
         
         @discardableResult
         func play() -> Bool { false }
+        
+        func stop() {}
     }
     
     private func anyLayerID() -> Layer.ID { UUID() }
