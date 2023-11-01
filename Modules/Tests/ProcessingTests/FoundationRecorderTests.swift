@@ -32,16 +32,29 @@ protocol AVAudioSessionProtocol: AnyObject {
 
 extension AVAudioSession: AVAudioSessionProtocol {}
 
+protocol AVAudioRecorderProtocol: AnyObject {
+    
+    init(
+        url: URL,
+        settings: [String : Any]
+    ) throws
+    
+}
+
+extension AVAudioRecorder: AVAudioRecorderProtocol {}
+
 final class FoundationRecorder {
     
     private let session: AVAudioSessionProtocol
     private var permissionsState: RecordingPermissions
     private let recordingStatusSubject = CurrentValueSubject<RecordingStatus, Never>(.idle)
+    private let makeRecorder: (URL, [String : Any]) throws -> AVAudioRecorderProtocol
     
-    init(session: AVAudioSessionProtocol) {
+    init(session: AVAudioSessionProtocol, makeRecorder: @escaping (URL, [String : Any]) throws -> AVAudioRecorderProtocol) {
         
         self.session = session
         self.permissionsState = .required
+        self.makeRecorder = makeRecorder
     }
     
     func isRecording() -> AnyPublisher<Bool, Never> {
@@ -158,12 +171,14 @@ enum FoundationRecorderError: Error {
 
 final class FoundationRecorderTests: XCTestCase {
     
-    var cancellables = Set<AnyCancellable>()
+    private var recorder: AVAudioRecorderSpy? = nil
+    private var cancellables = Set<AnyCancellable>()
     
     override func setUp() async throws {
         try await super.setUp()
         
         cancellables = []
+        recorder = nil
     }
 
     func test_init_recordingNothing() {
@@ -222,6 +237,33 @@ final class FoundationRecorderTests: XCTestCase {
         XCTAssertEqual(isRecordingSpy.values, [false, true])
     }
     
+    func test_startRecording_deliversErrorOnRecorderInitFailureOnFirstAttempt() {
+        
+        let session = AVAudioSessionSpy()
+        let sut = FoundationRecorder(session: session) { url, settings in
+            
+             try AlwaysFailsAVAudioRecorderSpy(url: url, settings: settings)
+        }
+        
+        var receivedError: Error? = nil
+        sut.startRecording()
+            .sink(receiveCompletion: { completion in
+                
+                switch completion {
+                case let .failure(error):
+                    receivedError = error
+                    
+                case .finished:
+                    break
+                }
+            }, receiveValue: { _ in })
+            .store(in: &cancellables)
+        
+        session.respondForRecordPermissionRequest(allowed: true)
+        
+        XCTAssertNotNil(receivedError)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -233,7 +275,13 @@ final class FoundationRecorderTests: XCTestCase {
     ) {
         
         let session = AVAudioSessionSpy()
-        let sut = FoundationRecorder(session: session)
+        let sut = FoundationRecorder(session: session) { url, settings in
+            
+            let recorder = try AVAudioRecorderSpy(url: url, settings: settings)
+            self.recorder = recorder
+            
+            return recorder
+        }
         
         trackForMemoryLeaks(session, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
@@ -274,6 +322,24 @@ final class FoundationRecorderTests: XCTestCase {
             responses[index](allowed)
         }
     }
+    
+    private class AVAudioRecorderSpy: AVAudioRecorderProtocol {
+        
+        required init(url: URL, settings: [String : Any]) throws {
+            
+        }
+    }
+    
+    private class AlwaysFailsAVAudioRecorderSpy: AVAudioRecorderProtocol {
+        
+        required init(url: URL, settings: [String : Any]) throws {
+            
+            throw NSError(domain: "", code: 0)
+        }
+    }
 }
+
+// samples settings
+// ["AVChannelLayoutKey": <02006500 00000000 00000000>, "AVSampleRateKey": 44100, "AVNumberOfChannelsKey": 2, "AVFormatIDKey": 1633772320]
 
 #endif
