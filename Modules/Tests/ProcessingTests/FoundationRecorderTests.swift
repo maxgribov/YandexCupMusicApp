@@ -17,6 +17,11 @@ protocol AVAudioSessionProtocol: AnyObject {
         mode: AVAudioSession.Mode,
         options: AVAudioSession.CategoryOptions
     ) throws
+    
+    func setActive(
+        _ active: Bool,
+        options: AVAudioSession.SetActiveOptions
+    ) throws
 }
 
 extension AVAudioSession: AVAudioSessionProtocol {}
@@ -72,6 +77,7 @@ final class FoundationRecorder {
             do {
                 
                 try self?.session.setCategory(.playAndRecord, mode: .default, options: [])
+                try self?.session.setActive(true, options: [])
                 promise(.success(true))
                 
             } catch {
@@ -101,13 +107,13 @@ final class FoundationRecorderTests: XCTestCase {
         XCTAssertEqual(isRecordingSpy.values, [false])
     }
     
-    func test_startRecording_setCategoryForSessionOnFirstAttempt() throws {
+    func test_startRecording_setCategoryForSessionAndActiveOnFirstAttempt() throws {
         
         let (sut, session) = makeSUT()
         
         _ = sut.startRecording()
         
-        XCTAssertEqual(session.messages, [.setCategory(.playAndRecord, .default)])
+        XCTAssertEqual(session.messages, [.setCategory(.playAndRecord, .default), .setActive(true)])
     }
     
     //MARK: - Helpers
@@ -136,11 +142,17 @@ final class FoundationRecorderTests: XCTestCase {
         enum Message: Equatable {
             
             case setCategory(AVAudioSession.Category, AVAudioSession.Mode)
+            case setActive(Bool)
         }
         
-        func setCategory(_ category: AVAudioSession.Category, mode: AVAudioSession.Mode, options: AVAudioSession.CategoryOptions = []) throws {
+        func setCategory(_ category: AVAudioSession.Category, mode: AVAudioSession.Mode, options: AVAudioSession.CategoryOptions) throws {
             
             messages.append(.setCategory(category, mode))
+        }
+        
+        func setActive(_ active: Bool, options: AVAudioSession.SetActiveOptions) throws {
+            
+            messages.append(.setActive(active))
         }
     }
 }
