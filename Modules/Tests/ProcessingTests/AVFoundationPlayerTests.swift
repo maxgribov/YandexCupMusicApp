@@ -19,6 +19,7 @@ protocol AVAudioPlayerProtocol: AnyObject {
     
     var volume: Float { get set }
     var enableRate: Bool { get set }
+    var rate: Float { get set }
 }
 
 final class AVFoundationPlayer {
@@ -42,6 +43,7 @@ final class AVFoundationPlayer {
         
         player.volume = Float(control.volume)
         player.enableRate = true
+        player.rate = Self.rate(from: control.speed)
         player.play()
         activePlayers[id] = player
     }
@@ -128,9 +130,19 @@ final class AVFoundationPlayerTests: XCTestCase {
         XCTAssertEqual(AVFoundationPlayer.rate(from: 0), 0.5, accuracy: .ulpOfOne)
         XCTAssertEqual(AVFoundationPlayer.rate(from: 1), 2, accuracy: .ulpOfOne)
         XCTAssertEqual(AVFoundationPlayer.rate(from: 0.5), 1.25, accuracy: .ulpOfOne)
+        XCTAssertEqual(AVFoundationPlayer.rate(from: 0.34), 1.01, accuracy: .ulpOfOne)
         
         XCTAssertEqual(AVFoundationPlayer.rate(from: -1), 0.5, accuracy: .ulpOfOne)
         XCTAssertEqual(AVFoundationPlayer.rate(from: 10), 2, accuracy: .ulpOfOne)
+    }
+    
+    func test_play_setRateToValueCalculatedFromSpeed() {
+        
+        let sut = makeSUT()
+        
+        sut.play(id: anyLayerID(), data: anyData(), control: .init(volume: 1.0, speed: 1.0))
+        
+        XCTAssertEqual(player?.rate, 2.0)
     }
     
     //MARK: - Helpers
@@ -155,6 +167,7 @@ final class AVFoundationPlayerTests: XCTestCase {
         private(set) var messages = [Message]()
         var volume: Float = 1.0
         var enableRate: Bool = false
+        var rate: Float = 1.0
         
         enum Message: Equatable {
             
@@ -179,6 +192,7 @@ final class AVFoundationPlayerTests: XCTestCase {
         
         var volume: Float = 1.0
         var enableRate: Bool = false
+        var rate: Float = 1.0
         
         required init(data: Data) throws {
             

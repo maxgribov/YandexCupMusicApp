@@ -39,6 +39,6 @@ public extension Layer {
             self.speed = speed
         }
         
-        public static let initial = Control(volume: 1.0, speed: 0.5)
+        public static let initial = Control(volume: 1.0, speed: 0.34)
     }
 }
