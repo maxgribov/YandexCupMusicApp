@@ -47,6 +47,11 @@ final class AVFoundationPlayer {
         player.play()
         activePlayers[id] = player
     }
+    
+    func stop(id: Layer.ID) {
+        
+        
+    }
 }
 
 extension AVFoundationPlayer {
@@ -58,6 +63,8 @@ extension AVFoundationPlayer {
         return Float(((2.0 - 0.5) * _speed) + 0.5)
     }
 }
+
+extension AVAudioPlayer: AVAudioPlayerProtocol {}
 
 final class AVFoundationPlayerTests: XCTestCase {
     
@@ -145,6 +152,18 @@ final class AVFoundationPlayerTests: XCTestCase {
         XCTAssertEqual(player?.rate, 2.0)
     }
     
+    func test_stop_doesNotAffectPlayingValueOnIncorrectLayerID() {
+        
+        let sut = makeSUT()
+        let layerID = anyLayerID()
+        sut.play(id: layerID, data: anyData(), control: .initial)
+        XCTAssertEqual(sut.playing, [layerID])
+        
+        sut.stop(id: anyLayerID())
+        
+        XCTAssertEqual(sut.playing, [layerID])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -207,4 +226,4 @@ final class AVFoundationPlayerTests: XCTestCase {
     private func anyData() -> Data { Data(UUID().uuidString.utf8) }
 }
 
-extension AVAudioPlayer: AVAudioPlayerProtocol {}
+
