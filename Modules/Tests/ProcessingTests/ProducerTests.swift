@@ -8,7 +8,7 @@
 import XCTest
 import Combine
 import Domain
-import Producer
+import Processing
 
 final class ProducerTests: XCTestCase {
     

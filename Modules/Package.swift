@@ -14,11 +14,11 @@ let package = Package(
             name: "Persistence",
             targets: ["Persistence"]),
         .library(
+            name: "Processing",
+            targets: ["Processing"]),
+        .library(
             name: "Presentation",
             targets: ["Presentation"]),
-        .library(
-            name: "Producer",
-            targets: ["Producer"]),
     ],
     targets: [
         .target(
@@ -28,19 +28,19 @@ let package = Package(
             dependencies: ["Domain"],
             resources: [.process("Resources"),]),
         .target(
-            name: "Presentation",
+            name: "Processing",
             dependencies: ["Domain"]),
         .target(
-            name: "Producer",
+            name: "Presentation",
             dependencies: ["Domain"]),
         .testTarget(
             name: "PersistenceTests",
             dependencies: ["Domain", "Persistence"]),
         .testTarget(
+            name: "ProcessingTests",
+            dependencies: ["Domain", "Processing"]),
+        .testTarget(
             name: "PresentationTests",
             dependencies: ["Domain", "Presentation"]),
-        .testTarget(
-            name: "ProducerTests",
-            dependencies: ["Domain", "Producer"]),
     ]
 )

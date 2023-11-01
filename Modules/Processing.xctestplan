@@ -1,7 +1,7 @@
 {
   "configurations" : [
     {
-      "id" : "51C09DAD-3150-4B96-BE53-3F28481871E3",
+      "id" : "BE95A205-001E-4C0B-9653-29BBBA1F2140",
       "name" : "Test Scheme Action",
       "options" : {
 
@@ -9,15 +9,14 @@
     }
   ],
   "defaultOptions" : {
-    "codeCoverage" : false,
     "testExecutionOrdering" : "random"
   },
   "testTargets" : [
     {
       "target" : {
         "containerPath" : "container:",
-        "identifier" : "ProducerTests",
-        "name" : "ProducerTests"
+        "identifier" : "ProcessingTests",
+        "name" : "ProcessingTests"
       }
     }
   ],

@@ -6,9 +6,8 @@
 //
 
 import Foundation
-import Domain
-import Producer
 import Combine
+import Domain
 
 public struct LayerViewModel: Identifiable {
 

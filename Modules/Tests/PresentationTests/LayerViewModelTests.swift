@@ -9,7 +9,6 @@ import XCTest
 import Combine
 import Domain
 import Presentation
-import Producer
 
 final class LayerViewModelTests: XCTestCase {
     
