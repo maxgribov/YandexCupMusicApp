@@ -95,8 +95,7 @@ final class FoundationRecorderTests: XCTestCase {
 
     func test_init_recordingNothing() {
         
-        let session = AVAudioSessionSpy()
-        let sut = FoundationRecorder(session: session)
+        let (sut, _) = makeSUT()
         let isRecordingSpy = ValueSpy(sut.isRecording())
         
         XCTAssertEqual(isRecordingSpy.values, [false])
@@ -104,12 +103,30 @@ final class FoundationRecorderTests: XCTestCase {
     
     func test_startRecording_setCategoryForSessionOnFirstAttempt() throws {
         
-        let session = AVAudioSessionSpy()
-        let sut = FoundationRecorder(session: session)
+        let (sut, session) = makeSUT()
         
         _ = try sut.startRecording()
         
         XCTAssertEqual(session.messages, [.setCategory(.playAndRecord, .default)])
+    }
+    
+    //MARK: - Helpers
+    
+    private func makeSUT(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (
+        sut: FoundationRecorder,
+        session: AVAudioSessionSpy
+    ) {
+        
+        let session = AVAudioSessionSpy()
+        let sut = FoundationRecorder(session: session)
+        
+        trackForMemoryLeaks(session, file: file, line: line)
+        trackForMemoryLeaks(sut, file: file, line: line)
+        
+        return (sut, session)
     }
     
     private class AVAudioSessionSpy: AVAudioSessionProtocol {
