@@ -26,7 +26,14 @@ struct SampleSelectorView: View {
                 
                 ForEach(viewModel.items) { itemViewModel in
                 
-                    SampleItemView(viewModel: itemViewModel)
+                    Button(action: {
+                        
+                        viewModel.itemDidSelected(for: itemViewModel.id)
+                        
+                    }, label: {
+                        
+                        SampleItemView(viewModel: itemViewModel)
+                    })
                 }
                 
             }.background { Color(.backAccent)}
