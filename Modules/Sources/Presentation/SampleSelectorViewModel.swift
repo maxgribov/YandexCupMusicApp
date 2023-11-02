@@ -11,6 +11,7 @@ import Domain
 
 public final class SampleSelectorViewModel: ObservableObject {
     
+    public let instrument: Instrument
     public let items: [SampleItemViewModel]
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     @Published public private(set) var isSampleLoading: Bool
@@ -18,8 +19,9 @@ public final class SampleSelectorViewModel: ObservableObject {
     private let loadSample: (Sample.ID) -> AnyPublisher<Sample, Error>
     private var cancellable: AnyCancellable?
     
-    public init(items: [SampleItemViewModel], loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error>) {
+    public init(instrument: Instrument, items: [SampleItemViewModel], loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error>) {
         
+        self.instrument = instrument
         self.items = items
         self.loadSample = loadSample
         self.isSampleLoading = false

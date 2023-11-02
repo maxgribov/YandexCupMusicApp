@@ -35,6 +35,13 @@ final class SampleSelectorViewModelTests: XCTestCase {
         XCTAssertFalse(sut.isSampleLoading)
     }
     
+    func test_init_instrumentCorrectlyInjected() {
+        
+        let sut = makeSUT(instrument: .brass)
+        
+        XCTAssertEqual(sut.instrument, .brass)
+    }
+    
     func test_itemDidSelected_doesNotInformDelegateForWrongItemID() {
         
         let sut = makeSUT()
@@ -152,13 +159,14 @@ final class SampleSelectorViewModelTests: XCTestCase {
     //MARK: - Helpers
     
     private func makeSUT(
+        instrument: Instrument = SampleSelectorViewModelTests.someInstrument(),
         items: [SampleItemViewModel] = SampleSelectorViewModelTests.sampleItems(),
         loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error> = SampleSelectorViewModelTests.loadSampleDummy,
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> SampleSelectorViewModel {
         
-        let sut = SampleSelectorViewModel(items: items, loadSample: loadSample)
+        let sut = SampleSelectorViewModel(instrument: instrument, items: items, loadSample: loadSample)
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
@@ -207,6 +215,11 @@ final class SampleSelectorViewModelTests: XCTestCase {
     private func anyNSError() -> NSError {
         
         NSError(domain: "", code: 0)
+    }
+    
+    private static func someInstrument() -> Instrument {
+        
+        .guitar
     }
     
     private func anySample() -> Sample {

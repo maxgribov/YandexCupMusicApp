@@ -45,7 +45,8 @@ struct SampleSelectorView: View {
 #Preview {
     
     SampleSelectorView(
-        viewModel: .init(items: [
+        viewModel: .init(instrument: .guitar,
+                         items: [
             .init(id: "1", name: "sample 1"),
             .init(id: "2", name: "sample 2"),
             .init(id: "3", name: "sample 3")],
