@@ -62,21 +62,3 @@ struct SampleSelectorView: View {
                 .init(id: "3", name: "sample 3", isOdd: false)],
             loadSample: { _ in Empty().eraseToAnyPublisher() }))
 }
-
-struct SampleItemView: View {
-    
-    let viewModel: SampleItemViewModel
-    
-    var body: some View {
-        
-        Text(viewModel.name)
-            .foregroundColor(Color(.textPrimary))
-            .frame(minHeight: 44)
-            .padding(.horizontal, 5)
-            .background {
-                if viewModel.isOdd {
-                    Color(.white)
-                }
-            }
-    }
-}
