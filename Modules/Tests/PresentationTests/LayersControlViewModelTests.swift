@@ -39,11 +39,11 @@ final class LayersControlViewModelTests: XCTestCase {
         let sut = makeSUT(initial: [makeLayerViewModel(isPlaying: false),
                                     makeLayerViewModel(isPlaying: true),
                                     makeLayerViewModel(isPlaying: false)])
-        let delegateActionSpy = ValueSpy(sut.delegateAction)
         
-        sut.layers[2].playButtonDidTaped()
-        
-        XCTAssertEqual(delegateActionSpy.values, [.isPlayingDidChanged(sut.layers[2].id, true)])
+        expect(sut, delegateActions: [.isPlayingDidChanged(sut.layers[2].id, true)], on: {
+            
+            sut.layers[2].playButtonDidTaped()
+        })
     }
     
     func test_isMutedDidChanged_informDelegateIsMutedChangedForLayerWithID() {
@@ -51,11 +51,11 @@ final class LayersControlViewModelTests: XCTestCase {
         let sut = makeSUT(initial: [makeLayerViewModel(isMuted: false),
                                     makeLayerViewModel(isMuted: true),
                                     makeLayerViewModel(isMuted: false)])
-        let delegateActionSpy = ValueSpy(sut.delegateAction)
         
-        sut.layers[1].muteButtonDidTapped()
-        
-        XCTAssertEqual(delegateActionSpy.values, [.isMutedDidChanged(sut.layers[1].id, false)])
+        expect(sut, delegateActions: [.isMutedDidChanged(sut.layers[1].id, false)], on: {
+            
+            sut.layers[1].muteButtonDidTapped()
+        })
     }
     
     func test_deleteLayer_informDelegateDeleteLayerWithID() {
@@ -63,11 +63,11 @@ final class LayersControlViewModelTests: XCTestCase {
         let sut = makeSUT(initial: [makeLayerViewModel(),
                                     makeLayerViewModel(),
                                     makeLayerViewModel()])
-        let delegateActionSpy = ValueSpy(sut.delegateAction)
         
-        sut.layers[0].deleteButtonDidTapped()
-        
-        XCTAssertEqual(delegateActionSpy.values, [.deleteLayer(sut.layers[0].id)])
+        expect(sut, delegateActions: [.deleteLayer(sut.layers[0].id)], on: {
+            
+            sut.layers[0].deleteButtonDidTapped()
+        })
     }
     
     func test_selectLayer_informDelegateDeleteLayerWithID() {
@@ -75,11 +75,11 @@ final class LayersControlViewModelTests: XCTestCase {
         let sut = makeSUT(initial: [makeLayerViewModel(),
                                     makeLayerViewModel(),
                                     makeLayerViewModel()])
-        let delegateActionSpy = ValueSpy(sut.delegateAction)
         
-        sut.layers[2].selectDidTapped()
-        
-        XCTAssertEqual(delegateActionSpy.values, [.selectLayer(sut.layers[2].id)])
+        expect(sut, delegateActions: [.selectLayer(sut.layers[2].id)], on: {
+            
+            sut.layers[2].selectDidTapped()
+        })
     }
     
     private func makeSUT(
@@ -93,6 +93,19 @@ final class LayersControlViewModelTests: XCTestCase {
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
+    }
+    
+    private func expect(
+        _ sut: LayersControlViewModel,
+        delegateActions expectedActions: [LayersControlViewModel.DelegateAction],
+        on action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        action()
+        XCTAssertEqual(delegateActionSpy.values, expectedActions, file: file, line: line)
     }
     
     private static func updatesDummy() -> AnyPublisher<[LayerViewModel], Never> {
