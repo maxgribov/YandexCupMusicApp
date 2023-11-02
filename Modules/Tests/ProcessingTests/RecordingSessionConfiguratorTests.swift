@@ -155,6 +155,18 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
         }
     }
     
+    func test_isRecordingEnabled_deliversFalseOnSeccondAttemptWithPermissionsDeniedOnFirst() {
+        
+        let (sut, session) = makeSUT()
+        
+        expect(sut, result: false) {
+            
+            session.respondForRecordPermissionRequest(allowed: false)
+        }
+        
+        expect(sut, result: false) {}
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
