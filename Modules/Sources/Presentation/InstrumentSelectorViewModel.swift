@@ -30,7 +30,16 @@ public final class InstrumentSelectorViewModel {
             return
         }
         
-        delegateActionSubject.send(.instrumentDidSelected(buttonViewModel.instrument))
+        delegateActionSubject.send(.didTapped(buttonViewModel.instrument))
+    }
+    
+    public func buttonDidLongTapped(for buttonID: InstrumentButtonViewModel.ID) {
+        
+        guard let buttonViewModel = buttons.first(where: { $0.id == buttonID }) else {
+            return
+        }
+        
+        delegateActionSubject.send(.didLongTapped(buttonViewModel.instrument))
     }
 }
 
@@ -38,6 +47,7 @@ public extension InstrumentSelectorViewModel {
     
     enum DelegateAction: Equatable {
         
-        case instrumentDidSelected(Instrument)
+        case didTapped(Instrument)
+        case didLongTapped(Instrument)
     }
 }

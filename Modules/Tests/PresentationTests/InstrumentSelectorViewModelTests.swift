@@ -38,14 +38,35 @@ final class InstrumentSelectorViewModelTests: XCTestCase {
         })
     }
     
-    func test_buttonDidTapped_informDelegateInstrumentSelectedForInstrumentButtonID() {
+    func test_buttonDidTapped_informDelegateInstrumentTappedForInstrumentButtonID() {
         
         let sut = makeSUT()
         let selectedButton = sut.buttons[0]
         
-        expect(sut, delegateAction: .instrumentDidSelected(selectedButton.instrument), for: {
+        expect(sut, delegateAction: .didTapped(selectedButton.instrument), for: {
             
             sut.buttonDidTapped(for: selectedButton.id)
+        })
+    }
+    
+    func test_buttonDidLongTapped_doesNotInformDelegateForWrongID() {
+        
+        let sut = makeSUT()
+        
+        expect(sut, delegateAction: nil, for: {
+            
+            sut.buttonDidLongTapped(for: wrongInstrumentButtonViewModelID())
+        })
+    }
+    
+    func test_buttonDidLongTapped_informDelegateInstrumentLongTappedForInstrumentButtonID() {
+        
+        let sut = makeSUT()
+        let selectedButton = sut.buttons[1]
+        
+        expect(sut, delegateAction: .didLongTapped(selectedButton.instrument), for: {
+            
+            sut.buttonDidLongTapped(for: selectedButton.id)
         })
     }
 
