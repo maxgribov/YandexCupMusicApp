@@ -60,7 +60,7 @@ struct LayerView: View {
             
             LayerView(viewModel: .init(id: UUID(), name: "Guitar 1", isPlaying: false, isMuted: true, isActive: false))
             
-            LayerView(viewModel: .init(id: UUID(), name: "Drums 1", isPlaying: true, isMuted: false, isActive: true))
+            LayerView(viewModel: .init(id: UUID(), name: "Drums 2", isPlaying: true, isMuted: false, isActive: true))
             
         }.padding()
     }
