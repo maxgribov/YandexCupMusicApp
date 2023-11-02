@@ -118,8 +118,16 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
         
         XCTAssertEqual(session.messages, [.setCategory(.playAndRecord, .default), .setActive(true), .requestPermission])
     }
+    
+    func test_isRecordingEnabled_deliversErrorWithSetCategoryFailureOnFirstAttempt() {
+        
+        let error = anyNSError()
+        let (sut, _) = makeSUT(setCategoryError: error)
+        
+        expect(sut, error: error) {}
+    }
 
-    func test_isRecordingEnabled_receiveFalseWithPermissionsDeniedOnFirstAttempt() {
+    func test_isRecordingEnabled_deliversFalseWithPermissionsDeniedOnFirstAttempt() {
         
         let (sut, session) = makeSUT()
         
@@ -129,7 +137,7 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
         }
     }
     
-    func test_isRecordingEnabled_receiveTrueWithPermissionsGrantedOnFirstAttempt() {
+    func test_isRecordingEnabled_deliversTrueWithPermissionsGrantedOnFirstAttempt() {
         
         let (sut, session) = makeSUT()
         
@@ -142,6 +150,7 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
     //MARK: - Helpers
     
     private func makeSUT(
+        setCategoryError: Error? = nil,
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> (
@@ -150,6 +159,7 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
     ) {
         
         let session = AVAudioSessionSpy()
+        session.setCategoryErrorStub = setCategoryError
         let sut = RecordingSessionConfigurator(session: session)
         
         trackForMemoryLeaks(session, file: file, line: line)
@@ -163,6 +173,8 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
         private(set) var messages = [Message]()
         private var responses = [(Bool) -> Void]()
         
+        var setCategoryErrorStub: Error?
+        
         enum Message: Equatable {
             
             case setCategory(AVAudioSession.Category, AVAudioSession.Mode)
@@ -173,6 +185,11 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
         func setCategory(_ category: AVAudioSession.Category, mode: AVAudioSession.Mode, options: AVAudioSession.CategoryOptions) throws {
             
             messages.append(.setCategory(category, mode))
+            
+            if let setCategoryErrorStub {
+                
+                throw setCategoryErrorStub
+            }
         }
         
         func setActive(_ active: Bool, options: AVAudioSession.SetActiveOptions) throws {
@@ -225,6 +242,44 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
         action()
         
         wait(for: [resultExp, completionExp], timeout: 1.0)
+    }
+    
+    private func expect(
+        _ sut: RecordingSessionConfigurator,
+        error expectedError: Error,
+        on action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        let completionExp = expectation(description: "Wait for completion")
+        sut.isRecordingEnabled()
+            .sink(receiveCompletion: { completion in
+                
+                switch completion {
+                case let .failure(error):
+                    XCTAssertEqual(error as NSError, expectedError as NSError, file: file, line: line)
+                    
+                case .finished:
+                    break
+                }
+                
+                completionExp.fulfill()
+                
+            }, receiveValue: { receivedResult in
+                
+                XCTFail("Expect error: \(expectedError), got result: \(receivedResult) instead", file: file, line: line)
+            })
+            .store(in: &cancellables)
+        
+        action()
+        
+        wait(for: [completionExp], timeout: 1.0)
+    }
+    
+    private func anyNSError() -> NSError {
+        
+        NSError(domain: "", code: 0)
     }
 }
 
