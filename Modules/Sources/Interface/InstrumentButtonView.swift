@@ -24,8 +24,8 @@ struct InstrumentButtonView: View {
                     .foregroundColor(Color(.backPrimary))
                     .overlay {
                         viewModel.instrument.buttonIcon
-                            .resizable()
                     }
+                    .frame(width: 60, height: 60)
                 
                 Text(viewModel.instrument.name.lowercased())
                     .foregroundColor(Color(.textSecondary))
