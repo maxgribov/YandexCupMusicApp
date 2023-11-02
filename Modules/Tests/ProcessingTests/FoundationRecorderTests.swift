@@ -36,7 +36,22 @@ final class FoundationRecorderTests: XCTestCase {
             try AlwaysFailsAVAudioRecorderSpy(url: url, settings: settings)
         }
         
-        expect(sut, error: FoundationRecorderError.recorderInitFailure, on: {})
+        var receivedError: Error? = nil
+        sut.startRecording()
+            .sink(receiveCompletion: { completion in
+                
+                switch completion {
+                case let .failure(error):
+                    receivedError = error
+                    
+                case .finished:
+                    break
+                }
+                
+            }, receiveValue: { _ in  })
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(receivedError as? FoundationRecorderError, .recorderInitFailure)
     }
     
     func test_startRecording_invokesRecordMethodOnRecorder() {
@@ -159,7 +174,7 @@ final class FoundationRecorderTests: XCTestCase {
     private func makeSUT(
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> FoundationRecorder {
+    ) -> FoundationRecorder<AVAudioRecorderSpy> {
         
         let sut = FoundationRecorder { url, settings in
             
@@ -230,7 +245,7 @@ final class FoundationRecorderTests: XCTestCase {
     }
     
     private func expect(
-        _ sut: FoundationRecorder,
+        _ sut: FoundationRecorder<AVAudioRecorderSpy>,
         error expectedError: Error,
         on action: () -> Void,
         file: StaticString = #filePath,
@@ -263,7 +278,7 @@ final class FoundationRecorderTests: XCTestCase {
     }
     
     private func expect(
-        _ sut: FoundationRecorder,
+        _ sut: FoundationRecorder<AVAudioRecorderSpy>,
         result expectedResult: Data,
         on action: () -> Void,
         file: StaticString = #filePath,
@@ -295,7 +310,7 @@ final class FoundationRecorderTests: XCTestCase {
     }
     
     private func expect(
-        _ sut: FoundationRecorder,
+        _ sut: FoundationRecorder<AVAudioRecorderSpy>,
         isRecordingValuesAfterStartRecordingInvocation expectedValues: [Bool],
         on action: () -> Void,
         file: StaticString = #filePath,

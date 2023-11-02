@@ -8,17 +8,14 @@
 import AVFoundation
 import Combine
 
-public final class FoundationRecorder: NSObject {
+public final class FoundationRecorder<R>: NSObject, AVAudioRecorderDelegate where R: AVAudioRecorderProtocol {
     
     private let recordingStatusSubject = CurrentValueSubject<RecordingStatus, Never>(.idle)
-    private let makeRecorder: (URL, [String : Any]) throws -> AVAudioRecorderProtocol
+    private let makeRecorder: (URL, [String : Any]) throws -> R
     private let fileManager: FileManager
     
     public init(
-        makeRecorder: @escaping (
-            URL,
-            [String : Any]
-        ) throws -> AVAudioRecorderProtocol,
+        makeRecorder: @escaping (URL, [String : Any]) throws -> R,
         fileManager: FileManager = .default
     ) {
         
@@ -93,17 +90,6 @@ public final class FoundationRecorder: NSObject {
         
         fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
-
-    enum RecordingStatus {
-        
-        case idle
-        case inProgress(AVAudioRecorderProtocol)
-        case complete(Data)
-        case failed
-    }
-}
-
-extension FoundationRecorder: AVAudioRecorderDelegate {
     
     public func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         
@@ -122,6 +108,14 @@ extension FoundationRecorder: AVAudioRecorderDelegate {
         case false:
             recordingStatusSubject.send(.failed)
         }
+    }
+
+    enum RecordingStatus {
+        
+        case idle
+        case inProgress(AVAudioRecorderProtocol)
+        case complete(Data)
+        case failed
     }
 }
 
