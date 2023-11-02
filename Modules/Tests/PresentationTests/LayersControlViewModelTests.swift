@@ -39,7 +39,7 @@ final class LayersControlViewModelTests: XCTestCase {
         let sut = makeSUT(initial: [makeLayerViewModel(isPlaying: false),
                                     makeLayerViewModel(isPlaying: true),
                                     makeLayerViewModel(isPlaying: false)])
-        let delegateActionSpy = ValueSpy(sut.delegateActionSubject)
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.layers[2].playButtonDidTaped()
         
@@ -51,7 +51,7 @@ final class LayersControlViewModelTests: XCTestCase {
         let sut = makeSUT(initial: [makeLayerViewModel(isMuted: false),
                                     makeLayerViewModel(isMuted: true),
                                     makeLayerViewModel(isMuted: false)])
-        let delegateActionSpy = ValueSpy(sut.delegateActionSubject)
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.layers[1].muteButtonDidTapped()
         
@@ -63,7 +63,7 @@ final class LayersControlViewModelTests: XCTestCase {
         let sut = makeSUT(initial: [makeLayerViewModel(),
                                     makeLayerViewModel(),
                                     makeLayerViewModel()])
-        let delegateActionSpy = ValueSpy(sut.delegateActionSubject)
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.layers[0].deleteButtonDidTapped()
         
@@ -75,7 +75,7 @@ final class LayersControlViewModelTests: XCTestCase {
         let sut = makeSUT(initial: [makeLayerViewModel(),
                                     makeLayerViewModel(),
                                     makeLayerViewModel()])
-        let delegateActionSpy = ValueSpy(sut.delegateActionSubject)
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.layers[2].selectDidTapped()
         

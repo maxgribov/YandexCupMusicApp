@@ -12,7 +12,7 @@ import Domain
 public final class LayersControlViewModel: ObservableObject {
     
     @Published public private(set) var layers: [LayerViewModel]
-    public let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
+    private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
     private var bindings = Set<AnyCancellable>()
     private var layersDelegateBindings = Set<AnyCancellable>()
@@ -23,6 +23,11 @@ public final class LayersControlViewModel: ObservableObject {
         updates.assign(to: &$layers)
         
         bind()
+    }
+    
+    public var delegateAction: AnyPublisher<DelegateAction, Never> {
+        
+        delegateActionSubject.eraseToAnyPublisher()
     }
     
     private func bind() {
