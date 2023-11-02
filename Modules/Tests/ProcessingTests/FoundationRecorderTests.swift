@@ -73,14 +73,14 @@ final class FoundationRecorder: NSObject {
                     
                     switch status {
                     case let .complete(data): return data
-                    default: throw FoundationRecorderRecordFailedError()
+                    default: throw FoundationRecorderError.recordFailedError
                     }
                 }
                 .eraseToAnyPublisher()
             
         } catch {
             
-            return Fail<Data, Error>(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
+            return Fail<Data, Error>(error: FoundationRecorderError.recorderInitFailure).eraseToAnyPublisher()
         }
     }
     
@@ -144,7 +144,11 @@ extension FoundationRecorder: AVAudioRecorderDelegate {
     }
 }
 
-struct FoundationRecorderRecordFailedError: Error {}
+enum FoundationRecorderError: Error {
+    
+    case recorderInitFailure
+    case recordFailedError
+}
 
 final class FoundationRecorderTests: XCTestCase {
     
@@ -166,28 +170,13 @@ final class FoundationRecorderTests: XCTestCase {
         XCTAssertEqual(isRecordingSpy.values, [false])
     }
     
-    func test_startRecording_deliversErrorOnRecorderInitFailure() {
+    func test_startRecording_deliversErrorOnRecorderInitFailure() throws {
         
         let sut = FoundationRecorder() { url, settings in
-            
-             try AlwaysFailsAVAudioRecorderSpy(url: url, settings: settings)
+            try AlwaysFailsAVAudioRecorderSpy(url: url, settings: settings)
         }
         
-        var receivedError: Error? = nil
-        sut.startRecording()
-            .sink(receiveCompletion: { completion in
-                
-                switch completion {
-                case let .failure(error):
-                    receivedError = error
-                    
-                case .finished:
-                    break
-                }
-            }, receiveValue: { _ in })
-            .store(in: &cancellables)
-        
-        XCTAssertNotNil(receivedError)
+        expect(sut, error: FoundationRecorderError.recorderInitFailure, on: {})
     }
     
     func test_startRecording_invokesRecordMethodOnRecorder() {
@@ -240,24 +229,12 @@ final class FoundationRecorderTests: XCTestCase {
         
         let sut = makeSUT()
         
-        var receivedError: Error? = nil
-        sut.startRecording()
-            .sink(receiveCompletion: { completion in
-                switch completion {
-                case let .failure(error):
-                    receivedError = error
-                    
-                case .finished:
-                    break
-                }
-                
-            }, receiveValue: { _ in  })
-            .store(in: &cancellables)
-        
-        sut.stopRecording()
-        recorder?.delegate?.audioRecorderDidFinishRecording?(try makeAVAudioRecorderStub(url: anyURL()), successfully: false)
-        
-        XCTAssertNotNil(receivedError as? FoundationRecorderRecordFailedError)
+        let recorderStub = try makeAVAudioRecorderStub(url: anyURL())
+        expect(sut, error: FoundationRecorderError.recordFailedError, on: {
+            
+            sut.stopRecording()
+            recorder?.delegate?.audioRecorderDidFinishRecording?(recorderStub, successfully: false)
+        })
     }
     
     func test_stopRecording_stopsIsRecordingStateOnRecorderFinishWithNoSuccess() throws {
@@ -279,24 +256,12 @@ final class FoundationRecorderTests: XCTestCase {
         
         let sut = makeSUT()
         
-        var receivedError: Error? = nil
-        sut.startRecording()
-            .sink(receiveCompletion: { completion in
-                switch completion {
-                case let .failure(error):
-                    receivedError = error
-                    
-                case .finished:
-                    break
-                }
-                
-            }, receiveValue: { _ in  })
-            .store(in: &cancellables)
-        
-        sut.stopRecording()
-        recorder?.delegate?.audioRecorderDidFinishRecording?(try makeAVAudioRecorderStub(url: anyURL()), successfully: true)
-        
-        XCTAssertNotNil(receivedError as? FoundationRecorderRecordFailedError)
+        let recorderStub = try makeAVAudioRecorderStub(url: anyURL())
+        expect(sut, error: FoundationRecorderError.recordFailedError, on: {
+            
+            sut.stopRecording()
+            recorder?.delegate?.audioRecorderDidFinishRecording?(recorderStub, successfully: true)
+        })
     }
     
     func test_stopRecording_stopsIsRecordingOnRecorderFinishWithSuccessButDataFetchingFailed() throws {
@@ -421,6 +386,39 @@ final class FoundationRecorderTests: XCTestCase {
         return try AVAudioRecorder(url: url, settings: settings)
     }
     
+    private func expect(
+        _ sut: FoundationRecorder,
+        error expectedError: Error,
+        on action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        let exp = expectation(description: "Wait for completion")
+        sut.startRecording()
+            .sink(receiveCompletion: { completion in
+                
+                switch completion {
+                case let .failure(receivedError):
+                    XCTAssertEqual(receivedError as NSError, expectedError as NSError, "Expected \(expectedError), got: \(receivedError) instead", file: file, line: line)
+                    
+                case .finished:
+                    XCTFail("Expected error: \(expectedError), got finished instead", file: file, line: line)
+                }
+                
+                exp.fulfill()
+                
+            }, receiveValue: { result in
+                
+                XCTFail("Expected error: \(expectedError), got result: \(result) instead", file: file, line: line)
+            })
+            .store(in: &cancellables)
+        
+        action()
+        
+        wait(for: [exp], timeout: 1.0)
+    }
+    
     private func makeAudioDataStub() throws -> (data: Data, url: URL) {
         
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("recording.m4a")
@@ -433,6 +431,11 @@ final class FoundationRecorderTests: XCTestCase {
     private func anyURL() -> URL {
     
         URL(string: "www.any-url.com")!
+    }
+    
+    private func anyNSError() -> NSError {
+        
+        NSError(domain: "", code: 0)
     }
 }
 
