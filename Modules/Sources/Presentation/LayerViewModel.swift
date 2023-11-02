@@ -17,7 +17,7 @@ public struct LayerViewModel: Identifiable {
     public let isMuted: Bool
     public let isActive: Bool
     
-    public let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
+    private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
     public init(id: Layer.ID, name: String, isPlaying: Bool, isMuted: Bool, isActive: Bool) {
         
@@ -31,6 +31,11 @@ public struct LayerViewModel: Identifiable {
     public init(with layer: Layer, isActive: Bool) {
         
         self.init(id: layer.id, name: layer.name, isPlaying: layer.isPlaying, isMuted: layer.isMuted, isActive: isActive)
+    }
+    
+    public var delegateAction: AnyPublisher<DelegateAction, Never> {
+        
+        delegateActionSubject.eraseToAnyPublisher()
     }
     
     public func playButtonDidTaped() {

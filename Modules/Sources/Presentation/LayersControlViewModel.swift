@@ -43,7 +43,7 @@ public final class LayersControlViewModel: ObservableObject {
     
     private func bind(layer: LayerViewModel) {
         
-        layer.delegateActionSubject
+        layer.delegateAction
             .sink { [weak self] delegateAction in
                 
                 guard let self else { return }

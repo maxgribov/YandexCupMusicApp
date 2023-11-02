@@ -89,7 +89,7 @@ final class LayerViewModelTests: XCTestCase {
         line: UInt = #line
     ) {
         
-        let delegateSpy = ValueSpy(sut.delegateActionSubject)
+        let delegateSpy = ValueSpy(sut.delegateAction)
         
         action()
         
