@@ -53,6 +53,7 @@ public final class SampleSelectorViewModel: ObservableObject {
             }, receiveValue: {[weak self] sample in
                 
                 self?.delegateActionSubject.send(.sampleDidSelected(sample))
+                self?.isSampleLoading = false
             })
     }
 }

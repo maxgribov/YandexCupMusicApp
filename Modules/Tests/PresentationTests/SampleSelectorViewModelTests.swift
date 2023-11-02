@@ -137,6 +137,18 @@ final class SampleSelectorViewModelTests: XCTestCase {
         XCTAssertFalse(sut.isSampleLoading)
     }
     
+    func test_isSampleLoading_falseOnSampleLoadingSuccess() {
+        
+        let loadSampleStub = PassthroughSubject<Sample, Error>()
+        let sut = makeSUT(loadSample: { _ in loadSampleStub.eraseToAnyPublisher() })
+        let selectedItem = sut.items[0]
+        sut.itemDidSelected(for: selectedItem.id)
+        
+        loadSampleStub.send(anySample())
+        
+        XCTAssertFalse(sut.isSampleLoading)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -189,9 +201,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
     
     private static func loadSampleDummy(_ sampleID: Sample.ID) -> AnyPublisher<Sample, Error> {
         
-        Just(Sample(id: "", data: Data()))
-            .mapError{ _ in NSError(domain: "", code: 0) }
-            .eraseToAnyPublisher()
+        Empty().eraseToAnyPublisher()
     }
     
     private func anyNSError() -> NSError {
