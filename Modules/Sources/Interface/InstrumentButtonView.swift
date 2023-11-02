@@ -12,25 +12,25 @@ import Domain
 struct InstrumentButtonView: View {
     
     let viewModel: InstrumentButtonViewModel
-    let action: () -> Void
+    let tapAction: () -> Void
+    let longTapAction: () -> Void
     
     var body: some View {
         
-        Button(action: action) {
+        VStack {
             
-            VStack {
-                
-                Circle()
-                    .foregroundColor(Color(.backPrimary))
-                    .overlay {
-                        viewModel.instrument.buttonIcon
-                    }
-                    .frame(width: 60, height: 60)
-                
-                Text(viewModel.instrument.name.lowercased())
-                    .foregroundColor(Color(.textSecondary))
-            }
+            Circle()
+                .foregroundColor(Color(.backPrimary))
+                .overlay {
+                    viewModel.instrument.buttonIcon
+                }
+                .frame(width: 60, height: 60)
+            
+            Text(viewModel.instrument.name.lowercased())
+                .foregroundColor(Color(.textSecondary))
         }
+        .onTapGesture { tapAction() }
+        .onLongPressGesture { longTapAction() }
     }
 }
 
@@ -42,9 +42,9 @@ struct InstrumentButtonView: View {
         
         HStack(spacing: 40) {
             
-            InstrumentButtonView(viewModel: .init(instrument: .guitar)){}
-            InstrumentButtonView(viewModel: .init(instrument: .drums)){}
-            InstrumentButtonView(viewModel: .init(instrument: .brass)){}
+            InstrumentButtonView(viewModel:  .init(instrument: .guitar), tapAction: {}, longTapAction: {})
+            InstrumentButtonView(viewModel: .init(instrument: .drums), tapAction: {}, longTapAction: {})
+            InstrumentButtonView(viewModel: .init(instrument: .brass), tapAction: {}, longTapAction: {})
         }
     }
 }

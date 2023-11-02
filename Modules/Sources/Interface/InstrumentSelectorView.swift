@@ -18,10 +18,9 @@ struct InstrumentSelectorView: View {
             
             ForEach(viewModel.buttons) { buttonViewModel in
             
-                InstrumentButtonView(viewModel: buttonViewModel) {
-                    
-                    viewModel.buttonDidTapped(for: buttonViewModel.id)
-                }
+                InstrumentButtonView(viewModel: buttonViewModel,
+                                     tapAction: { viewModel.buttonDidTapped(for: buttonViewModel.id)},
+                                     longTapAction: { viewModel.buttonDidLongTapped(for: buttonViewModel.id)})
                 
                 if buttonViewModel.id != viewModel.buttons.last?.id {
                     
