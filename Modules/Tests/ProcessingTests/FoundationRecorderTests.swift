@@ -18,6 +18,8 @@ protocol AVAudioRecorderProtocol: AnyObject {
         settings: [String : Any]
     ) throws
     
+    @discardableResult
+    func record() -> Bool
 }
 
 extension AVAudioRecorder: AVAudioRecorderProtocol {}
@@ -52,6 +54,7 @@ final class FoundationRecorder {
         do {
             
             let recorder = try makeRecorder(makeRecordingURL(), makeRecordingSettings())
+            recorder.record()
             recordingStatusSubject.send(.inProgress(recorder))
             
             return self.recordingStatusSubject
@@ -143,6 +146,17 @@ final class FoundationRecorderTests: XCTestCase {
         
         XCTAssertNotNil(receivedError)
     }
+    
+    func test_startRecording_invokesRecordMethodOnRecorder() {
+        
+        let sut = makeSUT()
+        
+        sut.startRecording()
+            .sink(receiveCompletion: { _ in}, receiveValue: { _ in  })
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(recorder?.messages, [.initialisation, .record])
+    }
 
     func test_startRecording_startsRecording() {
         
@@ -178,8 +192,23 @@ final class FoundationRecorderTests: XCTestCase {
     
     private class AVAudioRecorderSpy: AVAudioRecorderProtocol {
         
+        private(set) var messages = [Message]()
+        
+        enum Message: Equatable {
+            
+            case initialisation
+            case record
+        }
+        
         required init(url: URL, settings: [String : Any]) throws {
             
+            messages.append(.initialisation)
+        }
+        
+        func record() -> Bool {
+            
+            messages.append(.record)
+            return true
         }
     }
     
@@ -189,10 +218,9 @@ final class FoundationRecorderTests: XCTestCase {
             
             throw NSError(domain: "", code: 0)
         }
+        
+        func record() -> Bool { return false }
     }
 }
-
-// samples settings
-// ["AVChannelLayoutKey": <02006500 00000000 00000000>, "AVSampleRateKey": 44100, "AVNumberOfChannelsKey": 2, "AVFormatIDKey": 1633772320]
 
 #endif
