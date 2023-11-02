@@ -31,7 +31,7 @@ final class SampleControlViewModelTests: XCTestCase {
     
     func test_init_controlNilWithUpdateNil() {
         
-        let sut = SampleControlViewModel(update: Just(nil).eraseToAnyPublisher())
+        let sut = makeSUT()
         let controlValueSpy = ValueSpy(sut.$control)
         
         XCTAssertEqual(controlValueSpy.values, [nil])
@@ -39,34 +39,47 @@ final class SampleControlViewModelTests: XCTestCase {
     
     func test_init_controlValueWithUpdateValue() {
         
-        let sut = SampleControlViewModel(update: Just(.init(volume: 1, speed: 1)).eraseToAnyPublisher())
+        let control = Layer.Control(volume: 1, speed: 1)
+        let sut = makeSUT(initial: control)
         let controlValueSpy = ValueSpy(sut.$control)
         
-        XCTAssertEqual(controlValueSpy.values, [.init(volume: 1, speed: 1)])
+        XCTAssertEqual(controlValueSpy.values, [control])
     }
 
     func test_isKnobPresented_deliverFalseOnControlNil() {
         
-        let sut = SampleControlViewModel(update: Just(nil).eraseToAnyPublisher())
+        let sut = makeSUT()
         
         XCTAssertFalse(sut.isKnobPresented)
     }
     
     func test_isKnobPresented_deliverTrueOnControlNotNil() {
         
-        let sut = SampleControlViewModel(update: Just(.init(volume: 1, speed: 1)).eraseToAnyPublisher())
+        let sut = makeSUT(initial: .init(volume: 1, speed: 1))
         
         XCTAssertTrue(sut.isKnobPresented)
     }
     
     func test_knobPosition_deliversZeroOnControlNil() {
         
-        let sut = SampleControlViewModel(update: Just(nil).eraseToAnyPublisher())
+        let sut = makeSUT()
         
         XCTAssertEqual(sut.knobPosition(for: someSize()), .zero)
     }
     
     //MARK: - Helpers
+    
+    private func makeSUT(
+        initial control: Layer.Control? = nil,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> SampleControlViewModel {
+        
+        let sut = SampleControlViewModel(update: Just(control).eraseToAnyPublisher())
+        trackForMemoryLeaks(sut, file: file, line: line)
+        
+        return sut
+    }
     
     private func someSize() -> CGSize {
         .init(width: 100, height: 200)
