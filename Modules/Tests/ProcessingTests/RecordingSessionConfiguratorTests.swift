@@ -126,6 +126,14 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
         
         expect(sut, error: error) {}
     }
+    
+    func test_isRecordingEnabled_deliversErrorWithSetActiveFailureOnFirstAttempt() {
+        
+        let error = anyNSError()
+        let (sut, _) = makeSUT(setActiveError: error)
+        
+        expect(sut, error: error) {}
+    }
 
     func test_isRecordingEnabled_deliversFalseWithPermissionsDeniedOnFirstAttempt() {
         
@@ -151,6 +159,7 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
     
     private func makeSUT(
         setCategoryError: Error? = nil,
+        setActiveError: Error? = nil,
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> (
@@ -160,6 +169,7 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
         
         let session = AVAudioSessionSpy()
         session.setCategoryErrorStub = setCategoryError
+        session.setActiveErrorStub = setActiveError
         let sut = RecordingSessionConfigurator(session: session)
         
         trackForMemoryLeaks(session, file: file, line: line)
@@ -174,6 +184,7 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
         private var responses = [(Bool) -> Void]()
         
         var setCategoryErrorStub: Error?
+        var setActiveErrorStub: Error?
         
         enum Message: Equatable {
             
@@ -195,6 +206,11 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
         func setActive(_ active: Bool, options: AVAudioSession.SetActiveOptions) throws {
             
             messages.append(.setActive(active))
+            
+            if let setActiveErrorStub {
+                
+                throw setActiveErrorStub
+            }
         }
         
         func requestRecordPermission(_ response: @escaping (Bool) -> Void) {
