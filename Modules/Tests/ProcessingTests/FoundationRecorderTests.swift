@@ -18,19 +18,28 @@ protocol AVAudioRecorderProtocol: AnyObject {
         settings: [String : Any]
     ) throws
     
+    var delegate: AVAudioRecorderDelegate? { get set }
+    
     @discardableResult
     func record() -> Bool
+    func stop()
 }
 
 extension AVAudioRecorder: AVAudioRecorderProtocol {}
 
-final class FoundationRecorder {
+final class FoundationRecorder: NSObject {
     
     private let recordingStatusSubject = CurrentValueSubject<RecordingStatus, Never>(.idle)
     private let makeRecorder: (URL, [String : Any]) throws -> AVAudioRecorderProtocol
     private let fileManager: FileManager
     
-    init(makeRecorder: @escaping (URL, [String : Any]) throws -> AVAudioRecorderProtocol, fileManager: FileManager = .default) {
+    init(
+        makeRecorder: @escaping (
+            URL,
+            [String : Any]
+        ) throws -> AVAudioRecorderProtocol,
+        fileManager: FileManager = .default
+    ) {
         
         self.makeRecorder = makeRecorder
         self.fileManager = fileManager
@@ -54,16 +63,17 @@ final class FoundationRecorder {
         do {
             
             let recorder = try makeRecorder(makeRecordingURL(), makeRecordingSettings())
+            recorder.delegate = self
             recorder.record()
             recordingStatusSubject.send(.inProgress(recorder))
             
             return self.recordingStatusSubject
+                .dropFirst()
                 .tryMap { status in
                     
                     switch status {
                     case let .complete(data): return data
-                    default:
-                        throw NSError(domain: "", code: 0)
+                    default: throw FoundationRecorderRecordFailedError()
                     }
                 }
                 .eraseToAnyPublisher()
@@ -72,6 +82,10 @@ final class FoundationRecorder {
             
             return Fail<Data, Error>(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
         }
+    }
+    
+    func stopRecording() {
+        
     }
     
     private func makeRecordingURL() -> URL {
@@ -102,6 +116,22 @@ final class FoundationRecorder {
         case failed
     }
 }
+
+extension FoundationRecorder: AVAudioRecorderDelegate {
+    
+    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+        
+        switch flag {
+        case true:
+            break
+
+        case false:
+            recordingStatusSubject.send(.failed)
+        }
+    }
+}
+
+struct FoundationRecorderRecordFailedError: Error {}
 
 final class FoundationRecorderTests: XCTestCase {
     
@@ -169,6 +199,55 @@ final class FoundationRecorderTests: XCTestCase {
         
         XCTAssertEqual(isRecordingSpy.values, [false, true])
     }
+    
+    func test_stopRecording_doesNothingIfRecordingDidNotStartedPreviously() {
+        
+        let sut = makeSUT()
+        let isRecordingSpy = ValueSpy(sut.isRecording())
+        
+        sut.stopRecording()
+        
+        XCTAssertEqual(isRecordingSpy.values, [false])
+    }
+    
+    func test_stopRecording_deliversErrorOnRecorderFinishWithNoSuccess() throws {
+        
+        let sut = makeSUT()
+        
+        var receivedError: Error? = nil
+        sut.startRecording()
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case let .failure(error):
+                    receivedError = error
+                    
+                case .finished:
+                    break
+                }
+                
+            }, receiveValue: { _ in  })
+            .store(in: &cancellables)
+        
+        sut.stopRecording()
+        recorder?.delegate?.audioRecorderDidFinishRecording?(try makeAVAudioRecorderStub(url: anyURL()), successfully: false)
+        
+        XCTAssertNotNil(receivedError as? FoundationRecorderRecordFailedError)
+    }
+    
+    func test_stopRecording_stopsIsRecordingState() throws {
+        
+        let sut = makeSUT()
+        let isRecordingSpy = ValueSpy(sut.isRecording())
+        
+        sut.startRecording()
+            .sink(receiveCompletion: { _ in}, receiveValue: { _ in  })
+            .store(in: &cancellables)
+ 
+        sut.stopRecording()
+        recorder?.delegate?.audioRecorderDidFinishRecording?(try makeAVAudioRecorderStub(url: anyURL()), successfully: false)
+        
+        XCTAssertEqual(isRecordingSpy.values, [false, true, false])
+    }
 
     //MARK: - Helpers
     
@@ -198,7 +277,10 @@ final class FoundationRecorderTests: XCTestCase {
             
             case initialisation
             case record
+            case stop
         }
+        
+        weak var delegate: AVAudioRecorderDelegate?
         
         required init(url: URL, settings: [String : Any]) throws {
             
@@ -210,9 +292,16 @@ final class FoundationRecorderTests: XCTestCase {
             messages.append(.record)
             return true
         }
+        
+        func stop() {
+            
+            messages.append(.stop)
+        }
     }
     
     private class AlwaysFailsAVAudioRecorderSpy: AVAudioRecorderProtocol {
+        
+        weak var delegate: AVAudioRecorderDelegate?
         
         required init(url: URL, settings: [String : Any]) throws {
             
@@ -220,6 +309,24 @@ final class FoundationRecorderTests: XCTestCase {
         }
         
         func record() -> Bool { return false }
+        func stop() {}
+    }
+    
+    private func makeAVAudioRecorderStub(url: URL) throws -> AVAudioRecorder {
+        
+        let settings = [
+            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+            AVSampleRateKey: 12000,
+            AVNumberOfChannelsKey: 1,
+            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+        ]
+        
+        return try AVAudioRecorder(url: url, settings: settings)
+    }
+    
+    private func anyURL() -> URL {
+    
+        URL(string: "www.any-url.com")!
     }
 }
 
