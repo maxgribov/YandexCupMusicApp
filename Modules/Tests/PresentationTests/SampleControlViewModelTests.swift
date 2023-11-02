@@ -23,7 +23,11 @@ final class SampleControlViewModel {
     
     func knobPosition(for size: CGSize) -> CGPoint {
         
-        .zero
+        guard let control else {
+            return .zero
+        }
+        
+        return Self.calculateKnobPosition(with: control, and: size)
     }
 }
 
@@ -89,9 +93,18 @@ final class SampleControlViewModelTests: XCTestCase {
         XCTAssertEqual(sut(.init(volume: 0, speed: 0), .init(width: 100, height: 100)), .zero)
         XCTAssertEqual(sut(.init(volume: 1, speed: 1), .zero), .zero)
         XCTAssertEqual(sut(.init(volume: 1, speed: 1), .init(width: 100, height: 100)), .init(x: 100, y: 100))
+        XCTAssertEqual(sut(.init(volume: 1, speed: 0), .init(width: 100, height: 100)), .init(x: 0, y: 100))
+        XCTAssertEqual(sut(.init(volume: 0, speed: 1), .init(width: 100, height: 100)), .init(x: 100, y: 0))
         XCTAssertEqual(sut(.init(volume: 0.5, speed: 0.5), .init(width: 100, height: 100)), .init(x: 50, y: 50))
         XCTAssertEqual(sut(.init(volume: -1, speed: -1), .init(width: 100, height: 100)), .zero)
         XCTAssertEqual(sut(.init(volume: 10, speed: 10), .init(width: 100, height: 100)), .init(x: 100, y: 100))
+    }
+    
+    func test_knobPosition_deliversExpectedValueOnControlNotNil() {
+        
+        let sut = makeSUT(initial: .init(volume: 0.3, speed: 0.9))
+        
+        XCTAssertEqual(sut.knobPosition(for: .init(width: 100, height: 100)), .init(x: 90, y: 30))
     }
     
     //MARK: - Helpers
