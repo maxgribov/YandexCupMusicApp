@@ -19,6 +19,9 @@ let package = Package(
         .library(
             name: "Presentation",
             targets: ["Presentation"]),
+        .library(
+            name: "Interface",
+            targets: ["Interface"]),
     ],
     targets: [
         .target(
@@ -33,6 +36,9 @@ let package = Package(
         .target(
             name: "Presentation",
             dependencies: ["Domain"]),
+        .target(
+            name: "Interface",
+            dependencies: ["Domain", "Presentation"]),
         .testTarget(
             name: "PersistenceTests",
             dependencies: ["Domain", "Persistence"]),
