@@ -26,10 +26,12 @@ final class FoundationRecorder {
     
     private let recordingStatusSubject = CurrentValueSubject<RecordingStatus, Never>(.idle)
     private let makeRecorder: (URL, [String : Any]) throws -> AVAudioRecorderProtocol
+    private let fileManager: FileManager
     
-    init(makeRecorder: @escaping (URL, [String : Any]) throws -> AVAudioRecorderProtocol) {
+    init(makeRecorder: @escaping (URL, [String : Any]) throws -> AVAudioRecorderProtocol, fileManager: FileManager = .default) {
         
         self.makeRecorder = makeRecorder
+        self.fileManager = fileManager
     }
     
     func isRecording() -> AnyPublisher<Bool, Never> {
@@ -47,24 +49,52 @@ final class FoundationRecorder {
     
     func startRecording() -> AnyPublisher<Data, Error> {
         
-        recordingStatusSubject.send(.inProgress(URL(string: "http://www.some-url.com")!))
-        
-        return self.recordingStatusSubject
-            .tryMap { status in
-                
-                switch status {
-                case let .complete(data): return data
-                default:
-                    throw NSError(domain: "", code: 0)
+        do {
+            
+            let recorder = try makeRecorder(makeRecordingURL(), makeRecordingSettings())
+            recordingStatusSubject.send(.inProgress(recorder))
+            
+            return self.recordingStatusSubject
+                .tryMap { status in
+                    
+                    switch status {
+                    case let .complete(data): return data
+                    default:
+                        throw NSError(domain: "", code: 0)
+                    }
                 }
-                
-            }.eraseToAnyPublisher()
+                .eraseToAnyPublisher()
+            
+        } catch {
+            
+            return Fail<Data, Error>(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
+        }
+    }
+    
+    private func makeRecordingURL() -> URL {
+        
+        getDocumentsDirectory().appendingPathComponent("recording.m4a")
+    }
+    
+    private func makeRecordingSettings() -> [String: Any] {
+        
+        [
+            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+            AVSampleRateKey: 12000,
+            AVNumberOfChannelsKey: 1,
+            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+        ]
+    }
+    
+    private func getDocumentsDirectory() -> URL {
+        
+        fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
 
     enum RecordingStatus {
         
         case idle
-        case inProgress(URL)
+        case inProgress(AVAudioRecorderProtocol)
         case complete(Data)
         case failed
     }
