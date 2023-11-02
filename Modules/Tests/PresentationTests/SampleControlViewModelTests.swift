@@ -18,6 +18,8 @@ final class SampleControlViewModel {
         self.control = nil
         update.assign(to: &$control)
     }
+    
+    var isKnobPresented: Bool { control != nil }
 }
 
 final class SampleControlViewModelTests: XCTestCase {
@@ -38,4 +40,17 @@ final class SampleControlViewModelTests: XCTestCase {
         XCTAssertEqual(controlValueSpy.values, [.init(volume: 1, speed: 1)])
     }
 
+    func test_isKnobPresented_deliverFalseOnControlNil() {
+        
+        let sut = SampleControlViewModel(update: Just(nil).eraseToAnyPublisher())
+        
+        XCTAssertFalse(sut.isKnobPresented)
+    }
+    
+    func test_isKnobPresented_deliverTrueOnControlNotNil() {
+        
+        let sut = SampleControlViewModel(update: Just(.init(volume: 1, speed: 1)).eraseToAnyPublisher())
+        
+        XCTAssertTrue(sut.isKnobPresented)
+    }
 }
