@@ -12,7 +12,7 @@ import Domain
 public final class SampleSelectorViewModel: ObservableObject {
     
     public let items: [SampleItemViewModel]
-    public let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
+    private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     @Published public private(set) var isSampleLoading: Bool
     
     private let loadSample: (Sample.ID) -> AnyPublisher<Sample, Error>
@@ -23,6 +23,11 @@ public final class SampleSelectorViewModel: ObservableObject {
         self.items = items
         self.loadSample = loadSample
         self.isSampleLoading = false
+    }
+    
+    public var delegateAction: AnyPublisher<DelegateAction, Never> {
+        
+        delegateActionSubject.eraseToAnyPublisher()
     }
     
     public func itemDidSelected(for itemID: SampleItemViewModel.ID) {

@@ -148,7 +148,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
         line: UInt = #line
     ) {
         
-        let delegateSpy = ValueSpy(sut.delegateActionSubject)
+        let delegateSpy = ValueSpy(sut.delegateAction)
         
         action()
         
