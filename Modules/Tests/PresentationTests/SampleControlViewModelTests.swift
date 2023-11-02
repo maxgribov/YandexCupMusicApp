@@ -19,6 +19,11 @@ final class SampleControlViewModel {
         update.assign(to: &$control)
     }
     
+    var delegateAction: AnyPublisher<DelegateAction, Never> {
+        
+        Empty().eraseToAnyPublisher()
+    }
+    
     var isKnobPresented: Bool { control != nil }
     
     func knobPosition(for size: CGSize) -> CGPoint {
@@ -29,9 +34,19 @@ final class SampleControlViewModel {
         
         return Self.calculateKnobPosition(with: control, and: size)
     }
+    
+    func knobPositionDidChanged(position: CGPoint) {
+        
+        
+    }
 }
 
 extension SampleControlViewModel {
+    
+    enum DelegateAction: Equatable {
+        
+        case controlDidUpdated(Layer.Control)
+    }
     
     static func calculateKnobPosition(with control: Layer.Control, and size: CGSize) -> CGPoint {
         
@@ -46,6 +61,14 @@ extension SampleControlViewModel {
 }
 
 final class SampleControlViewModelTests: XCTestCase {
+    
+    var cancellables = Set<AnyCancellable>()
+    
+    override func setUp() async throws {
+        try await super.setUp()
+        
+        cancellables = []
+    }
     
     func test_init_controlNilWithUpdateNil() {
         
@@ -107,6 +130,23 @@ final class SampleControlViewModelTests: XCTestCase {
         XCTAssertEqual(sut.knobPosition(for: .init(width: 100, height: 100)), .init(x: 90, y: 30))
     }
     
+    func test_knobPositionDidChanged_doesNotInformDelegateOnControlNil() {
+        
+        let sut = makeSUT()
+        
+        var receivedAction: SampleControlViewModel.DelegateAction? = nil
+        sut.delegateAction
+            .sink { action in
+                
+                receivedAction = action
+                
+            }.store(in: &cancellables)
+        
+        sut.knobPositionDidChanged(position: .init(x: 100, y: 100))
+        
+        XCTAssertNil(receivedAction)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -120,6 +160,7 @@ final class SampleControlViewModelTests: XCTestCase {
         
         return sut
     }
+    
     
     private func someSize() -> CGSize {
         .init(width: 100, height: 200)
