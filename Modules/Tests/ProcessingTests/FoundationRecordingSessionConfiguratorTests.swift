@@ -1,5 +1,5 @@
 //
-//  RecordingSessionConfiguratorTests.swift
+//  FoundationRecordingSessionConfiguratorTests.swift
 //  
 //
 //  Created by Max Gribov on 02.11.2023.
@@ -8,101 +8,11 @@
 import XCTest
 import AVFoundation
 import Combine
+import Processing
 
 #if os(iOS)
-protocol AVAudioSessionProtocol: AnyObject {
-    
-    func setCategory(
-        _ category: AVAudioSession.Category,
-        mode: AVAudioSession.Mode,
-        options: AVAudioSession.CategoryOptions
-    ) throws
-    
-    func setActive(
-        _ active: Bool,
-        options: AVAudioSession.SetActiveOptions
-    ) throws
-    
-    func requestRecordPermission(
-        _ response: @escaping (
-            Bool
-        ) -> Void
-    )
-}
 
-extension AVAudioSession: AVAudioSessionProtocol {}
-
-final class RecordingSessionConfigurator {
-    
-    private let session: AVAudioSessionProtocol
-    private var permissionsState: RecordingPermissions
-    
-    init(session: AVAudioSessionProtocol) {
-        
-        self.session = session
-        self.permissionsState = .required
-    }
-        
-    func isRecordingEnabled() -> AnyPublisher<Bool, Error> {
-    
-        Just(permissionsState)
-            .setFailureType(to: Error.self)
-            .flatMap { [unowned self] state in
-                
-                switch state {
-                case .required:
-                    return self.configureSessionAndRequestPermissions()
-                        .handleEvents(
-                            receiveOutput: { [weak self] result in
-                                
-                                self?.permissionsState = result ? .allowed : .rejected
-                            }
-                        ).eraseToAnyPublisher()
-                    
-                case .allowed:
-                    return Just(true)
-                        .setFailureType(to: Error.self)
-                        .eraseToAnyPublisher()
-                    
-                case .rejected:
-                    return Just(false)
-                        .setFailureType(to: Error.self)
-                        .eraseToAnyPublisher()
-                }
-                
-            }.eraseToAnyPublisher()
-    }
-    
-    private func configureSessionAndRequestPermissions() -> AnyPublisher<Bool, Error> {
-        
-        Future { [weak self] promise in
-            
-            do {
-                
-                try self?.session.setCategory(.playAndRecord, mode: .default, options: [])
-                try self?.session.setActive(true, options: [])
-                self?.session.requestRecordPermission { result in
-                    
-                    promise(.success(result))
-                }
-                
-            } catch {
-                
-                promise(.failure(error))
-            }
-            
-        }.eraseToAnyPublisher()
-    }
-    
-    enum RecordingPermissions {
-        
-        case required
-        case allowed
-        case rejected
-    }
-}
-
-final class RecordingSessionConfiguratorTests: XCTestCase {
+final class FoundationRecordingSessionConfiguratorTests: XCTestCase {
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -191,14 +101,14 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> (
-        sut: RecordingSessionConfigurator,
+        sut: FoundationRecordingSessionConfigurator,
         session: AVAudioSessionSpy
     ) {
         
         let session = AVAudioSessionSpy()
         session.setCategoryErrorStub = setCategoryError
         session.setActiveErrorStub = setActiveError
-        let sut = RecordingSessionConfigurator(session: session)
+        let sut = FoundationRecordingSessionConfigurator(session: session)
         
         trackForMemoryLeaks(session, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
@@ -254,7 +164,7 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
     }
     
     private func expect(
-        _ sut: RecordingSessionConfigurator,
+        _ sut: FoundationRecordingSessionConfigurator,
         result expectedResult: Bool,
         on action: () -> Void,
         file: StaticString = #filePath,
@@ -289,7 +199,7 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
     }
     
     private func expect(
-        _ sut: RecordingSessionConfigurator,
+        _ sut: FoundationRecordingSessionConfigurator,
         error expectedError: Error,
         on action: () -> Void,
         file: StaticString = #filePath,
