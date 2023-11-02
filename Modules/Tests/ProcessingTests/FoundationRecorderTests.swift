@@ -193,13 +193,8 @@ final class FoundationRecorderTests: XCTestCase {
     func test_startRecording_startsRecording() {
         
         let sut = makeSUT()
-        let isRecordingSpy = ValueSpy(sut.isRecording())
         
-        sut.startRecording()
-            .sink(receiveCompletion: { _ in}, receiveValue: { _ in  })
-            .store(in: &cancellables)
-        
-        XCTAssertEqual(isRecordingSpy.values, [false, true])
+        expect(sut, isRecordingValuesAfterStartRecordingInvocation: [false, true], on: {})
     }
     
     func test_stopRecording_doesNothingIfRecordingDidNotStartedPreviously() {
@@ -240,16 +235,13 @@ final class FoundationRecorderTests: XCTestCase {
     func test_stopRecording_stopsIsRecordingStateOnRecorderFinishWithNoSuccess() throws {
         
         let sut = makeSUT()
-        let isRecordingSpy = ValueSpy(sut.isRecording())
         
-        sut.startRecording()
-            .sink(receiveCompletion: { _ in}, receiveValue: { _ in  })
-            .store(in: &cancellables)
- 
-        sut.stopRecording()
-        recorder?.delegate?.audioRecorderDidFinishRecording?(try makeAVAudioRecorderStub(url: anyURL()), successfully: false)
-        
-        XCTAssertEqual(isRecordingSpy.values, [false, true, false])
+        let recorderStub = try makeAVAudioRecorderStub(url: anyURL())
+        expect(sut, isRecordingValuesAfterStartRecordingInvocation: [false, true, false], on: {
+            
+            sut.stopRecording()
+            recorder?.delegate?.audioRecorderDidFinishRecording?(recorderStub, successfully: false)
+        })
     }
     
     func test_stopRecording_deliversErrorOnRecorderFinishWithSuccessButDataFetchingFailed() throws {
@@ -267,16 +259,13 @@ final class FoundationRecorderTests: XCTestCase {
     func test_stopRecording_stopsIsRecordingOnRecorderFinishWithSuccessButDataFetchingFailed() throws {
         
         let sut = makeSUT()
-        let isRecordingSpy = ValueSpy(sut.isRecording())
         
-        sut.startRecording()
-            .sink(receiveCompletion: { _ in}, receiveValue: { _ in  })
-            .store(in: &cancellables)
- 
-        sut.stopRecording()
-        recorder?.delegate?.audioRecorderDidFinishRecording?(try makeAVAudioRecorderStub(url: anyURL()), successfully: true)
-        
-        XCTAssertEqual(isRecordingSpy.values, [false, true, false])
+        let recorderStub = try makeAVAudioRecorderStub(url: anyURL())
+        expect(sut, isRecordingValuesAfterStartRecordingInvocation: [false, true, false], on: {
+            
+            sut.stopRecording()
+            recorder?.delegate?.audioRecorderDidFinishRecording?(recorderStub, successfully: true)
+        })
     }
     
     func test_stopRecording_deliversDataOnSuccessRecordingAndSuccessDataFetching() throws {
@@ -298,17 +287,14 @@ final class FoundationRecorderTests: XCTestCase {
     func test_stopRecording_stopsIsRecordingOnSuccessRecordingAndSuccessDataFetching() throws {
         
         let sut = makeSUT()
-        let isRecordingSpy = ValueSpy(sut.isRecording())
         
-        sut.startRecording()
-            .sink(receiveCompletion: { _ in}, receiveValue: { _ in  })
-            .store(in: &cancellables)
- 
-        sut.stopRecording()
         let (_, url) = try makeAudioDataStub()
-        recorder?.delegate?.audioRecorderDidFinishRecording?(try makeAVAudioRecorderStub(url: url), successfully: true)
-        
-        XCTAssertEqual(isRecordingSpy.values, [false, true, false])
+        let recorderStub = try makeAVAudioRecorderStub(url: url)
+        expect(sut, isRecordingValuesAfterStartRecordingInvocation: [false, true, false], on: {
+            
+            sut.stopRecording()
+            recorder?.delegate?.audioRecorderDidFinishRecording?(recorderStub, successfully: true)
+        })
     }
 
     //MARK: - Helpers
@@ -417,6 +403,25 @@ final class FoundationRecorderTests: XCTestCase {
         action()
         
         wait(for: [exp], timeout: 1.0)
+    }
+    
+    private func expect(
+        _ sut: FoundationRecorder,
+        isRecordingValuesAfterStartRecordingInvocation expectedValues: [Bool],
+        on action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        let isRecordingSpy = ValueSpy(sut.isRecording())
+        
+        sut.startRecording()
+            .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+            .store(in: &cancellables)
+        
+        action()
+        
+        XCTAssertEqual(isRecordingSpy.values, expectedValues, file: file, line: line)
     }
     
     private func makeAudioDataStub() throws -> (data: Data, url: URL) {
