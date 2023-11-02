@@ -20,6 +20,11 @@ final class SampleControlViewModel {
     }
     
     var isKnobPresented: Bool { control != nil }
+    
+    func knobPosition(for size: CGSize) -> CGPoint {
+        
+        .zero
+    }
 }
 
 final class SampleControlViewModelTests: XCTestCase {
@@ -52,5 +57,18 @@ final class SampleControlViewModelTests: XCTestCase {
         let sut = SampleControlViewModel(update: Just(.init(volume: 1, speed: 1)).eraseToAnyPublisher())
         
         XCTAssertTrue(sut.isKnobPresented)
+    }
+    
+    func test_knobPosition_deliversZeroOnControlNil() {
+        
+        let sut = SampleControlViewModel(update: Just(nil).eraseToAnyPublisher())
+        
+        XCTAssertEqual(sut.knobPosition(for: someSize()), .zero)
+    }
+    
+    //MARK: - Helpers
+    
+    private func someSize() -> CGSize {
+        .init(width: 100, height: 200)
     }
 }
