@@ -19,9 +19,7 @@ struct SampleSelectorView: View {
             
             Circle()
                 .foregroundColor(Color(.backAccent))
-                .overlay {
-                    Image(.guitarIcon)
-                }
+                .overlay { viewModel.instrument.buttonIcon }
                 .frame(width: 60, height: 60)
             
             VStack(spacing: 0) {
@@ -45,12 +43,13 @@ struct SampleSelectorView: View {
 #Preview {
     
     SampleSelectorView(
-        viewModel: .init(instrument: .guitar,
-                         items: [
-            .init(id: "1", name: "sample 1"),
-            .init(id: "2", name: "sample 2"),
-            .init(id: "3", name: "sample 3")],
-                         loadSample: { _ in Empty().eraseToAnyPublisher() }))
+        viewModel: .init(
+            instrument: .brass,
+            items: [
+                .init(id: "1", name: "sample 1"),
+                .init(id: "2", name: "sample 2"),
+                .init(id: "3", name: "sample 3")],
+            loadSample: { _ in Empty().eraseToAnyPublisher() }))
 }
 
 struct SampleItemView: View {

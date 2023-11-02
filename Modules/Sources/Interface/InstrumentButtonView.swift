@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Presentation
-import Domain
 
 struct InstrumentButtonView: View {
     
@@ -21,9 +20,7 @@ struct InstrumentButtonView: View {
             
             Circle()
                 .foregroundColor(Color(.backPrimary))
-                .overlay {
-                    viewModel.instrument.buttonIcon
-                }
+                .overlay { viewModel.instrument.buttonIcon }
                 .frame(width: 60, height: 60)
             
             Text(viewModel.instrument.name.lowercased())
@@ -49,14 +46,3 @@ struct InstrumentButtonView: View {
     }
 }
 
-extension Instrument {
-    
-    var buttonIcon: Image {
-        
-        switch self {
-        case .guitar: return Image(.guitarIcon)
-        case .drums: return Image(.drumsIcon)
-        case .brass: return Image(.brassIcon)
-        }
-    }
-}
