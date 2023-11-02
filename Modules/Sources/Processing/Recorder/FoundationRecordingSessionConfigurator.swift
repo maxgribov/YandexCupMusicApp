@@ -10,12 +10,12 @@ import Combine
 
 #if os(iOS)
 
-public final class FoundationRecordingSessionConfigurator {
+public final class FoundationRecordingSessionConfigurator<S> where S: AVAudioSessionProtocol {
     
-    private let session: AVAudioSessionProtocol
+    private let session: S
     private var permissionsState: RecordingPermissions
     
-    public init(session: AVAudioSessionProtocol) {
+    public init(session: S) {
         
         self.session = session
         self.permissionsState = .required

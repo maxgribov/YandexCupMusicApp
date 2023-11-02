@@ -101,7 +101,7 @@ final class FoundationRecordingSessionConfiguratorTests: XCTestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> (
-        sut: FoundationRecordingSessionConfigurator,
+        sut: FoundationRecordingSessionConfigurator<AVAudioSessionSpy>,
         session: AVAudioSessionSpy
     ) {
         
@@ -164,7 +164,7 @@ final class FoundationRecordingSessionConfiguratorTests: XCTestCase {
     }
     
     private func expect(
-        _ sut: FoundationRecordingSessionConfigurator,
+        _ sut: FoundationRecordingSessionConfigurator<AVAudioSessionSpy>,
         result expectedResult: Bool,
         on action: () -> Void,
         file: StaticString = #filePath,
@@ -199,7 +199,7 @@ final class FoundationRecordingSessionConfiguratorTests: XCTestCase {
     }
     
     private func expect(
-        _ sut: FoundationRecordingSessionConfigurator,
+        _ sut: FoundationRecordingSessionConfigurator<AVAudioSessionSpy>,
         error expectedError: Error,
         on action: () -> Void,
         file: StaticString = #filePath,
