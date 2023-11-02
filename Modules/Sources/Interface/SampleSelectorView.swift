@@ -32,6 +32,12 @@ struct SampleSelectorView: View {
             }.background { Color(.backAccent)}
             
             Color.clear
+                .overlay {
+                    
+                    if viewModel.isSampleLoading {
+                        ProgressView().offset(y: -10)
+                    }
+                }
                 .frame(width: 60, height : 30)
             
         }.background { Capsule().foregroundColor(Color(.backAccent))}
