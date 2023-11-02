@@ -44,6 +44,7 @@ public final class SampleSelectorViewModel: ObservableObject {
                 switch completion {
                 case .failure:
                     self?.delegateActionSubject.send(.failedSelectSample(item.id))
+                    self?.isSampleLoading = false
                     
                 case .finished:
                     break
