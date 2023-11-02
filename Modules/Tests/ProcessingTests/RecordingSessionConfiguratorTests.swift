@@ -123,36 +123,20 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
         
         let (sut, session) = makeSUT()
         
-        var receivedResult: Bool? = nil
-        sut.isRecordingEnabled()
-            .sink(receiveCompletion: { _ in  },
-                  receiveValue: { result in
-                
-                receivedResult = result
-            })
-            .store(in: &cancellables)
-        
-        session.respondForRecordPermissionRequest(allowed: false)
-        
-        XCTAssertEqual(receivedResult, false)
+        expect(sut, result: false) {
+            
+            session.respondForRecordPermissionRequest(allowed: false)
+        }
     }
     
     func test_isRecordingEnabled_receiveTrueWithPermissionsGrantedOnFirstAttempt() {
         
         let (sut, session) = makeSUT()
         
-        var receivedResult: Bool? = nil
-        sut.isRecordingEnabled()
-            .sink(receiveCompletion: { _ in  },
-                  receiveValue: { result in
-                
-                receivedResult = result
-            })
-            .store(in: &cancellables)
-        
-        session.respondForRecordPermissionRequest(allowed: true)
-        
-        XCTAssertEqual(receivedResult, true)
+        expect(sut, result: true) {
+            
+            session.respondForRecordPermissionRequest(allowed: true)
+        }
     }
     
     //MARK: - Helpers
@@ -206,6 +190,41 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
             
             responses[index](allowed)
         }
+    }
+    
+    private func expect(
+        _ sut: RecordingSessionConfigurator,
+        result expectedResult: Bool,
+        on action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        let resultExp = expectation(description: "Wait for result")
+        let completionExp = expectation(description: "Wait for completion")
+        sut.isRecordingEnabled()
+            .sink(receiveCompletion: { completion in
+                
+                switch completion {
+                case let .failure(error):
+                    XCTFail("Expected result: \(expectedResult), got \(error) instead", file: file, line: line)
+                    
+                case .finished:
+                    break
+                }
+                
+                completionExp.fulfill()
+                
+            }, receiveValue: { receivedResult in
+                
+                XCTAssertEqual(receivedResult, expectedResult, file: file, line: line)
+                resultExp.fulfill()
+            })
+            .store(in: &cancellables)
+        
+        action()
+        
+        wait(for: [resultExp, completionExp], timeout: 1.0)
     }
 }
 
