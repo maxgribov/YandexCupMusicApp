@@ -27,6 +27,20 @@ final class SampleControlViewModel {
     }
 }
 
+extension SampleControlViewModel {
+    
+    static func calculateKnobPosition(with control: Layer.Control, and size: CGSize) -> CGPoint {
+        
+        let speed = min(max(control.speed, 0), 1)
+        let volume = min(max(control.volume, 0), 1)
+
+        let x = CGFloat(size.width * speed)
+        let y = CGFloat(size.height * volume)
+        
+        return .init(x: x, y: y)
+    }
+}
+
 final class SampleControlViewModelTests: XCTestCase {
     
     func test_init_controlNilWithUpdateNil() {
@@ -65,6 +79,19 @@ final class SampleControlViewModelTests: XCTestCase {
         let sut = makeSUT()
         
         XCTAssertEqual(sut.knobPosition(for: someSize()), .zero)
+    }
+    
+    func test_calculateKnobPosition_expectedResults() {
+        
+        let sut = SampleControlViewModel.calculateKnobPosition
+        
+        XCTAssertEqual(sut(.init(volume: 0, speed: 0), .zero), .zero)
+        XCTAssertEqual(sut(.init(volume: 0, speed: 0), .init(width: 100, height: 100)), .zero)
+        XCTAssertEqual(sut(.init(volume: 1, speed: 1), .zero), .zero)
+        XCTAssertEqual(sut(.init(volume: 1, speed: 1), .init(width: 100, height: 100)), .init(x: 100, y: 100))
+        XCTAssertEqual(sut(.init(volume: 0.5, speed: 0.5), .init(width: 100, height: 100)), .init(x: 50, y: 50))
+        XCTAssertEqual(sut(.init(volume: -1, speed: -1), .init(width: 100, height: 100)), .zero)
+        XCTAssertEqual(sut(.init(volume: 10, speed: 10), .init(width: 100, height: 100)), .init(x: 100, y: 100))
     }
     
     //MARK: - Helpers
