@@ -32,11 +32,9 @@ struct SampleSelectorView: View {
             }.background { Color(.backAccent)}
             
             Color.clear
-                .frame(width: 60, height :30)
+                .frame(width: 60, height : 30)
             
-        }
-        .padding(5)
-        .background { Capsule().foregroundColor(Color(.backAccent))}
+        }.background { Capsule().foregroundColor(Color(.backAccent))}
     }
 }
 
@@ -46,9 +44,9 @@ struct SampleSelectorView: View {
         viewModel: .init(
             instrument: .brass,
             items: [
-                .init(id: "1", name: "sample 1"),
-                .init(id: "2", name: "sample 2"),
-                .init(id: "3", name: "sample 3")],
+                .init(id: "1", name: "sample 1", isOdd: false),
+                .init(id: "2", name: "sample 2", isOdd: true),
+                .init(id: "3", name: "sample 3", isOdd: false)],
             loadSample: { _ in Empty().eraseToAnyPublisher() }))
 }
 
@@ -61,5 +59,11 @@ struct SampleItemView: View {
         Text(viewModel.name)
             .foregroundColor(Color(.textPrimary))
             .frame(minHeight: 44)
+            .padding(.horizontal, 5)
+            .background {
+                if viewModel.isOdd {
+                    Color(.white)
+                }
+            }
     }
 }

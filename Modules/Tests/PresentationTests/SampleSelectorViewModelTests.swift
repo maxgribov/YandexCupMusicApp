@@ -22,7 +22,7 @@ final class SampleSelectorViewModelTests: XCTestCase {
 
     func test_init_itemsConstructorInjected() {
         
-        let items = [SampleItemViewModel(id: "1", name: "sample 1")]
+        let items = [SampleItemViewModel(id: "1", name: "sample 1", isOdd: false)]
         let sut = makeSUT(items: items)
         
         XCTAssertEqual(sut.items, items)
@@ -198,9 +198,9 @@ final class SampleSelectorViewModelTests: XCTestCase {
     
     private static func sampleItems() -> [SampleItemViewModel] {
         
-        [.init(id: "1", name: "sample 1"),
-         .init(id: "2", name: "sample 2"),
-         .init(id: "3", name: "sample 3")]
+        [.init(id: "1", name: "sample 1", isOdd: false),
+         .init(id: "2", name: "sample 2", isOdd: true),
+         .init(id: "3", name: "sample 3", isOdd: false)]
     }
     
     private func wrongItemID() -> SampleItemViewModel.ID {
