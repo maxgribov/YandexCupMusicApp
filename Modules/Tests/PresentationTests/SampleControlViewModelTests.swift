@@ -12,6 +12,7 @@ import Domain
 final class SampleControlViewModel {
     
     @Published private(set) var control: Layer.Control?
+    private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
     init(update: AnyPublisher<Layer.Control?, Never>) {
         
@@ -21,7 +22,7 @@ final class SampleControlViewModel {
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
         
-        Empty().eraseToAnyPublisher()
+        delegateActionSubject.eraseToAnyPublisher()
     }
     
     var isKnobPresented: Bool { control != nil }
@@ -35,9 +36,14 @@ final class SampleControlViewModel {
         return Self.calculateKnobPosition(with: control, and: size)
     }
     
-    func knobPositionDidChanged(position: CGPoint) {
+    func knobPositionDidChanged(position: CGPoint, size: CGSize) {
         
+        guard control != nil else {
+            return
+        }
         
+        let controlUpdate = Self.calculateControl(forKnobPosition: position, and: size)
+        delegateActionSubject.send(.controlDidUpdated(controlUpdate))
     }
 }
 
@@ -50,13 +56,21 @@ extension SampleControlViewModel {
     
     static func calculateKnobPosition(with control: Layer.Control, and size: CGSize) -> CGPoint {
         
-        let speed = min(max(control.speed, 0), 1)
         let volume = min(max(control.volume, 0), 1)
+        let speed = min(max(control.speed, 0), 1)
 
         let x = CGFloat(size.width * speed)
         let y = CGFloat(size.height * volume)
         
         return .init(x: x, y: y)
+    }
+    
+    static func calculateControl(forKnobPosition position: CGPoint, and size: CGSize) -> Layer.Control {
+        
+        let volume = Double(size.height / position.y)
+        let speed = Double(size.width / position.x)
+        
+        return .init(volume: volume, speed: speed)
     }
 }
 
@@ -133,18 +147,21 @@ final class SampleControlViewModelTests: XCTestCase {
     func test_knobPositionDidChanged_doesNotInformDelegateOnControlNil() {
         
         let sut = makeSUT()
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
         
-        var receivedAction: SampleControlViewModel.DelegateAction? = nil
-        sut.delegateAction
-            .sink { action in
-                
-                receivedAction = action
-                
-            }.store(in: &cancellables)
+        sut.knobPositionDidChanged(position: .init(x: 100, y: 100), size: .init(width: 100, height: 100))
         
-        sut.knobPositionDidChanged(position: .init(x: 100, y: 100))
+        XCTAssertEqual(delegateActionSpy.values, [])
+    }
+    
+    func test_knobPositionDidChanged_informDelegateWithPositionDidChangeActionOnControlNotNil() {
         
-        XCTAssertNil(receivedAction)
+        let sut = makeSUT(initial: .init(volume: 0.5, speed: 0.7))
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        
+        sut.knobPositionDidChanged(position: .init(x: 100, y: 100), size: .init(width: 100, height: 100))
+
+        XCTAssertEqual(delegateActionSpy.values, [.controlDidUpdated(.init(volume: 1, speed: 1))])
     }
     
     //MARK: - Helpers
