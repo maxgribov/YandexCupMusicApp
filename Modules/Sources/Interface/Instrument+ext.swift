@@ -13,9 +13,9 @@ extension Instrument {
     var buttonIcon: Image {
         
         switch self {
-        case .guitar: return Image(.guitarIcon)
-        case .drums: return Image(.drumsIcon)
-        case .brass: return Image(.brassIcon)
+        case .guitar: return Image(.iconGuitar)
+        case .drums: return Image(.iconDrums)
+        case .brass: return Image(.iconBrass)
         }
     }
 }
