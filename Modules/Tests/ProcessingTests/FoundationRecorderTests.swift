@@ -123,7 +123,14 @@ extension FoundationRecorder: AVAudioRecorderDelegate {
         
         switch flag {
         case true:
-            break
+            do {
+                
+                let data = try Data(contentsOf: recorder.url)
+                
+            } catch {
+                
+                recordingStatusSubject.send(.failed)
+            }
 
         case false:
             recordingStatusSubject.send(.failed)
@@ -234,7 +241,7 @@ final class FoundationRecorderTests: XCTestCase {
         XCTAssertNotNil(receivedError as? FoundationRecorderRecordFailedError)
     }
     
-    func test_stopRecording_stopsIsRecordingState() throws {
+    func test_stopRecording_stopsIsRecordingStateOnRecorderFinishWithNoSuccess() throws {
         
         let sut = makeSUT()
         let isRecordingSpy = ValueSpy(sut.isRecording())
@@ -245,6 +252,45 @@ final class FoundationRecorderTests: XCTestCase {
  
         sut.stopRecording()
         recorder?.delegate?.audioRecorderDidFinishRecording?(try makeAVAudioRecorderStub(url: anyURL()), successfully: false)
+        
+        XCTAssertEqual(isRecordingSpy.values, [false, true, false])
+    }
+    
+    func test_stopRecording_deliversErrorOnRecorderFinishWithSuccessButDataFetchingFailed() throws {
+        
+        let sut = makeSUT()
+        
+        var receivedError: Error? = nil
+        sut.startRecording()
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case let .failure(error):
+                    receivedError = error
+                    
+                case .finished:
+                    break
+                }
+                
+            }, receiveValue: { _ in  })
+            .store(in: &cancellables)
+        
+        sut.stopRecording()
+        recorder?.delegate?.audioRecorderDidFinishRecording?(try makeAVAudioRecorderStub(url: anyURL()), successfully: true)
+        
+        XCTAssertNotNil(receivedError as? FoundationRecorderRecordFailedError)
+    }
+    
+    func test_stopRecording_stopsIsRecordingOnRecorderFinishWithSuccessButDataFetchingFailed() throws {
+        
+        let sut = makeSUT()
+        let isRecordingSpy = ValueSpy(sut.isRecording())
+        
+        sut.startRecording()
+            .sink(receiveCompletion: { _ in}, receiveValue: { _ in  })
+            .store(in: &cancellables)
+ 
+        sut.stopRecording()
+        recorder?.delegate?.audioRecorderDidFinishRecording?(try makeAVAudioRecorderStub(url: anyURL()), successfully: true)
         
         XCTAssertEqual(isRecordingSpy.values, [false, true, false])
     }
