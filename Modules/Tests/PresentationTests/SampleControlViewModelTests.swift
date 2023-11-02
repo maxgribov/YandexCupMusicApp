@@ -67,8 +67,13 @@ extension SampleControlViewModel {
     
     static func calculateControl(forKnobPosition position: CGPoint, and size: CGSize) -> Layer.Control {
         
-        let volume = Double(size.height / position.y)
-        let speed = Double(size.width / position.x)
+        let positionY = max(position.y, 0)
+        let positionX = max(position.x, 0)
+        let height = max(size.height, 0)
+        let width = max(size.width, 0)
+        
+        let volume = height <= 0 ? 0 : Double(positionY / height)
+        let speed = width <= 0 ? 0 : Double(positionX / width)
         
         return .init(volume: volume, speed: speed)
     }
@@ -152,6 +157,20 @@ final class SampleControlViewModelTests: XCTestCase {
         sut.knobPositionDidChanged(position: .init(x: 100, y: 100), size: .init(width: 100, height: 100))
         
         XCTAssertEqual(delegateActionSpy.values, [])
+    }
+    
+    func test_calculateControl_expectedResults() {
+        
+        let sut = SampleControlViewModel.calculateControl
+        
+        XCTAssertEqual(sut(.zero, .zero), .init(volume: 0, speed: 0))
+        XCTAssertEqual(sut(.init(x: 100, y: 100), .zero), .init(volume: 0, speed: 0))
+        XCTAssertEqual(sut(.zero, .init(width: 100, height: 100)), .init(volume: 0, speed: 0))
+        XCTAssertEqual(sut(.init(x: 50, y: 50), .init(width: 100, height: 100)), .init(volume: 0.5, speed: 0.5))
+        XCTAssertEqual(sut(.init(x: 30, y: 70), .init(width: 100, height: 100)), .init(volume: 0.7, speed: 0.3))
+        
+        XCTAssertEqual(sut(.init(x: -50, y: -50), .init(width: 100, height: 100)), .init(volume: 0, speed: 0))
+        XCTAssertEqual(sut(.init(x: 50, y: 50), .init(width: -100, height: -100)), .init(volume: 0, speed: 0))
     }
     
     func test_knobPositionDidChanged_informDelegateWithPositionDidChangeActionOnControlNotNil() {
