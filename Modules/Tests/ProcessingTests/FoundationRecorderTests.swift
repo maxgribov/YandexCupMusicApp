@@ -272,16 +272,13 @@ final class FoundationRecorderTests: XCTestCase {
         
         let sut = makeSUT()
         
-        var receivedData: Data? = nil
-        sut.startRecording()
-            .sink(receiveCompletion: { _ in }, receiveValue: { result in  receivedData = result })
-            .store(in: &cancellables)
-        
-        sut.stopRecording()
         let (expectedData, url) = try makeAudioDataStub()
-        recorder?.delegate?.audioRecorderDidFinishRecording?(try makeAVAudioRecorderStub(url: url), successfully: true)
-        
-        XCTAssertEqual(receivedData, expectedData)
+        let recorderStub = try makeAVAudioRecorderStub(url: url)
+        expect(sut, result: expectedData) {
+            
+            sut.stopRecording()
+            recorder?.delegate?.audioRecorderDidFinishRecording?(recorderStub, successfully: true)
+        }
     }
     
     func test_stopRecording_stopsIsRecordingOnSuccessRecordingAndSuccessDataFetching() throws {
@@ -403,6 +400,38 @@ final class FoundationRecorderTests: XCTestCase {
         action()
         
         wait(for: [exp], timeout: 1.0)
+    }
+    
+    private func expect(
+        _ sut: FoundationRecorder,
+        result expectedResult: Data,
+        on action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        let expResult = expectation(description: "Wait for result")
+        sut.startRecording()
+            .sink(receiveCompletion: { completion in
+                
+                switch completion {
+                case let .failure(receivedError):
+                    XCTFail("Expected error: \(expectedResult), got error: \(receivedError) instead", file: file, line: line)
+                    
+                case .finished:
+                    break
+                }
+                
+            }, receiveValue: { receivedResult in
+                
+                XCTAssertEqual(receivedResult, expectedResult, file: file, line: line)
+                expResult.fulfill()
+            })
+            .store(in: &cancellables)
+        
+        action()
+        
+        wait(for: [expResult], timeout: 1.0)
     }
     
     private func expect(
