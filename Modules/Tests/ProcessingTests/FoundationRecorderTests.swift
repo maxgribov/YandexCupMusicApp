@@ -86,6 +86,11 @@ final class FoundationRecorder: NSObject {
     
     func stopRecording() {
         
+        guard case let .inProgress(recorder) = recordingStatusSubject.value else {
+            return
+        }
+        
+        recorder.stop()
     }
     
     private func makeRecordingURL() -> URL {
@@ -215,6 +220,19 @@ final class FoundationRecorderTests: XCTestCase {
         sut.stopRecording()
         
         XCTAssertEqual(isRecordingSpy.values, [false])
+    }
+    
+    func test_stopRecording_invokesStopMethodOnRecorder() {
+        
+        let sut = makeSUT()
+        
+        sut.startRecording()
+            .sink(receiveCompletion: { _ in}, receiveValue: { _ in  })
+            .store(in: &cancellables)
+        
+        sut.stopRecording()
+        
+        XCTAssertEqual(recorder?.messages, [.initialisation, .record, .stop])
     }
     
     func test_stopRecording_deliversErrorOnRecorderFinishWithNoSuccess() throws {
