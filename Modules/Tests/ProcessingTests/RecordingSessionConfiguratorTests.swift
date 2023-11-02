@@ -60,10 +60,14 @@ final class RecordingSessionConfigurator {
                         ).eraseToAnyPublisher()
                     
                 case .allowed:
-                    return Just(true).setFailureType(to: Error.self).eraseToAnyPublisher()
+                    return Just(true)
+                        .setFailureType(to: Error.self)
+                        .eraseToAnyPublisher()
                     
                 case .rejected:
-                    return Just(false).setFailureType(to: Error.self).eraseToAnyPublisher()
+                    return Just(false)
+                        .setFailureType(to: Error.self)
+                        .eraseToAnyPublisher()
                 }
                 
             }.eraseToAnyPublisher()
@@ -165,6 +169,18 @@ final class RecordingSessionConfiguratorTests: XCTestCase {
         }
         
         expect(sut, result: false) {}
+    }
+    
+    func test_isRecordingEnabled_deliversTrueOnSeccondAttemptWithPermissionsDeniedOnFirst() {
+        
+        let (sut, session) = makeSUT()
+        
+        expect(sut, result: true) {
+            
+            session.respondForRecordPermissionRequest(allowed: true)
+        }
+        
+        expect(sut, result: true) {}
     }
     
     //MARK: - Helpers
