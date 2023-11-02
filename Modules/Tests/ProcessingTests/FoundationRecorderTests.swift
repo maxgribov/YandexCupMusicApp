@@ -131,6 +131,7 @@ extension FoundationRecorder: AVAudioRecorderDelegate {
             do {
                 
                 let data = try Data(contentsOf: recorder.url)
+                recordingStatusSubject.send(.complete(data))
                 
             } catch {
                 
@@ -312,6 +313,38 @@ final class FoundationRecorderTests: XCTestCase {
         
         XCTAssertEqual(isRecordingSpy.values, [false, true, false])
     }
+    
+    func test_stopRecording_deliversDataOnSuccessRecordingAndSuccessDataFetching() throws {
+        
+        let sut = makeSUT()
+        
+        var receivedData: Data? = nil
+        sut.startRecording()
+            .sink(receiveCompletion: { _ in }, receiveValue: { result in  receivedData = result })
+            .store(in: &cancellables)
+        
+        sut.stopRecording()
+        let (expectedData, url) = try makeAudioDataStub()
+        recorder?.delegate?.audioRecorderDidFinishRecording?(try makeAVAudioRecorderStub(url: url), successfully: true)
+        
+        XCTAssertEqual(receivedData, expectedData)
+    }
+    
+    func test_stopRecording_stopsIsRecordingOnSuccessRecordingAndSuccessDataFetching() throws {
+        
+        let sut = makeSUT()
+        let isRecordingSpy = ValueSpy(sut.isRecording())
+        
+        sut.startRecording()
+            .sink(receiveCompletion: { _ in}, receiveValue: { _ in  })
+            .store(in: &cancellables)
+ 
+        sut.stopRecording()
+        let (_, url) = try makeAudioDataStub()
+        recorder?.delegate?.audioRecorderDidFinishRecording?(try makeAVAudioRecorderStub(url: url), successfully: true)
+        
+        XCTAssertEqual(isRecordingSpy.values, [false, true, false])
+    }
 
     //MARK: - Helpers
     
@@ -386,6 +419,15 @@ final class FoundationRecorderTests: XCTestCase {
         ]
         
         return try AVAudioRecorder(url: url, settings: settings)
+    }
+    
+    private func makeAudioDataStub() throws -> (data: Data, url: URL) {
+        
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("recording.m4a")
+        let data = Data("recording stub data".utf8)
+        try data.write(to: url)
+        
+        return (data, url)
     }
     
     private func anyURL() -> URL {
