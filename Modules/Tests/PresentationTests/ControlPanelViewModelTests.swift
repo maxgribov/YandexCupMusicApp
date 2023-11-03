@@ -34,6 +34,12 @@ final class ControlPanelViewModel {
         delegateActionSubject.eraseToAnyPublisher()
     }
     
+    func layersButtonDidTapped() {
+        
+        layersButton.isActive.toggle()
+        delegateActionSubject.send(layersButton.isActive ? .showLayers : .hideLayers)
+    }
+    
     func recordButtonDidTapped() {
         
         recordButton.isActive.toggle()
@@ -81,6 +87,8 @@ extension ControlPanelViewModel {
     
     enum DelegateAction: Equatable {
         
+        case showLayers
+        case hideLayers
         case startRecording
         case stopRecording
         case startComposing
@@ -140,6 +148,27 @@ extension ToggleButtonViewModel {
 }
 
 final class ControlPanelViewModelTests: XCTestCase {
+    
+    func test_layersButtonDidTapped_informsDelegateShowLayersOnActivation() {
+        
+        let sut = makeSUT()
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        
+        sut.layersButtonDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.showLayers])
+    }
+    
+    func test_layersButtonDidTapped_informsDelegateHideLayersOnDeactivation() {
+        
+        let sut = makeSUT()
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        sut.layersButton.isActive = true
+        
+        sut.layersButtonDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.hideLayers])
+    }
     
     func test_recordButtonDidTapped_informsDelegateStartRecordingOnActivation() {
         
