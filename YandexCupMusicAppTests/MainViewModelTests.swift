@@ -7,13 +7,19 @@
 
 import XCTest
 import Combine
+import Domain
 import Presentation
 
 final class MainViewModel {
     
-    let instrumentSelector: InstrumentSelectorViewModel = .initial
+    let instrumentSelector: InstrumentSelectorViewModel
+    let sampleControl: SampleControlViewModel
 
-    init() {}
+    init(activeLayer: AnyPublisher<Layer?, Never>) {
+        
+        self.instrumentSelector = .initial
+        self.sampleControl = SampleControlViewModel(update: activeLayer.compactMap{ $0?.control }.eraseToAnyPublisher())
+    }
 }
 
 extension InstrumentSelectorViewModel {
@@ -28,9 +34,16 @@ final class MainViewModelTests: XCTestCase {
 
     func test_init_instrumentsContainsCorrectButtons() {
         
-        let sut = MainViewModel()
+        let sut = MainViewModel(activeLayer: Empty().eraseToAnyPublisher())
         
         XCTAssertEqual(sut.instrumentSelector.buttons.map(\.instrument), [.guitar, .drums, .brass])
+    }
+    
+    func test_init_sampleControlWithControlNil() {
+        
+        let sut = MainViewModel(activeLayer: Empty().eraseToAnyPublisher())
+
+        XCTAssertNil(sut.sampleControl.control)
     }
 
 }
