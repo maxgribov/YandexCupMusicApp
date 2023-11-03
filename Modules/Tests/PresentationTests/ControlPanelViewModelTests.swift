@@ -38,6 +38,7 @@ final class ControlPanelViewModel {
         
         layersButton.isActive.toggle()
         delegateActionSubject.send(layersButton.isActive ? .showLayers : .hideLayers)
+        toggleOtherEnabled(forLayers: layersButton.isActive)
     }
     
     func recordButtonDidTapped() {
@@ -56,6 +57,13 @@ final class ControlPanelViewModel {
         
         playButton.isActive.toggle()
         delegateActionSubject.send(playButton.isActive ? .startPlaying : .stopPlaying)
+    }
+    
+    private func toggleOtherEnabled(forLayers isActive: Bool) {
+    
+        recordButton.isEnabled = isActive ? false : true
+        composeButton.isEnabled = isActive ? false : true
+        playButton.isEnabled = isActive ? false : true
     }
 }
 
@@ -129,6 +137,7 @@ final class ControlPanelViewModelTests: XCTestCase {
         
         let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
+        sut.layersButton.isActive = false
         
         sut.layersButtonDidTapped()
         
@@ -146,10 +155,37 @@ final class ControlPanelViewModelTests: XCTestCase {
         XCTAssertEqual(delegateActionSpy.values, [.hideLayers])
     }
     
+    func test_layersButtonDidTapped_makeDisabledAllOtherButtonsOnActivation() {
+        
+        let sut = makeSUT()
+        sut.layersButton.isActive = false
+        
+        sut.layersButtonDidTapped()
+        
+        XCTAssertEqual(sut.layersButton.isEnabled, true)
+        XCTAssertEqual(sut.recordButton.isEnabled, false)
+        XCTAssertEqual(sut.composeButton.isEnabled, false)
+        XCTAssertEqual(sut.playButton.isEnabled, false)
+    }
+    
+    func test_layersButtonDidTapped_makeEnableAllOtherButtonsOnDeactivation() {
+        
+        let sut = makeSUT()
+        sut.layersButton.isActive = true
+        
+        sut.layersButtonDidTapped()
+        
+        XCTAssertEqual(sut.layersButton.isEnabled, true)
+        XCTAssertEqual(sut.recordButton.isEnabled, true)
+        XCTAssertEqual(sut.composeButton.isEnabled, true)
+        XCTAssertEqual(sut.playButton.isEnabled, true)
+    }
+    
     func test_recordButtonDidTapped_informsDelegateStartRecordingOnActivation() {
         
         let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
+        sut.recordButton.isActive = false
         
         sut.recordButtonDidTapped()
         
@@ -171,6 +207,7 @@ final class ControlPanelViewModelTests: XCTestCase {
         
         let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
+        sut.composeButton.isActive = false
         
         sut.composeButtonDidTapped()
         
@@ -192,6 +229,7 @@ final class ControlPanelViewModelTests: XCTestCase {
         
         let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
+        sut.playButton.isActive = false
         
         sut.playButtonDidTapped()
         
