@@ -74,6 +74,12 @@ final class MainViewModel: ObservableObject {
                 case .stopRecording:
                     delegateActionSubject.send(.stopRecording)
                     
+                case .startComposing:
+                    delegateActionSubject.send(.startComposing)
+                    
+                case .stopComposing:
+                    delegateActionSubject.send(.stopComposing)
+                    
                 default:
                     break
                 }
@@ -116,6 +122,8 @@ extension MainViewModel {
         case activeLayerControlUpdate(Layer.Control)
         case startRecording
         case stopRecording
+        case startComposing
+        case stopComposing
     }
 }
 
@@ -281,6 +289,17 @@ final class MainViewModelTests: XCTestCase {
         sut.controlPanel.recordButtonDidTapped()
         
         XCTAssertEqual(delegateActionSpy.values, [.startRecording, .stopRecording])
+    }
+    
+    func test_controlPanelComposeButtonDidTapped_informsDelegateStartAndStopCompositing() {
+        
+        let sut = makeSUT()
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+
+        sut.controlPanel.composeButtonDidTapped()
+        sut.controlPanel.composeButtonDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.startComposing, .stopComposing])
     }
     
     //MARK: - Helpers
