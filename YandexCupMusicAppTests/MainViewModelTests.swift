@@ -42,28 +42,16 @@ final class MainViewModel: ObservableObject {
         self.layers = layers
         
         instrumentSelector.delegateAction
-            .sink { [unowned self] action in
-                
-                handleInstrumentSelector(delegateAction: action)
-                
-            }.store(in: &bindings)
+            .sink { [unowned self] action in handleInstrumentSelector(delegateAction: action) }
+            .store(in: &bindings)
         
         sampleControl.delegateAction
-            .sink { [unowned self] action in
-                
-                switch action {
-                case let .controlDidUpdated(control):
-                    delegateActionSubject.send(.activeLayerControlUpdate(control))
-                }
-                
-            }.store(in: &bindings)
+            .sink { [unowned self] action in handleSampleControl(delegateAction: action) }
+            .store(in: &bindings)
         
         controlPanel.delegateAction
-            .sink { [unowned self] action in
-                
-                handleControlPanel(delegateAction: action)
-                
-            }.store(in: &bindings)
+            .sink { [unowned self] action in handleControlPanel(delegateAction: action) }
+            .store(in: &bindings)
         
         controlPanel.delegateAction
             .forwardActions()
@@ -94,6 +82,14 @@ final class MainViewModel: ObservableObject {
                     sampleSelector = .init(instrument: instrument, items: items, loadSample: loadSample)
                     sampleSelectorTask = nil
                 }
+        }
+    }
+    
+    private func handleSampleControl(delegateAction: SampleControlViewModel.DelegateAction) {
+        
+        switch delegateAction {
+        case let .controlDidUpdated(control):
+            delegateActionSubject.send(.activeLayerControlUpdate(control))
         }
     }
     
