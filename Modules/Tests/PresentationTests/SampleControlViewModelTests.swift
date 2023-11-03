@@ -85,7 +85,7 @@ final class SampleControlViewModelTests: XCTestCase {
         let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
-        sut.knobPositionDidChanged(position: .init(x: 100, y: 100), size: .init(width: 100, height: 100))
+        sut.knobOffsetDidChanged(offset: .init(width: 100, height: 100), area: .init(width: 100, height: 100))
         
         XCTAssertEqual(delegateActionSpy.values, [])
     }
@@ -95,13 +95,16 @@ final class SampleControlViewModelTests: XCTestCase {
         let sut = SampleControlViewModel.calculateControl
         
         XCTAssertEqual(sut(.zero, .zero), .init(volume: 0, speed: 0))
-        XCTAssertEqual(sut(.init(x: 100, y: 100), .zero), .init(volume: 0, speed: 0))
-        XCTAssertEqual(sut(.zero, .init(width: 100, height: 100)), .init(volume: 0, speed: 0))
-        XCTAssertEqual(sut(.init(x: 50, y: 50), .init(width: 100, height: 100)), .init(volume: 0.5, speed: 0.5))
-        XCTAssertEqual(sut(.init(x: 30, y: 70), .init(width: 100, height: 100)), .init(volume: 0.7, speed: 0.3))
+        XCTAssertEqual(sut(.init(width: 100, height: 100), .zero), .init(volume: 0, speed: 0))
         
-        XCTAssertEqual(sut(.init(x: -50, y: -50), .init(width: 100, height: 100)), .init(volume: 0, speed: 0))
-        XCTAssertEqual(sut(.init(x: 50, y: 50), .init(width: -100, height: -100)), .init(volume: 0, speed: 0))
+        XCTAssertEqual(sut(.zero, .init(width: 100, height: 100)), .init(volume: 0.5, speed: 0.5))
+        XCTAssertEqual(sut(.init(width: 50, height: 50), .init(width: 100, height: 100)), .init(volume: 1, speed: 1))
+        XCTAssertEqual(sut(.init(width: 30, height: -30), .init(width: 100, height: 100)), .init(volume: 0.2, speed: 0.8))
+        
+        XCTAssertEqual(sut(.init(width: -50, height: -50), .init(width: 100, height: 100)), .init(volume: 0, speed: 0))
+        XCTAssertEqual(sut(.init(width: 50, height: 50), .init(width: -100, height: -100)), .init(volume: 1, speed: 1))
+        
+        XCTAssertEqual(sut(.init(width: 100, height: -100), .init(width: 100, height: 100)), .init(volume: 0, speed: 1))
     }
     
     func test_knobPositionDidChanged_informDelegateWithPositionDidChangeActionOnControlNotNil() {
@@ -109,9 +112,9 @@ final class SampleControlViewModelTests: XCTestCase {
         let sut = makeSUT(initial: .init(volume: 0.5, speed: 0.7))
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
-        sut.knobPositionDidChanged(position: .init(x: 100, y: 100), size: .init(width: 100, height: 100))
+        sut.knobOffsetDidChanged(offset: .init(width: -20, height: 30), area: .init(width: 100, height: 100))
 
-        XCTAssertEqual(delegateActionSpy.values, [.controlDidUpdated(.init(volume: 1, speed: 1))])
+        XCTAssertEqual(delegateActionSpy.values, [.controlDidUpdated(.init(volume: 0.8, speed: 0.3))])
     }
     
     //MARK: - Helpers

@@ -37,13 +37,13 @@ public final class SampleControlViewModel: ObservableObject {
         return Self.calculateKnobOffset(with: control, in: area)
     }
     
-    public func knobPositionDidChanged(position: CGPoint, size: CGSize) {
+    public func knobOffsetDidChanged(offset: CGSize, area: CGSize) {
         
         guard control != nil else {
             return
         }
         
-        let controlUpdate = Self.calculateControl(forKnobPosition: position, and: size)
+        let controlUpdate = Self.calculateControl(forKnobOffset: offset, in: area)
         delegateActionSubject.send(.controlDidUpdated(controlUpdate))
     }
 }
@@ -66,16 +66,15 @@ public extension SampleControlViewModel {
         return .init(width: width, height: height)
     }
     
-    static func calculateControl(forKnobPosition position: CGPoint, and size: CGSize) -> Layer.Control {
+    static func calculateControl(forKnobOffset offset: CGSize, in area: CGSize) -> Layer.Control {
         
-        let positionY = max(position.y, 0)
-        let positionX = max(position.x, 0)
-        let height = max(size.height, 0)
-        let width = max(size.width, 0)
+        let areaWidth = abs(area.width)
+        let areaHeight = abs(area.height)
+        let offsetLimited = offset.limit(area: area)
         
-        let volume = height <= 0 ? 0 : Double(positionY / height)
-        let speed = width <= 0 ? 0 : Double(positionX / width)
-        
+        let speed = areaWidth > 0 ? ((areaWidth / 2) + offsetLimited.width ) / areaWidth : 0
+        let volume = areaHeight > 0 ? ((areaHeight / 2) + offsetLimited.height ) / areaHeight : 0
+
         return .init(volume: volume, speed: speed)
     }
 }
