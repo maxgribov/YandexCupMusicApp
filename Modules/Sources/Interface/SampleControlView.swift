@@ -15,7 +15,6 @@ struct SampleControlView: View {
     
     @State var knobOffset: CGSize = .zero
     @State var lastEnded: CGSize = .zero
-    @State var isDragging: Bool = false
     
     var body: some View {
         
@@ -23,110 +22,12 @@ struct SampleControlView: View {
             
             ZStack {
                 
-                LinearGradient(gradient: Gradient(colors: [Color(.backControl).opacity(0.1), Color(.backControl)]), startPoint: .top, endPoint: .bottom)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                
-                volumeRulerView(for: proxy.size.height)
-                speedRulerView(for: proxy.size.width)
-                
-                Circle()
-                    .frame(width: 60, height: 60)
-                    .foregroundColor(Color(.backAccent))
-                    .scaleEffect(isDragging ? 2.0 : 1.0)
-                    .offset(knobOffset)
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                
-                                knobOffset = lastEnded.offset(translation: value.translation)
-                                    .limit(area: proxy.size.offset(translation: .init(width: -60, height: -60)))
-                                isDragging = true
-                            }
-                            .onEnded { value in
-                                
-                                lastEnded = knobOffset
-                                isDragging = false
-                            }
-                    )
+                GradientBackgroundView()
+                VolumeRulerView(height: proxy.size.height)
+                SpeedRulerView(width: proxy.size.width)
+                ControlKnobView(knobOffset: $knobOffset, lastEnded: $lastEnded, area: proxy.size)
             }
         }
-    }
-    
-    func knobOffset(lastEnded: CGSize, translation: CGSize) -> CGSize {
-        
-        let newOffset = CGSize(width: lastEnded.width + translation.width ,
-               height: lastEnded.height + translation.height)
-        
-        return newOffset
-    }
-
-    func volumeSegmentsCount(for height: CGFloat) -> Int {
-        
-       Int(height / 70)
-    }
-    
-    func volumeRulerView(for height: CGFloat) -> some View {
-        
-        HStack {
-            VStack(spacing: 11) {
-                
-                ForEach( 0..<volumeSegmentsCount(for: height), id: \.self) { _ in
-                    volumeSegment()
-                }
-            }
-            Spacer()
-            
-        }.padding(.leading, 5)
-    }
-    
-    func volumeSegment() -> some View {
-        
-        VStack(alignment: .leading, spacing: 11) {
-            
-            Capsule()
-                .frame(width: 14, height: 1)
-                .foregroundColor(Color(.backPrimary))
-            
-            ForEach(0..<5) { _ in
-                
-                Capsule()
-                    .frame(width: 7, height: 1)
-                    .foregroundColor(Color(.backPrimary))
-                
-            }
-        }
-    }
-    
-    func speedSegmentsCount(for width: CGFloat) -> Int {
-        
-        Int(width / 19)
-    }
-    
-    func speedRulerView(for width: CGFloat) -> some View {
-        
-        VStack {
-            
-            Spacer()
-            
-            HStack {
-                
-                Spacer()
-                
-                ForEach((0..<speedSegmentsCount(for: width)).reversed(), id: \.self) { value in
-                    
-                    HStack(spacing: 0) {
-                        
-                        Color.clear
-                            .frame(width: CGFloat(value), height: 14)
-                        
-                        Capsule()
-                            .frame(width: 1, height: 14)
-                            .foregroundColor(Color(.backPrimary))
-                    }
-                }
-            }
-            
-        }.padding(5)
     }
 }
 
@@ -137,5 +38,127 @@ struct SampleControlView: View {
         
         SampleControlView(viewModel: .init(update: Empty().eraseToAnyPublisher()))
             .padding()
+    }
+}
+
+
+extension SampleControlView {
+    
+    struct GradientBackgroundView: View {
+        
+        var body: some View {
+            
+            LinearGradient(gradient: Gradient(colors: [Color(.backControl).opacity(0.1), Color(.backControl)]), startPoint: .top, endPoint: .bottom)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+    
+    struct SpeedRulerView: View {
+        
+        let width: CGFloat
+        var segments: Int { Int(width / 19) }
+        
+        var body: some View {
+            
+            VStack {
+                
+                Spacer()
+                
+                HStack {
+                    
+                    Spacer()
+                    
+                    ForEach((0..<segments).reversed(), id: \.self) { value in
+                        
+                        HStack(spacing: 0) {
+                            
+                            Color.clear
+                                .frame(width: CGFloat(value), height: 14)
+                            
+                            Capsule()
+                                .frame(width: 1, height: 14)
+                                .foregroundColor(Color(.backPrimary))
+                        }
+                    }
+                }
+                
+            }.padding(5)
+        }
+    }
+    
+    struct VolumeRulerView: View {
+        
+        let height: CGFloat
+        var segments: Int { Int(height / 70) }
+        
+        var body: some View {
+            HStack {
+                VStack(spacing: 11) {
+                    
+                    ForEach( 0..<segments, id: \.self) { _ in
+                        volumeSegment()
+                    }
+                }
+                Spacer()
+                
+            }.padding(.leading, 5)
+        }
+        
+        func volumeSegment() -> some View {
+            
+            VStack(alignment: .leading, spacing: 11) {
+                
+                Capsule()
+                    .frame(width: 14, height: 1)
+                    .foregroundColor(Color(.backPrimary))
+                
+                ForEach(0..<5) { _ in
+                    
+                    Capsule()
+                        .frame(width: 7, height: 1)
+                        .foregroundColor(Color(.backPrimary))
+                    
+                }
+            }
+        }
+    }
+    
+    struct ControlKnobView: View {
+        
+        @Binding var knobOffset: CGSize
+        @Binding var lastEnded: CGSize
+        let area: CGSize
+        @State private var isDragging: Bool = false
+        
+        var body: some View {
+            
+            Circle()
+                .frame(width: 60, height: 60)
+                .foregroundColor(Color(.backAccent))
+                .scaleEffect(isDragging ? 2.0 : 1.0)
+                .offset(knobOffset)
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            
+                            knobOffset = lastEnded.offset(translation: value.translation)
+                                .limit(area: area.offset(translation: .init(width: -60, height: -60)))
+                            isDragging = true
+                        }
+                        .onEnded { value in
+                            
+                            lastEnded = knobOffset
+                            isDragging = false
+                        }
+                )
+        }
+        
+        func knobOffset(lastEnded: CGSize, translation: CGSize) -> CGSize {
+            
+            let newOffset = CGSize(width: lastEnded.width + translation.width ,
+                                   height: lastEnded.height + translation.height)
+            
+            return newOffset
+        }
     }
 }
