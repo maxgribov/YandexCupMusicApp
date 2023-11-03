@@ -22,7 +22,7 @@ final class MainViewModel: ObservableObject {
     private let samplesIDs: (Instrument) -> AnyPublisher<[Sample.ID], Error>
     private let loadSample: (Sample.ID) -> AnyPublisher<Sample, Error>
     
-    private var cancellables = Set<AnyCancellable>()
+    private var bindings = Set<AnyCancellable>()
     private var sampleSelectorTask: AnyCancellable?
     
     init(
@@ -42,7 +42,17 @@ final class MainViewModel: ObservableObject {
                 
                 handleInstrumentSelector(delegateAction: action)
                 
-            }.store(in: &cancellables)
+            }.store(in: &bindings)
+        
+        sampleControl.delegateAction
+            .sink { [unowned self] action in
+                
+                switch action {
+                case let .controlDidUpdated(control):
+                    delegateActionSubject.send(.activeLayerControlUpdate(control))
+                }
+                
+            }.store(in: &bindings)
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
@@ -77,6 +87,7 @@ extension MainViewModel {
     enum DelegateAction: Equatable {
         
         case addLayerWithDefaultSampleFor(Instrument)
+        case activeLayerControlUpdate(Layer.Control)
     }
 }
 
@@ -185,11 +196,22 @@ final class MainViewModelTests: XCTestCase {
         
         XCTAssertNil(sut.sampleControl.control)
         
-        activeLayerStub.send(Layer(id: UUID(), name: "layer 1", isPlaying: true, isMuted: false, control: .init(volume: 0.7, speed: 1.0)))
-        XCTAssertEqual(sut.sampleControl.control, .init(volume: 0.7, speed: 1.0))
+        let layer = someLayer()
+        activeLayerStub.send(someLayer())
+        XCTAssertEqual(sut.sampleControl.control, layer.control)
         
         activeLayerStub.send(nil)
         XCTAssertNil(sut.sampleControl.control)
+    }
+    
+    func test_sampleControlKnobOffsetDidChanged_informsDelegateCurrentLayerControlUpdate() {
+        
+        let sut = makeSUT(activeLayer: Just(someLayer()).eraseToAnyPublisher())
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+
+        sut.sampleControl.knobOffsetDidChanged(offset: .zero, area: .init(width: 100, height: 100))
+        
+        XCTAssertEqual(delegateActionSpy.values, [.activeLayerControlUpdate(.init(volume: 0.5, speed: 0.5))])
     }
     
     //MARK: - Helpers
@@ -207,5 +229,10 @@ final class MainViewModelTests: XCTestCase {
         
         return sut
         
+    }
+    
+    private func someLayer() -> Layer {
+        
+        Layer(id: UUID(), name: "layer 1", isPlaying: true, isMuted: false, control: .init(volume: 0.7, speed: 1.0))
     }
 }
