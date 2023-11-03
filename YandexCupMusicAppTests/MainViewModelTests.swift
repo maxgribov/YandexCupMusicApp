@@ -61,30 +61,14 @@ final class MainViewModel: ObservableObject {
         controlPanel.delegateAction
             .sink { [unowned self] action in
                 
-                switch action {
-                case .showLayers:
-                    layersControl = LayersControlViewModel(initial: [], updates: layers().makeLayerViewModels())
-                    
-                case .hideLayers:
-                    layersControl = nil
-                    
-                case .startRecording:
-                    delegateActionSubject.send(.startRecording)
-                    
-                case .stopRecording:
-                    delegateActionSubject.send(.stopRecording)
-                    
-                case .startComposing:
-                    delegateActionSubject.send(.startComposing)
-                    
-                case .stopComposing:
-                    delegateActionSubject.send(.stopComposing)
-                    
-                default:
-                    break
-                }
+                handleControlPanel(delegateAction: action)
                 
             }.store(in: &bindings)
+        
+        controlPanel.delegateAction
+            .forwardActions()
+            .subscribe(delegateActionSubject)
+            .store(in: &bindings)
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
@@ -110,6 +94,20 @@ final class MainViewModel: ObservableObject {
                     sampleSelector = .init(instrument: instrument, items: items, loadSample: loadSample)
                     sampleSelectorTask = nil
                 }
+        }
+    }
+    
+    private func handleControlPanel(delegateAction: ControlPanelViewModel.DelegateAction) {
+        
+        switch delegateAction {
+        case .showLayers:
+            layersControl = LayersControlViewModel(initial: [], updates: layers().makeLayerViewModels())
+            
+        case .hideLayers:
+            layersControl = nil
+            
+        default:
+            break
         }
     }
 }
@@ -175,6 +173,33 @@ extension Publisher where Output == ([Layer], Layer.ID?), Failure == Never {
             }
             
             return viewModels
+            
+        }.eraseToAnyPublisher()
+    }
+}
+
+extension Publisher where Output == ControlPanelViewModel.DelegateAction, Failure == Never {
+    
+    func forwardActions() -> AnyPublisher<MainViewModel.DelegateAction, Never> {
+        
+        compactMap { out in
+            
+            switch out {
+            case .startRecording:
+                return MainViewModel.DelegateAction.startRecording
+                
+            case .stopRecording:
+                return MainViewModel.DelegateAction.stopRecording
+                
+            case .startComposing:
+                return MainViewModel.DelegateAction.startComposing
+                
+            case .stopComposing:
+                return MainViewModel.DelegateAction.stopComposing
+                
+            default:
+                return nil
+            }
             
         }.eraseToAnyPublisher()
     }
