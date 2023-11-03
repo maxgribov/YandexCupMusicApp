@@ -25,7 +25,15 @@ struct SampleControlView: View {
                 GradientBackgroundView()
                 VolumeRulerView(height: proxy.size.height)
                 SpeedRulerView(width: proxy.size.width)
-                ControlKnobView(knobOffset: $knobOffset, lastEnded: $lastEnded, area: proxy.size)
+                
+                if viewModel.isKnobPresented {
+                    
+                    ControlKnobView(knobOffset: $knobOffset, lastEnded: $lastEnded, area: proxy.size)
+                        .onAppear {
+                            knobOffset = viewModel.knobOffset(in: proxy.size.offset(translation: .init(width: -60, height: -60)))
+                            lastEnded = viewModel.knobOffset(in: proxy.size.offset(translation: .init(width: -60, height: -60)))
+                        }
+                }
             }
         }
     }
@@ -36,7 +44,7 @@ struct SampleControlView: View {
         
         Color(.back)
         
-        SampleControlView(viewModel: .init(update: Empty().eraseToAnyPublisher()))
+        SampleControlView(viewModel: .init(update: Just(.init(volume: 0.7, speed: 0.3)).eraseToAnyPublisher()))
             .padding()
     }
 }

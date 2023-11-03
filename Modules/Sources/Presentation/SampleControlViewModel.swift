@@ -57,7 +57,7 @@ public extension SampleControlViewModel {
     
     static func calculateKnobOffset(with control: Layer.Control, in area: CGSize) -> CGSize {
         
-        let volume = min(max(control.volume, 0), 1)
+        let volume = 1 - min(max(control.volume, 0), 1)
         let speed = min(max(control.speed, 0), 1)
 
         let width = CGFloat(area.width * (speed - 0.5))
@@ -73,7 +73,7 @@ public extension SampleControlViewModel {
         let offsetLimited = offset.limit(area: area)
         
         let speed = areaWidth > 0 ? ((areaWidth / 2) + offsetLimited.width ) / areaWidth : 0
-        let volume = areaHeight > 0 ? ((areaHeight / 2) + offsetLimited.height ) / areaHeight : 0
+        let volume = areaHeight > 0 ? ((areaHeight / 2) - offsetLimited.height ) / areaHeight : 0
 
         return .init(volume: volume, speed: speed)
     }
