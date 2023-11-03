@@ -28,13 +28,13 @@ public final class SampleControlViewModel: ObservableObject {
     
     public var isKnobPresented: Bool { control != nil }
     
-    public func knobPosition(for size: CGSize) -> CGPoint {
+    public func knobOffset(in area: CGSize) -> CGSize {
         
         guard let control else {
             return .zero
         }
         
-        return Self.calculateKnobPosition(with: control, and: size)
+        return Self.calculateKnobOffset(with: control, in: area)
     }
     
     public func knobPositionDidChanged(position: CGPoint, size: CGSize) {
@@ -55,15 +55,15 @@ public extension SampleControlViewModel {
         case controlDidUpdated(Layer.Control)
     }
     
-    static func calculateKnobPosition(with control: Layer.Control, and size: CGSize) -> CGPoint {
+    static func calculateKnobOffset(with control: Layer.Control, in area: CGSize) -> CGSize {
         
         let volume = min(max(control.volume, 0), 1)
         let speed = min(max(control.speed, 0), 1)
 
-        let x = CGFloat(size.width * speed)
-        let y = CGFloat(size.height * volume)
+        let width = CGFloat(area.width * (speed - 0.5))
+        let height = CGFloat(area.height * (volume - 0.5))
         
-        return .init(x: x, y: y)
+        return .init(width: width, height: height)
     }
     
     static func calculateControl(forKnobPosition position: CGPoint, and size: CGSize) -> Layer.Control {

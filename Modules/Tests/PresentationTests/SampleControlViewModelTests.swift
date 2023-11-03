@@ -55,29 +55,29 @@ final class SampleControlViewModelTests: XCTestCase {
         
         let sut = makeSUT()
         
-        XCTAssertEqual(sut.knobPosition(for: someSize()), .zero)
+        XCTAssertEqual(sut.knobOffset(in: someSize()), .zero)
     }
     
-    func test_calculateKnobPosition_expectedResults() {
+    func test_calculateKnobOffset_expectedResults() {
         
-        let sut = SampleControlViewModel.calculateKnobPosition
+        let sut = SampleControlViewModel.calculateKnobOffset
         
         XCTAssertEqual(sut(.init(volume: 0, speed: 0), .zero), .zero)
-        XCTAssertEqual(sut(.init(volume: 0, speed: 0), .init(width: 100, height: 100)), .zero)
+        XCTAssertEqual(sut(.init(volume: 0, speed: 0), .init(width: 100, height: 100)), .init(width: -50, height: -50))
         XCTAssertEqual(sut(.init(volume: 1, speed: 1), .zero), .zero)
-        XCTAssertEqual(sut(.init(volume: 1, speed: 1), .init(width: 100, height: 100)), .init(x: 100, y: 100))
-        XCTAssertEqual(sut(.init(volume: 1, speed: 0), .init(width: 100, height: 100)), .init(x: 0, y: 100))
-        XCTAssertEqual(sut(.init(volume: 0, speed: 1), .init(width: 100, height: 100)), .init(x: 100, y: 0))
-        XCTAssertEqual(sut(.init(volume: 0.5, speed: 0.5), .init(width: 100, height: 100)), .init(x: 50, y: 50))
-        XCTAssertEqual(sut(.init(volume: -1, speed: -1), .init(width: 100, height: 100)), .zero)
-        XCTAssertEqual(sut(.init(volume: 10, speed: 10), .init(width: 100, height: 100)), .init(x: 100, y: 100))
+        XCTAssertEqual(sut(.init(volume: 1, speed: 1), .init(width: 100, height: 100)), .init(width: 50, height: 50))
+        XCTAssertEqual(sut(.init(volume: 1, speed: 0), .init(width: 100, height: 100)), .init(width: -50, height: 50))
+        XCTAssertEqual(sut(.init(volume: 0, speed: 1), .init(width: 100, height: 100)), .init(width: 50, height: -50))
+        XCTAssertEqual(sut(.init(volume: 0.5, speed: 0.5), .init(width: 100, height: 100)), .init(width: 0, height: 0))
+        XCTAssertEqual(sut(.init(volume: -1, speed: -1), .init(width: 100, height: 100)), .init(width: -50, height: -50))
+        XCTAssertEqual(sut(.init(volume: 10, speed: 10), .init(width: 100, height: 100)), .init(width: 50, height: 50))
     }
     
-    func test_knobPosition_deliversExpectedValueOnControlNotNil() {
+    func test_knobOffset_deliversExpectedValueOnControlNotNil() {
         
         let sut = makeSUT(initial: .init(volume: 0.3, speed: 0.9))
         
-        XCTAssertEqual(sut.knobPosition(for: .init(width: 100, height: 100)), .init(x: 90, y: 30))
+        XCTAssertEqual(sut.knobOffset(in: .init(width: 100, height: 100)), .init(width: 40, height: -20))
     }
     
     func test_knobPositionDidChanged_doesNotInformDelegateOnControlNil() {
