@@ -26,7 +26,7 @@ final class AppModel<S> where S: SamplesLocalStore {
     func activeLayer() -> AnyPublisher<Layer?, Never> {
         
         producer
-            .$layers.combineLatest(producer.$active)
+            .$layers.zip(producer.$active)
             .map { layers, activeLayerID in
                 
                 guard let activeLayerID, let layer = layers.first(where: { $0.id == activeLayerID }) else {
@@ -45,6 +45,18 @@ final class AppModel<S> where S: SamplesLocalStore {
             Future { [weak self] promise in
                 
                 self?.localStore.retrieveSamplesIDs(for: instrument, complete: promise)
+            }
+            
+        }.eraseToAnyPublisher()
+    }
+    
+    func loadSample(sampleID: Sample.ID) -> AnyPublisher<Sample, Error> {
+        
+        Deferred {
+            
+            Future { [weak self] promise in
+                
+                self?.localStore.retrieveSample(for: sampleID, completion: promise)
             }
             
         }.eraseToAnyPublisher()
@@ -76,11 +88,11 @@ final class AppModelTests: XCTestCase {
         let activeLayerSpy = ValueSpy(sut.activeLayer())
         
         sut.producer.addLayer(forRecording: Data("some data".utf8))
-        let firstLayer = sut.producer.layers.first
+        let firstLayer = sut.producer.layers.last
         XCTAssertEqual(activeLayerSpy.values, [nil, firstLayer])
         
         sut.producer.addLayer(forRecording: Data("some other data".utf8))
-        let secondLayer = sut.producer.layers.first
+        let secondLayer = sut.producer.layers.last
         XCTAssertEqual(activeLayerSpy.values, [nil, firstLayer, secondLayer])
         
         sut.producer.delete(layerID: secondLayer!.id)
@@ -101,6 +113,19 @@ final class AppModelTests: XCTestCase {
             }.store(in: &cancellables)
         
         XCTAssertEqual(receivedResult, SamplesLocalStoreStub.stabbedSamplesIDs)
+    }
+    
+    func test_loadSample_retrievesSampleFromLocalStore() {
+        
+        let sut = makeSUT()
+        
+        var receivedResult: Sample? = nil
+        sut.loadSample(sampleID: anySampleID())
+            .sink(receiveCompletion: { _ in }) { result in
+                receivedResult = result
+            }.store(in: &cancellables)
+        
+        XCTAssertEqual(receivedResult, SamplesLocalStoreStub.stabbedSample)
     }
 
     private func makeSUT(
@@ -160,9 +185,13 @@ final class AppModelTests: XCTestCase {
         
         func retrieveSample(for sampleID: Domain.Sample.ID, completion: @escaping (Result<Domain.Sample, Error>) -> Void) {
             
+            completion(.success(Self.stabbedSample))
         }
         
         static let stabbedSamplesIDs = ["sample1", "sample2", "sample3"]
+        static let stabbedSample = Sample(id: UUID().uuidString, data: Data(UUID().uuidString.utf8))
     }
+    
+    private func anySampleID() -> Sample.ID { UUID().uuidString }
     
 }
