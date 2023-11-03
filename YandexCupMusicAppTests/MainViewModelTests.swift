@@ -17,10 +17,12 @@ final class MainViewModel: ObservableObject {
     let controlPanel: ControlPanelViewModel
     
     @Published var sampleSelector: SampleSelectorViewModel?
+    @Published var layersControl: LayersControlViewModel?
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     private let samplesIDs: (Instrument) -> AnyPublisher<[Sample.ID], Error>
     private let loadSample: (Sample.ID) -> AnyPublisher<Sample, Error>
+    private let layers: () -> AnyPublisher<([Layer], Layer.ID?), Never>
     
     private var bindings = Set<AnyCancellable>()
     private var sampleSelectorTask: AnyCancellable?
@@ -28,7 +30,8 @@ final class MainViewModel: ObservableObject {
     init(
         activeLayer: AnyPublisher<Layer?, Never>,
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
-        loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error>
+        loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error>,
+        layers: @escaping () -> AnyPublisher<([Layer], Layer.ID?), Never>
     ) {
         
         self.instrumentSelector = .initial
@@ -36,6 +39,7 @@ final class MainViewModel: ObservableObject {
         self.controlPanel = .initial
         self.samplesIDs = samplesIDs
         self.loadSample = loadSample
+        self.layers = layers
         
         instrumentSelector.delegateAction
             .sink { [unowned self] action in
@@ -50,6 +54,22 @@ final class MainViewModel: ObservableObject {
                 switch action {
                 case let .controlDidUpdated(control):
                     delegateActionSubject.send(.activeLayerControlUpdate(control))
+                }
+                
+            }.store(in: &bindings)
+        
+        controlPanel.delegateAction
+            .sink { [unowned self] action in
+                
+                switch action {
+                case .showLayers:
+                    layersControl = LayersControlViewModel(initial: [], updates: layers().makeLayerViewModels())
+                    
+                case .hideLayers:
+                    layersControl = nil
+                    
+                default:
+                    break
                 }
                 
             }.store(in: &bindings)
@@ -120,6 +140,25 @@ extension Publisher where Output == [Sample.ID], Failure == Error {
             }
             
             return items
+            
+        }.eraseToAnyPublisher()
+    }
+}
+
+extension Publisher where Output == ([Layer], Layer.ID?), Failure == Never {
+    
+    func makeLayerViewModels() -> AnyPublisher<[LayerViewModel], Never> {
+        
+        map { (layers, activeID) in
+            
+            var viewModels = [LayerViewModel]()
+            for layer in layers {
+                
+                let viewModel = LayerViewModel(id: layer.id, name: layer.name, isPlaying: layer.isPlaying, isMuted: layer.isMuted, isActive: layer.id == activeID)
+                viewModels.append(viewModel)
+            }
+            
+            return viewModels
             
         }.eraseToAnyPublisher()
     }
@@ -214,17 +253,29 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertEqual(delegateActionSpy.values, [.activeLayerControlUpdate(.init(volume: 0.5, speed: 0.5))])
     }
     
+    func test_controlPanelLayersButtonDidTapped_createsAndRemovesLayersControl() {
+        
+        let sut = makeSUT()
+        
+        sut.controlPanel.layersButtonDidTapped()
+        XCTAssertNotNil(sut.layersControl)
+        
+        sut.controlPanel.layersButtonDidTapped()
+        XCTAssertNil(sut.layersControl)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
         activeLayer: AnyPublisher<Layer?, Never> = Empty().eraseToAnyPublisher(),
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error> = { _ in Empty().eraseToAnyPublisher()},
         loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error> = { _ in Empty().eraseToAnyPublisher()},
+        layers: @escaping () -> AnyPublisher<([Layer], Layer.ID?), Never> = { Empty().eraseToAnyPublisher() },
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> MainViewModel {
         
-        let sut = MainViewModel(activeLayer: activeLayer, samplesIDs: samplesIDs, loadSample: loadSample)
+        let sut = MainViewModel(activeLayer: activeLayer, samplesIDs: samplesIDs, loadSample: loadSample, layers: layers)
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
