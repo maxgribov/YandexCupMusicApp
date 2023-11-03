@@ -26,7 +26,7 @@ final class AppModelTests: XCTestCase {
     func test_init_activeLayerNil() {
         
         let sut = makeSUT()
-        let activeLayerSpy = ValueSpy(sut.activeLayer())
+        let activeLayerSpy = ValueSpy(sut.producer.activeLayer())
         
         XCTAssertEqual(activeLayerSpy.values, [nil])
     }
@@ -34,7 +34,7 @@ final class AppModelTests: XCTestCase {
     func test_producerAddLayer_makeActiveLayerPublishUpdates() {
         
         let sut = makeSUT()
-        let activeLayerSpy = ValueSpy(sut.activeLayer())
+        let activeLayerSpy = ValueSpy(sut.producer.activeLayer())
         
         sut.producer.addLayer(forRecording: Data("some data".utf8))
         let firstLayer = sut.producer.layers.last
@@ -56,7 +56,7 @@ final class AppModelTests: XCTestCase {
         let sut = makeSUT()
         
         var receivedResult: [Sample.ID]? = nil
-        sut.sampleIDs(for: .brass)
+        sut.localStore.sampleIDs(for: .brass)
             .sink(receiveCompletion: { _ in }) { result in
                 receivedResult = result
             }.store(in: &cancellables)
@@ -69,7 +69,7 @@ final class AppModelTests: XCTestCase {
         let sut = makeSUT()
         
         var receivedResult: Sample? = nil
-        sut.loadSample(sampleID: anySampleID())
+        sut.localStore.loadSample(sampleID: anySampleID())
             .sink(receiveCompletion: { _ in }) { result in
                 receivedResult = result
             }.store(in: &cancellables)
@@ -80,7 +80,7 @@ final class AppModelTests: XCTestCase {
     func test_producerAddLayer_makeLayersPublishUpdates() {
         
         let sut = makeSUT()
-        let layersSpy = ValueSpy(sut.layers())
+        let layersSpy = ValueSpy(sut.producer.layers())
         
         XCTAssertEqual(layersSpy.values, [.init(layers: [], active: nil)])
         

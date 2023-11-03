@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-public protocol SamplesLocalStore {
+public protocol SamplesLocalStore: AnyObject {
     
     func retrieveSamplesIDs(for instrument: Instrument, complete: @escaping (Result<[Sample.ID], Swift.Error>) -> Void)
     func retrieveSample(for sampleID: Sample.ID, completion: @escaping (Result<Sample, Swift.Error>) -> Void)
