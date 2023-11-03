@@ -61,8 +61,22 @@ final class AppModel<S> where S: SamplesLocalStore {
             
         }.eraseToAnyPublisher()
     }
+    
+    func layers() -> AnyPublisher<(LayersUpdate), Never> {
+        
+        producer
+            .$layers.combineLatest(producer.$active)
+            .map { layers, active in LayersUpdate(layers: layers, active: active) }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 }
 
+struct LayersUpdate: Equatable {
+    
+    let layers: [Layer]
+    let active: Layer.ID?
+}
 
 final class AppModelTests: XCTestCase {
     
@@ -126,6 +140,20 @@ final class AppModelTests: XCTestCase {
             }.store(in: &cancellables)
         
         XCTAssertEqual(receivedResult, SamplesLocalStoreStub.stabbedSample)
+    }
+    
+    func test_producerAddLayer_makeLayersPublishUpdates() {
+        
+        let sut = makeSUT()
+        let layersSpy = ValueSpy(sut.layers())
+        
+        XCTAssertEqual(layersSpy.values, [.init(layers: [], active: nil)])
+        
+        sut.producer.addLayer(forRecording: Data("some data".utf8))
+        let firstLayer = sut.producer.layers[0]
+        XCTAssertEqual(layersSpy.values, [.init(layers: [], active: nil),
+                                          .init(layers: [firstLayer], active: nil),
+                                          .init(layers: [firstLayer], active: firstLayer.id)])
     }
 
     private func makeSUT(
