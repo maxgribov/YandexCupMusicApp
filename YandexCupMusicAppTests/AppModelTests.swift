@@ -26,8 +26,7 @@ final class AppModel<S> where S: SamplesLocalStore {
     func activeLayer() -> AnyPublisher<Layer?, Never> {
         
         producer
-            .$layers
-            .zip(producer.$active)
+            .$layers.combineLatest(producer.$active)
             .map { layers, activeLayerID in
                 
                 guard let activeLayerID, let layer = layers.first(where: { $0.id == activeLayerID }) else {
