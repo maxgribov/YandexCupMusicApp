@@ -12,8 +12,6 @@
 		772EEF462AF00AEE0066F12C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 772EEF452AF00AEE0066F12C /* Assets.xcassets */; };
 		772EEF492AF00AEE0066F12C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 772EEF482AF00AEE0066F12C /* Preview Assets.xcassets */; };
 		772EEF532AF00AEE0066F12C /* YandexCupMusicAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF522AF00AEE0066F12C /* YandexCupMusicAppTests.swift */; };
-		772EEF5D2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF5C2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift */; };
-		772EEF5F2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF5E2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift */; };
 		7752DA102AF54297002EBD4D /* Domain in Frameworks */ = {isa = PBXBuildFile; productRef = 7752DA0F2AF54297002EBD4D /* Domain */; };
 		7752DA122AF54297002EBD4D /* Interface in Frameworks */ = {isa = PBXBuildFile; productRef = 7752DA112AF54297002EBD4D /* Interface */; };
 		7752DA142AF54297002EBD4D /* Persistence in Frameworks */ = {isa = PBXBuildFile; productRef = 7752DA132AF54297002EBD4D /* Persistence */; };
@@ -23,13 +21,6 @@
 
 /* Begin PBXContainerItemProxy section */
 		772EEF4F2AF00AEE0066F12C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 772EEF362AF00AEC0066F12C /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 772EEF3D2AF00AEC0066F12C;
-			remoteInfo = YandexCupMusicApp;
-		};
-		772EEF592AF00AEE0066F12C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 772EEF362AF00AEC0066F12C /* Project object */;
 			proxyType = 1;
@@ -47,9 +38,6 @@
 		772EEF482AF00AEE0066F12C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		772EEF4E2AF00AEE0066F12C /* YandexCupMusicAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YandexCupMusicAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		772EEF522AF00AEE0066F12C /* YandexCupMusicAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppTests.swift; sourceTree = "<group>"; };
-		772EEF582AF00AEE0066F12C /* YandexCupMusicAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YandexCupMusicAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		772EEF5C2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppUITests.swift; sourceTree = "<group>"; };
-		772EEF5E2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		772EEF6E2AF00E5C0066F12C /* Modules */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Modules; sourceTree = "<group>"; };
 		7752DA0D2AF54242002EBD4D /* CI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CI.xctestplan; sourceTree = "<group>"; };
 		77E51C3E2AF252CE003EA732 /* AVAudioPlayerPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = AVAudioPlayerPlayground.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -77,13 +65,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		772EEF552AF00AEE0066F12C /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -97,7 +78,6 @@
 				772EEF6E2AF00E5C0066F12C /* Modules */,
 				772EEF402AF00AEC0066F12C /* YandexCupMusicApp */,
 				772EEF512AF00AEE0066F12C /* YandexCupMusicAppTests */,
-				772EEF5B2AF00AEE0066F12C /* YandexCupMusicAppUITests */,
 				772EEF3F2AF00AEC0066F12C /* Products */,
 				7752DA0E2AF54297002EBD4D /* Frameworks */,
 			);
@@ -108,7 +88,6 @@
 			children = (
 				772EEF3E2AF00AEC0066F12C /* YandexCupMusicApp.app */,
 				772EEF4E2AF00AEE0066F12C /* YandexCupMusicAppTests.xctest */,
-				772EEF582AF00AEE0066F12C /* YandexCupMusicAppUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -139,15 +118,6 @@
 				772EEF522AF00AEE0066F12C /* YandexCupMusicAppTests.swift */,
 			);
 			path = YandexCupMusicAppTests;
-			sourceTree = "<group>";
-		};
-		772EEF5B2AF00AEE0066F12C /* YandexCupMusicAppUITests */ = {
-			isa = PBXGroup;
-			children = (
-				772EEF5C2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift */,
-				772EEF5E2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift */,
-			);
-			path = YandexCupMusicAppUITests;
 			sourceTree = "<group>";
 		};
 		7752DA0E2AF54297002EBD4D /* Frameworks */ = {
@@ -202,24 +172,6 @@
 			productReference = 772EEF4E2AF00AEE0066F12C /* YandexCupMusicAppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		772EEF572AF00AEE0066F12C /* YandexCupMusicAppUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 772EEF682AF00AEE0066F12C /* Build configuration list for PBXNativeTarget "YandexCupMusicAppUITests" */;
-			buildPhases = (
-				772EEF542AF00AEE0066F12C /* Sources */,
-				772EEF552AF00AEE0066F12C /* Frameworks */,
-				772EEF562AF00AEE0066F12C /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				772EEF5A2AF00AEE0066F12C /* PBXTargetDependency */,
-			);
-			name = YandexCupMusicAppUITests;
-			productName = YandexCupMusicAppUITests;
-			productReference = 772EEF582AF00AEE0066F12C /* YandexCupMusicAppUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -234,10 +186,6 @@
 						CreatedOnToolsVersion = 15.0;
 					};
 					772EEF4D2AF00AEE0066F12C = {
-						CreatedOnToolsVersion = 15.0;
-						TestTargetID = 772EEF3D2AF00AEC0066F12C;
-					};
-					772EEF572AF00AEE0066F12C = {
 						CreatedOnToolsVersion = 15.0;
 						TestTargetID = 772EEF3D2AF00AEC0066F12C;
 					};
@@ -260,7 +208,6 @@
 			targets = (
 				772EEF3D2AF00AEC0066F12C /* YandexCupMusicApp */,
 				772EEF4D2AF00AEE0066F12C /* YandexCupMusicAppTests */,
-				772EEF572AF00AEE0066F12C /* YandexCupMusicAppUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -276,13 +223,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		772EEF4C2AF00AEE0066F12C /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		772EEF562AF00AEE0066F12C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -309,15 +249,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		772EEF542AF00AEE0066F12C /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				772EEF5F2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift in Sources */,
-				772EEF5D2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -325,11 +256,6 @@
 			isa = PBXTargetDependency;
 			target = 772EEF3D2AF00AEC0066F12C /* YandexCupMusicApp */;
 			targetProxy = 772EEF4F2AF00AEE0066F12C /* PBXContainerItemProxy */;
-		};
-		772EEF5A2AF00AEE0066F12C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 772EEF3D2AF00AEC0066F12C /* YandexCupMusicApp */;
-			targetProxy = 772EEF592AF00AEE0066F12C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -559,42 +485,6 @@
 			};
 			name = Release;
 		};
-		772EEF692AF00AEE0066F12C /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 29E66XW7ZX;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = pro.maxgribov.YandexCupMusicAppUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = YandexCupMusicApp;
-			};
-			name = Debug;
-		};
-		772EEF6A2AF00AEE0066F12C /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 29E66XW7ZX;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = pro.maxgribov.YandexCupMusicAppUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = YandexCupMusicApp;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -621,15 +511,6 @@
 			buildConfigurations = (
 				772EEF662AF00AEE0066F12C /* Debug */,
 				772EEF672AF00AEE0066F12C /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		772EEF682AF00AEE0066F12C /* Build configuration list for PBXNativeTarget "YandexCupMusicAppUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				772EEF692AF00AEE0066F12C /* Debug */,
-				772EEF6A2AF00AEE0066F12C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
