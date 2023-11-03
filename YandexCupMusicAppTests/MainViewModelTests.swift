@@ -68,6 +68,12 @@ final class MainViewModel: ObservableObject {
                 case .hideLayers:
                     layersControl = nil
                     
+                case .startRecording:
+                    delegateActionSubject.send(.startRecording)
+                    
+                case .stopRecording:
+                    delegateActionSubject.send(.stopRecording)
+                    
                 default:
                     break
                 }
@@ -108,6 +114,8 @@ extension MainViewModel {
         
         case addLayerWithDefaultSampleFor(Instrument)
         case activeLayerControlUpdate(Layer.Control)
+        case startRecording
+        case stopRecording
     }
 }
 
@@ -262,6 +270,17 @@ final class MainViewModelTests: XCTestCase {
         
         sut.controlPanel.layersButtonDidTapped()
         XCTAssertNil(sut.layersControl)
+    }
+    
+    func test_controlPanelRecordButtonDidTapped_informsDelegateStartAndStopRecording() {
+        
+        let sut = makeSUT()
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+
+        sut.controlPanel.recordButtonDidTapped()
+        sut.controlPanel.recordButtonDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.startRecording, .stopRecording])
     }
     
     //MARK: - Helpers
