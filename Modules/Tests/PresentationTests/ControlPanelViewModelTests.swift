@@ -43,6 +43,20 @@ final class ControlPanelViewModel {
             delegateActionSubject.send(.stopRecording)
         }
     }
+    
+    func composeButtonDidTapped() {
+        
+        isComposeButtonActive.toggle()
+        
+        if isComposeButtonActive {
+            
+            delegateActionSubject.send(.startComposing)
+            
+        } else {
+            
+            delegateActionSubject.send(.stopComposing)
+        }
+    }
 }
 
 extension ControlPanelViewModel {
@@ -51,6 +65,8 @@ extension ControlPanelViewModel {
         
         case startRecording
         case stopRecording
+        case startComposing
+        case stopComposing
     }
 }
 
@@ -69,10 +85,10 @@ final class LayersButtonViewModel {
 }
 
 final class ControlPanelViewModelTests: XCTestCase {
-
+    
     func test_recordButtonDidTapped_informsDelegateStartRecordingOnIsRecordButtonActiveWasFalse() {
         
-        let sut = ControlPanelViewModel()
+        let sut = ControlPanelViewModel(isRecordButtonActive: false)
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.recordButtonDidTapped()
@@ -88,5 +104,25 @@ final class ControlPanelViewModelTests: XCTestCase {
         sut.recordButtonDidTapped()
         
         XCTAssertEqual(delegateActionSpy.values, [.stopRecording])
+    }
+    
+    func test_composeButtonDidTapped_informsDelegateToStartCompositingForIsComposeButtonActiveWasFalse() {
+        
+        let sut = ControlPanelViewModel(isComposeButtonActive: false)
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        
+        sut.composeButtonDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.startComposing])
+    }
+    
+    func test_composeButtonDidTapped_informsDelegateToStopCompositingForIsComposeButtonActiveWasTrue() {
+        
+        let sut = ControlPanelViewModel(isComposeButtonActive: true)
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        
+        sut.composeButtonDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.stopComposing])
     }
 }
