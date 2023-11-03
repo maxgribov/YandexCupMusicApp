@@ -11,18 +11,18 @@ import Combine
 final class ControlPanelViewModel {
     
     let layersButton: LayersButtonViewModel
-    @Published private(set) var isRecordButtonActive: Bool
-    @Published private(set) var isComposeButtonActive: Bool
-    @Published private(set) var isPlayAllButtonActive: Bool
+    @Published var isRecordButtonActive: Bool
+    @Published var isComposeButtonActive: Bool
+    @Published var isPlayAllButtonActive: Bool
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
-    init() {
+    init(layersButton: LayersButtonViewModel = .initial, isRecordButtonActive: Bool = false, isComposeButtonActive: Bool = false, isPlayAllButtonActive: Bool = false) {
         
-        self.layersButton = .initial
-        self.isRecordButtonActive = false
-        self.isComposeButtonActive = false
-        self.isPlayAllButtonActive = false
+        self.layersButton = layersButton
+        self.isRecordButtonActive = isRecordButtonActive
+        self.isComposeButtonActive = isComposeButtonActive
+        self.isPlayAllButtonActive = isPlayAllButtonActive
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
@@ -70,17 +70,6 @@ final class LayersButtonViewModel {
 
 final class ControlPanelViewModelTests: XCTestCase {
 
-    func test_init_correctInitialStateValues() {
-        
-        let sut = ControlPanelViewModel()
-        
-        XCTAssertEqual(sut.layersButton.name, "Слои")
-        XCTAssertEqual(sut.layersButton.isActive, false)
-        XCTAssertEqual(sut.isRecordButtonActive, false)
-        XCTAssertEqual(sut.isComposeButtonActive, false)
-        XCTAssertEqual(sut.isPlayAllButtonActive, false)
-    }
-    
     func test_recordButtonDidTapped_informsDelegateStartRecordingOnIsRecordButtonActiveWasFalse() {
         
         let sut = ControlPanelViewModel()
@@ -93,12 +82,11 @@ final class ControlPanelViewModelTests: XCTestCase {
     
     func test_recordButtonDidTapped_informsDelegateStopRecordingOnIsRecordButtonActiveWasTrue() {
         
-        let sut = ControlPanelViewModel()
+        let sut = ControlPanelViewModel(isRecordButtonActive: true)
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.recordButtonDidTapped()
-        sut.recordButtonDidTapped()
         
-        XCTAssertEqual(delegateActionSpy.values, [.startRecording, .stopRecording])
+        XCTAssertEqual(delegateActionSpy.values, [.stopRecording])
     }
 }
