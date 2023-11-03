@@ -21,7 +21,9 @@ final class MainViewModel: ObservableObject {
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     private let samplesIDs: (Instrument) -> AnyPublisher<[Sample.ID], Error>
     private let loadSample: (Sample.ID) -> AnyPublisher<Sample, Error>
+    
     private var cancellables = Set<AnyCancellable>()
+    private var sampleSelectorTask: AnyCancellable?
     
     init(
         activeLayer: AnyPublisher<Layer?, Never>,
@@ -43,23 +45,17 @@ final class MainViewModel: ObservableObject {
                     delegateActionSubject.send(.addLayerWithDefaultSampleFor(instrument))
                     
                 case let .showSampleSelector(instrument):
-                    samplesIDs(instrument)
-                        .map { result in
+                    sampleSelectorTask = samplesIDs(instrument)
+                        .makeSampleItemViewModels()
+                        .sink(receiveCompletion: {[unowned self] _ in
                             
-                            var items = [SampleItemViewModel]()
-                            for (index, sampleID) in result.enumerated() {
-                                
-                                let item = SampleItemViewModel(id: sampleID, name: "сэмпл \(index)", isOdd: index % 2 > 0)
-                                items.append(item)
-                            }
+                            sampleSelectorTask = nil
                             
-                            return items
-                            
-                        }.sink(receiveCompletion: { _ in }) {[unowned self] items in
+                        }) {[unowned self] items in
                             
                             sampleSelector = .init(instrument: instrument, items: items, loadSample: loadSample)
-                            
-                        }.store(in: &cancellables)
+                            sampleSelectorTask = nil
+                        }
                 }
                 
             }.store(in: &cancellables)
@@ -84,6 +80,25 @@ extension InstrumentSelectorViewModel {
     static let initial = InstrumentSelectorViewModel(buttons: [.init(instrument: .guitar),
                                                                .init(instrument: .drums),
                                                                .init(instrument: .brass)])
+}
+
+extension Publisher where Output == [Sample.ID], Failure == Error {
+    
+    func makeSampleItemViewModels() -> AnyPublisher<[SampleItemViewModel], Error> {
+        
+        map { result in
+            
+            var items = [SampleItemViewModel]()
+            for (index, sampleID) in result.enumerated() {
+                
+                let item = SampleItemViewModel(id: sampleID, name: "сэмпл \(index)", isOdd: index % 2 > 0)
+                items.append(item)
+            }
+            
+            return items
+            
+        }.eraseToAnyPublisher()
+    }
 }
 
 
