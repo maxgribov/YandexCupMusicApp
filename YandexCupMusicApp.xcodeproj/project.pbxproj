@@ -14,7 +14,11 @@
 		772EEF532AF00AEE0066F12C /* YandexCupMusicAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF522AF00AEE0066F12C /* YandexCupMusicAppTests.swift */; };
 		772EEF5D2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF5C2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift */; };
 		772EEF5F2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF5E2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift */; };
-		772EEF6D2AF00E150066F12C /* Modules in Frameworks */ = {isa = PBXBuildFile; productRef = 772EEF6C2AF00E150066F12C /* Modules */; };
+		7752DA102AF54297002EBD4D /* Domain in Frameworks */ = {isa = PBXBuildFile; productRef = 7752DA0F2AF54297002EBD4D /* Domain */; };
+		7752DA122AF54297002EBD4D /* Interface in Frameworks */ = {isa = PBXBuildFile; productRef = 7752DA112AF54297002EBD4D /* Interface */; };
+		7752DA142AF54297002EBD4D /* Persistence in Frameworks */ = {isa = PBXBuildFile; productRef = 7752DA132AF54297002EBD4D /* Persistence */; };
+		7752DA162AF54297002EBD4D /* Presentation in Frameworks */ = {isa = PBXBuildFile; productRef = 7752DA152AF54297002EBD4D /* Presentation */; };
+		7752DA182AF54297002EBD4D /* Processing in Frameworks */ = {isa = PBXBuildFile; productRef = 7752DA172AF54297002EBD4D /* Processing */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +51,7 @@
 		772EEF5C2AF00AEE0066F12C /* YandexCupMusicAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppUITests.swift; sourceTree = "<group>"; };
 		772EEF5E2AF00AEE0066F12C /* YandexCupMusicAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		772EEF6E2AF00E5C0066F12C /* Modules */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Modules; sourceTree = "<group>"; };
+		7752DA0D2AF54242002EBD4D /* CI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CI.xctestplan; sourceTree = "<group>"; };
 		77E51C3E2AF252CE003EA732 /* AVAudioPlayerPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = AVAudioPlayerPlayground.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		77E51C3F2AF261A0003EA732 /* Persistence.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = Persistence.xctestplan; path = Modules/Persistence.xctestplan; sourceTree = "<group>"; };
 		77E51C402AF26381003EA732 /* Processing.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = Processing.xctestplan; path = Modules/Processing.xctestplan; sourceTree = "<group>"; };
@@ -57,7 +62,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				772EEF6D2AF00E150066F12C /* Modules in Frameworks */,
+				7752DA182AF54297002EBD4D /* Processing in Frameworks */,
+				7752DA162AF54297002EBD4D /* Presentation in Frameworks */,
+				7752DA142AF54297002EBD4D /* Persistence in Frameworks */,
+				7752DA122AF54297002EBD4D /* Interface in Frameworks */,
+				7752DA102AF54297002EBD4D /* Domain in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +90,7 @@
 		772EEF352AF00AEC0066F12C = {
 			isa = PBXGroup;
 			children = (
+				7752DA0D2AF54242002EBD4D /* CI.xctestplan */,
 				77E51C402AF26381003EA732 /* Processing.xctestplan */,
 				77E51C3F2AF261A0003EA732 /* Persistence.xctestplan */,
 				7717EB242AF0F1C500C3FB34 /* Presentation.xctestplan */,
@@ -89,6 +99,7 @@
 				772EEF512AF00AEE0066F12C /* YandexCupMusicAppTests */,
 				772EEF5B2AF00AEE0066F12C /* YandexCupMusicAppUITests */,
 				772EEF3F2AF00AEC0066F12C /* Products */,
+				7752DA0E2AF54297002EBD4D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -139,6 +150,13 @@
 			path = YandexCupMusicAppUITests;
 			sourceTree = "<group>";
 		};
+		7752DA0E2AF54297002EBD4D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -156,7 +174,11 @@
 			);
 			name = YandexCupMusicApp;
 			packageProductDependencies = (
-				772EEF6C2AF00E150066F12C /* Modules */,
+				7752DA0F2AF54297002EBD4D /* Domain */,
+				7752DA112AF54297002EBD4D /* Interface */,
+				7752DA132AF54297002EBD4D /* Persistence */,
+				7752DA152AF54297002EBD4D /* Presentation */,
+				7752DA172AF54297002EBD4D /* Processing */,
 			);
 			productName = YandexCupMusicApp;
 			productReference = 772EEF3E2AF00AEC0066F12C /* YandexCupMusicApp.app */;
@@ -615,9 +637,25 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		772EEF6C2AF00E150066F12C /* Modules */ = {
+		7752DA0F2AF54297002EBD4D /* Domain */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Modules;
+			productName = Domain;
+		};
+		7752DA112AF54297002EBD4D /* Interface */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Interface;
+		};
+		7752DA132AF54297002EBD4D /* Persistence */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Persistence;
+		};
+		7752DA152AF54297002EBD4D /* Presentation */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Presentation;
+		};
+		7752DA172AF54297002EBD4D /* Processing */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Processing;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
