@@ -123,6 +123,8 @@ extension MainViewModel {
         case stopRecording
         case startComposing
         case stopComposing
+        case startPlaying
+        case stopPlaying
     }
 }
 
@@ -197,6 +199,12 @@ extension Publisher where Output == ControlPanelViewModel.DelegateAction, Failur
                 
             case .stopComposing:
                 return MainViewModel.DelegateAction.stopComposing
+                
+            case .startPlaying:
+                return MainViewModel.DelegateAction.startPlaying
+                
+            case .stopPlaying:
+                return MainViewModel.DelegateAction.stopPlaying
                 
             default:
                 return nil
@@ -326,6 +334,17 @@ final class MainViewModelTests: XCTestCase {
         sut.controlPanel.composeButtonDidTapped()
         
         XCTAssertEqual(delegateActionSpy.values, [.startComposing, .stopComposing])
+    }
+    
+    func test_controlPanelPlayButtonDidTapped_informsDelegateStartAndStopPlaying() {
+        
+        let sut = makeSUT()
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+
+        sut.controlPanel.playButtonDidTapped()
+        sut.controlPanel.playButtonDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.startPlaying, .stopPlaying])
     }
     
     //MARK: - Helpers
