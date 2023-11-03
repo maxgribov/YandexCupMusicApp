@@ -14,16 +14,27 @@ struct ControlPanelView: View {
     
     var body: some View {
         
-        LayersButtonView(viewModel: viewModel.layersButton, action: viewModel.layersButtonDidTapped)
+        HStack {
+            
+            LayersButtonView(viewModel: viewModel.layersButton, action: viewModel.layersButtonDidTapped)
+            
+            Spacer()
+            
+            ToggleButtonView(viewModel: viewModel.recordButton, action: viewModel.recordButtonDidTapped)
+            ToggleButtonView(viewModel: viewModel.composeButton, action: viewModel.composeButtonDidTapped)
+            ToggleButtonView(viewModel: viewModel.playButton, action: viewModel.playButtonDidTapped)
+        }
     }
 }
 
 #Preview {
+    
     ZStack {
         
         Color(.back)
         
         ControlPanelView(viewModel: .initial)
+            .padding()
     }
 }
 
