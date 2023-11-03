@@ -11,23 +11,22 @@ import Combine
 final class ControlPanelViewModel {
     
     let layersButton: LayersButtonViewModel
-    @Published var isRecordButtonActive: Bool
-    @Published var isComposeButtonActive: Bool
-    @Published var isPlayButtonActive: Bool
+    let recordButton: ToggleButtonViewModel
+    let composeButton: ToggleButtonViewModel
+    let playButton: ToggleButtonViewModel
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
     init(
         layersButton: LayersButtonViewModel,
-        isRecordButtonActive: Bool,
-        isComposeButtonActive: Bool,
-        isPlayButtonActive: Bool
+        recordButton: ToggleButtonViewModel,
+        composeButton: ToggleButtonViewModel,
+        playButton: ToggleButtonViewModel
     ) {
-        
         self.layersButton = layersButton
-        self.isRecordButtonActive = isRecordButtonActive
-        self.isComposeButtonActive = isComposeButtonActive
-        self.isPlayButtonActive = isPlayButtonActive
+        self.recordButton = recordButton
+        self.composeButton = composeButton
+        self.playButton = playButton
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
@@ -37,9 +36,9 @@ final class ControlPanelViewModel {
     
     func recordButtonDidTapped() {
         
-        isRecordButtonActive.toggle()
+        recordButton.isActive.toggle()
         
-        if isRecordButtonActive {
+        if recordButton.isActive {
             
             delegateActionSubject.send(.startRecording)
             
@@ -51,9 +50,9 @@ final class ControlPanelViewModel {
     
     func composeButtonDidTapped() {
         
-        isComposeButtonActive.toggle()
+        composeButton.isActive.toggle()
         
-        if isComposeButtonActive {
+        if composeButton.isActive {
             
             delegateActionSubject.send(.startComposing)
             
@@ -65,9 +64,9 @@ final class ControlPanelViewModel {
     
     func playButtonDidTapped() {
         
-        isPlayButtonActive.toggle()
+        playButton.isActive.toggle()
         
-        if isPlayButtonActive {
+        if playButton.isActive {
             
             delegateActionSubject.send(.startPlaying)
             
@@ -90,28 +89,61 @@ extension ControlPanelViewModel {
         case stopPlaying
     }
     
-    static let initial = ControlPanelViewModel(layersButton: .initial, isRecordButtonActive: false, isComposeButtonActive: false, isPlayButtonActive: false)
+    static let initial = ControlPanelViewModel(layersButton: .initial, recordButton: .initialRecord, composeButton: .initialCompose, playButton: .initialPlay)
 }
 
-final class LayersButtonViewModel {
+final class LayersButtonViewModel: ObservableObject {
     
     @Published var name: String
     @Published var isActive: Bool
+    @Published var isEnabled: Bool
     
-    init(name: String, isActive: Bool) {
+    init(name: String, isActive: Bool, isEnabled: Bool) {
         
         self.name = name
         self.isActive = isActive
+        self.isEnabled = isEnabled
+    }
+}
+
+extension LayersButtonViewModel {
+    
+    static let initial = LayersButtonViewModel(name: "Слои", isActive: false, isEnabled: true)
+}
+
+final class ToggleButtonViewModel: ObservableObject {
+    
+    let type: Kind
+    @Published var isActive: Bool
+    @Published var isEnabled: Bool
+    
+    init(type: Kind, isActive: Bool, isEnabled: Bool) {
+        
+        self.type = type
+        self.isActive = isActive
+        self.isEnabled = isEnabled
     }
     
-    static let initial = LayersButtonViewModel(name: "Слои", isActive: false)
+    enum Kind {
+        
+        case record
+        case compose
+        case play
+    }
+}
+
+extension ToggleButtonViewModel {
+    
+    static let initialRecord = ToggleButtonViewModel(type: .record, isActive: false, isEnabled: true)
+    static let initialCompose = ToggleButtonViewModel(type: .compose, isActive: false, isEnabled: true)
+    static let initialPlay = ToggleButtonViewModel(type: .play, isActive: false, isEnabled: true)
 }
 
 final class ControlPanelViewModelTests: XCTestCase {
     
-    func test_recordButtonDidTapped_informsDelegateStartRecordingOnIsRecordButtonActiveWasFalse() {
+    func test_recordButtonDidTapped_informsDelegateStartRecordingOnActivation() {
         
-        let sut = makeSUT(isRecordButtonActive: false)
+        let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.recordButtonDidTapped()
@@ -119,19 +151,20 @@ final class ControlPanelViewModelTests: XCTestCase {
         XCTAssertEqual(delegateActionSpy.values, [.startRecording])
     }
     
-    func test_recordButtonDidTapped_informsDelegateStopRecordingOnIsRecordButtonActiveWasTrue() {
+    func test_recordButtonDidTapped_informsDelegateStopRecordingOnDeactivation() {
         
-        let sut = makeSUT(isRecordButtonActive: true)
+        let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
+        sut.recordButton.isActive = true
         
         sut.recordButtonDidTapped()
         
         XCTAssertEqual(delegateActionSpy.values, [.stopRecording])
     }
     
-    func test_composeButtonDidTapped_informsDelegateToStartCompositingForIsComposeButtonActiveWasFalse() {
+    func test_composeButtonDidTapped_informsDelegateToStartCompositingOnActivation() {
         
-        let sut = makeSUT(isComposeButtonActive: false)
+        let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.composeButtonDidTapped()
@@ -139,19 +172,20 @@ final class ControlPanelViewModelTests: XCTestCase {
         XCTAssertEqual(delegateActionSpy.values, [.startComposing])
     }
     
-    func test_composeButtonDidTapped_informsDelegateToStopCompositingForIsComposeButtonActiveWasTrue() {
+    func test_composeButtonDidTapped_informsDelegateToStopCompositingOnDeactivation() {
         
-        let sut = makeSUT(isComposeButtonActive: true)
+        let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
+        sut.composeButton.isActive = true
         
         sut.composeButtonDidTapped()
         
         XCTAssertEqual(delegateActionSpy.values, [.stopComposing])
     }
     
-    func test_playAllButtonDidTapped_informsDelegateToStartPlayingAllForIsPlayAllButtonActiveWasFalse() {
+    func test_playAllButtonDidTapped_informsDelegateToStartPlayingOnActivation() {
         
-        let sut = makeSUT(isRecordButtonActive: false)
+        let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.playButtonDidTapped()
@@ -159,10 +193,11 @@ final class ControlPanelViewModelTests: XCTestCase {
         XCTAssertEqual(delegateActionSpy.values, [.startPlaying])
     }
     
-    func test_playAllButtonDidTapped_informsDelegateToStopPlayingAllForIsPlayAllButtonActiveWasTrue() {
+    func test_playAllButtonDidTapped_informsDelegateToStopPlayingAllForIsPlayOnDeactivation() {
         
-        let sut = makeSUT(isPlayButtonActive: true)
+        let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
+        sut.playButton.isActive = true
         
         sut.playButtonDidTapped()
         
@@ -173,14 +208,19 @@ final class ControlPanelViewModelTests: XCTestCase {
     
     private func makeSUT(
         layersButton: LayersButtonViewModel = .initial,
-        isRecordButtonActive: Bool = false,
-        isComposeButtonActive: Bool = false,
-        isPlayButtonActive: Bool = false,
+        recordButton: ToggleButtonViewModel = .initialRecord,
+        composeButton: ToggleButtonViewModel = .initialCompose,
+        playButton: ToggleButtonViewModel = .initialPlay,
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> ControlPanelViewModel {
         
-        let sut = ControlPanelViewModel(layersButton: layersButton, isRecordButtonActive: isRecordButtonActive, isComposeButtonActive: isComposeButtonActive, isPlayButtonActive: isPlayButtonActive)
+        let sut = ControlPanelViewModel(
+            layersButton: layersButton,
+            recordButton: recordButton,
+            composeButton: composeButton,
+            playButton: playButton
+        )
         
         trackForMemoryLeaks(sut, file: file, line: line)
         
