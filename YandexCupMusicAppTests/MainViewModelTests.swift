@@ -10,20 +10,30 @@ import Combine
 import Domain
 import Presentation
 
-final class MainViewModel {
+final class MainViewModel: ObservableObject {
     
     let instrumentSelector: InstrumentSelectorViewModel
     let sampleControl: SampleControlViewModel
     let controlPanel: ControlPanelViewModel
     
+    @Published var sampleSelector: SampleSelectorViewModel?
+    
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
+    private let samplesIDs: (Instrument) -> AnyPublisher<[Sample.ID], Error>
+    private let loadSample: (Sample.ID) -> AnyPublisher<Sample, Error>
     private var cancellables = Set<AnyCancellable>()
-
-    init(activeLayer: AnyPublisher<Layer?, Never>) {
+    
+    init(
+        activeLayer: AnyPublisher<Layer?, Never>,
+        samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
+        loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error>
+    ) {
         
         self.instrumentSelector = .initial
         self.sampleControl = SampleControlViewModel(update: activeLayer.compactMap{ $0?.control }.eraseToAnyPublisher())
         self.controlPanel = .initial
+        self.samplesIDs = samplesIDs
+        self.loadSample = loadSample
         
         instrumentSelector.delegateAction
             .sink { [unowned self] action in
@@ -32,8 +42,24 @@ final class MainViewModel {
                 case let .selectDefaultSample(instrument):
                     delegateActionSubject.send(.addLayerWithDefaultSampleFor(instrument))
                     
-                default:
-                    break
+                case let .showSampleSelector(instrument):
+                    samplesIDs(instrument)
+                        .map { result in
+                            
+                            var items = [SampleItemViewModel]()
+                            for (index, sampleID) in result.enumerated() {
+                                
+                                let item = SampleItemViewModel(id: sampleID, name: "сэмпл \(index)", isOdd: index % 2 > 0)
+                                items.append(item)
+                            }
+                            
+                            return items
+                            
+                        }.sink(receiveCompletion: { _ in }) {[unowned self] items in
+                            
+                            sampleSelector = .init(instrument: instrument, items: items, loadSample: loadSample)
+                            
+                        }.store(in: &cancellables)
                 }
                 
             }.store(in: &cancellables)
@@ -62,7 +88,7 @@ extension InstrumentSelectorViewModel {
 
 
 final class MainViewModelTests: XCTestCase {
-
+    
     func test_init_instrumentsContainsCorrectButtons() {
         
         let sut = makeSUT()
@@ -73,7 +99,7 @@ final class MainViewModelTests: XCTestCase {
     func test_init_sampleControlWithControlNil() {
         
         let sut = makeSUT()
-
+        
         XCTAssertNil(sut.sampleControl.control)
     }
     
@@ -98,6 +124,13 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertEqual(sut.controlPanel.layersButton.isEnabled, true)
     }
     
+    func test_init_sampleSelectorNil() {
+        
+        let sut = makeSUT()
+        
+        XCTAssertNil(sut.sampleSelector)
+    }
+    
     func test_instrumentSelectorButtonDidTapped_informDlegateCreateNewLayerWithDefaultSampleForInstrument() {
         
         let sut = makeSUT()
@@ -108,15 +141,26 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertEqual(delegateActionSpy.values, [.addLayerWithDefaultSampleFor(.brass)])
     }
     
+    func test_instrumentSelectorButtonDidLongTapped_createsSampleSelectorViewModel() {
+        
+        let sut = makeSUT(samplesIDs: { _ in Just([Sample.ID(), Sample.ID(), Sample.ID()]).setFailureType(to: Error.self).eraseToAnyPublisher() })
+        
+        sut.instrumentSelector.buttonDidLongTapped(for: Instrument.guitar.rawValue)
+        
+        XCTAssertEqual(sut.sampleSelector?.instrument, .guitar)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
         activeLayer: AnyPublisher<Layer?, Never> = Empty().eraseToAnyPublisher(),
+        samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error> = { _ in Empty().eraseToAnyPublisher()},
+        loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error> = { _ in Empty().eraseToAnyPublisher()},
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> MainViewModel {
         
-        let sut = MainViewModel(activeLayer: activeLayer)
+        let sut = MainViewModel(activeLayer: activeLayer, samplesIDs: samplesIDs, loadSample: loadSample)
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
