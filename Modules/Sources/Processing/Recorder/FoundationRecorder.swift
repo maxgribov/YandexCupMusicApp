@@ -8,7 +8,7 @@
 import AVFoundation
 import Combine
 
-public final class FoundationRecorder<R>: NSObject, AVAudioRecorderDelegate where R: AVAudioRecorderProtocol {
+public final class FoundationRecorder<R>: NSObject, AVAudioRecorderDelegate, Recorder where R: AVAudioRecorderProtocol {
     
     private let recordingStatusSubject = CurrentValueSubject<RecordingStatus, Never>(.idle)
     private let makeRecorder: (URL, [String : Any]) throws -> R
