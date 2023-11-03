@@ -116,6 +116,7 @@ public extension Producer {
         
         layers = layers.filter { $0.id != layerID }
         payloads.removeValue(forKey: layerID)
+        active = nil
     }
     
     func select(layerID: Layer.ID) {
