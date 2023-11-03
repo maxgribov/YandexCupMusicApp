@@ -32,7 +32,7 @@ final class MainViewModel: ObservableObject {
     ) {
         
         self.instrumentSelector = .initial
-        self.sampleControl = SampleControlViewModel(update: activeLayer.compactMap{ $0?.control }.eraseToAnyPublisher())
+        self.sampleControl = SampleControlViewModel(update: activeLayer.control())
         self.controlPanel = .initial
         self.samplesIDs = samplesIDs
         self.loadSample = loadSample
@@ -85,6 +85,14 @@ extension InstrumentSelectorViewModel {
     static let initial = InstrumentSelectorViewModel(buttons: [.init(instrument: .guitar),
                                                                .init(instrument: .drums),
                                                                .init(instrument: .brass)])
+}
+
+extension Publisher where Output == Layer?, Failure == Never {
+    
+    func control() -> AnyPublisher<Layer.Control?, Never> {
+        
+        map(\.?.control).eraseToAnyPublisher()
+    }
 }
 
 extension Publisher where Output == [Sample.ID], Failure == Error {
@@ -168,6 +176,20 @@ final class MainViewModelTests: XCTestCase {
         sut.instrumentSelector.buttonDidLongTapped(for: Instrument.guitar.rawValue)
         
         XCTAssertEqual(sut.sampleSelector?.instrument, .guitar)
+    }
+    
+    func test_activeLevel_setsAndRemovesControlValueForSampleControl() {
+        
+        let activeLayerStub = PassthroughSubject<Layer?, Never>()
+        let sut = makeSUT(activeLayer: activeLayerStub.eraseToAnyPublisher())
+        
+        XCTAssertNil(sut.sampleControl.control)
+        
+        activeLayerStub.send(Layer(id: UUID(), name: "layer 1", isPlaying: true, isMuted: false, control: .init(volume: 0.7, speed: 1.0)))
+        XCTAssertEqual(sut.sampleControl.control, .init(volume: 0.7, speed: 1.0))
+        
+        activeLayerStub.send(nil)
+        XCTAssertNil(sut.sampleControl.control)
     }
     
     //MARK: - Helpers
