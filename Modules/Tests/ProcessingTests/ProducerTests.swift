@@ -217,6 +217,18 @@ final class ProducerTests: XCTestCase {
         
         XCTAssertNil(sut.active)
     }
+    func test_deleteLayerID_setActiveToLastLayerIDOnDeleteActiveLayerAndLayersRemain() {
+        
+        let (sut, _, _) = makeSUT()
+        sut.addLayer(for: .guitar, with: someSample())
+        sut.addLayer(for: .drums, with: someSample())
+        sut.addLayer(forRecording: someRecordingData())
+        XCTAssertEqual(sut.active, sut.layers.last?.id)
+        
+        sut.delete(layerID: sut.layers.last!.id)
+        
+        XCTAssertEqual(sut.active, sut.layers.last!.id)
+    }
     
     func test_selectLayerID_doNothingOnIncorrectID() {
         

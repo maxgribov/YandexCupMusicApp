@@ -116,7 +116,15 @@ public extension Producer {
         
         layers = layers.filter { $0.id != layerID }
         payloads.removeValue(forKey: layerID)
-        active = nil
+        
+        if layers.count == 0 {
+            
+            active = nil
+            
+        } else if layerID == active {
+            
+            active = layers.last?.id
+        }
     }
     
     func select(layerID: Layer.ID) {
