@@ -38,7 +38,7 @@ final class ControlPanelViewModel {
         
         layersButton.isActive.toggle()
         delegateActionSubject.send(layersButton.isActive ? .showLayers : .hideLayers)
-        toggleOtherEnabled(forLayers: layersButton.isActive)
+        set(all: [recordButton, composeButton, playButton], to: !layersButton.isActive)
     }
     
     func recordButtonDidTapped() {
@@ -59,11 +59,12 @@ final class ControlPanelViewModel {
         delegateActionSubject.send(playButton.isActive ? .startPlaying : .stopPlaying)
     }
     
-    private func toggleOtherEnabled(forLayers isActive: Bool) {
-    
-        recordButton.isEnabled = isActive ? false : true
-        composeButton.isEnabled = isActive ? false : true
-        playButton.isEnabled = isActive ? false : true
+    private func set(all items: [Enablable], to isEnabled: Bool) {
+        
+        for var item in items {
+            
+            item.isEnabled = isEnabled
+        }
     }
 }
 
@@ -82,6 +83,11 @@ extension ControlPanelViewModel {
     }
     
     static let initial = ControlPanelViewModel(layersButton: .initial, recordButton: .initialRecord, composeButton: .initialCompose, playButton: .initialPlay)
+}
+
+protocol Enablable {
+    
+    var isEnabled: Bool { get set }
 }
 
 final class LayersButtonViewModel: ObservableObject {
@@ -103,7 +109,7 @@ extension LayersButtonViewModel {
     static let initial = LayersButtonViewModel(name: "Слои", isActive: false, isEnabled: true)
 }
 
-final class ToggleButtonViewModel: ObservableObject {
+final class ToggleButtonViewModel: ObservableObject, Enablable {
     
     let type: Kind
     @Published var isActive: Bool
