@@ -40,23 +40,7 @@ final class MainViewModel: ObservableObject {
         instrumentSelector.delegateAction
             .sink { [unowned self] action in
                 
-                switch action {
-                case let .selectDefaultSample(instrument):
-                    delegateActionSubject.send(.addLayerWithDefaultSampleFor(instrument))
-                    
-                case let .showSampleSelector(instrument):
-                    sampleSelectorTask = samplesIDs(instrument)
-                        .makeSampleItemViewModels()
-                        .sink(receiveCompletion: {[unowned self] _ in
-                            
-                            sampleSelectorTask = nil
-                            
-                        }) {[unowned self] items in
-                            
-                            sampleSelector = .init(instrument: instrument, items: items, loadSample: loadSample)
-                            sampleSelectorTask = nil
-                        }
-                }
+                handleInstrumentSelector(delegateAction: action)
                 
             }.store(in: &cancellables)
     }
@@ -64,6 +48,27 @@ final class MainViewModel: ObservableObject {
     var delegateAction: AnyPublisher<DelegateAction, Never> {
         
         delegateActionSubject.eraseToAnyPublisher()
+    }
+    
+    private func handleInstrumentSelector(delegateAction: InstrumentSelectorViewModel.DelegateAction) {
+        
+        switch delegateAction {
+        case let .selectDefaultSample(instrument):
+            delegateActionSubject.send(.addLayerWithDefaultSampleFor(instrument))
+            
+        case let .showSampleSelector(instrument):
+            sampleSelectorTask = samplesIDs(instrument)
+                .makeSampleItemViewModels()
+                .sink(receiveCompletion: {[unowned self] _ in
+                    
+                    sampleSelectorTask = nil
+                    
+                }) {[unowned self] items in
+                    
+                    sampleSelector = .init(instrument: instrument, items: items, loadSample: loadSample)
+                    sampleSelectorTask = nil
+                }
+        }
     }
 }
 
