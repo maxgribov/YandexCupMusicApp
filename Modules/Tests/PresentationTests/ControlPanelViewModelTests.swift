@@ -17,7 +17,12 @@ final class ControlPanelViewModel {
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
-    init(layersButton: LayersButtonViewModel = .initial, isRecordButtonActive: Bool = false, isComposeButtonActive: Bool = false, isPlayButtonActive: Bool = false) {
+    init(
+        layersButton: LayersButtonViewModel,
+        isRecordButtonActive: Bool,
+        isComposeButtonActive: Bool,
+        isPlayButtonActive: Bool
+    ) {
         
         self.layersButton = layersButton
         self.isRecordButtonActive = isRecordButtonActive
@@ -84,6 +89,8 @@ extension ControlPanelViewModel {
         case startPlaying
         case stopPlaying
     }
+    
+    static let initial = ControlPanelViewModel(layersButton: .initial, isRecordButtonActive: false, isComposeButtonActive: false, isPlayButtonActive: false)
 }
 
 final class LayersButtonViewModel {
@@ -104,7 +111,7 @@ final class ControlPanelViewModelTests: XCTestCase {
     
     func test_recordButtonDidTapped_informsDelegateStartRecordingOnIsRecordButtonActiveWasFalse() {
         
-        let sut = ControlPanelViewModel(isRecordButtonActive: false)
+        let sut = makeSUT(isRecordButtonActive: false)
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.recordButtonDidTapped()
@@ -114,7 +121,7 @@ final class ControlPanelViewModelTests: XCTestCase {
     
     func test_recordButtonDidTapped_informsDelegateStopRecordingOnIsRecordButtonActiveWasTrue() {
         
-        let sut = ControlPanelViewModel(isRecordButtonActive: true)
+        let sut = makeSUT(isRecordButtonActive: true)
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.recordButtonDidTapped()
@@ -124,7 +131,7 @@ final class ControlPanelViewModelTests: XCTestCase {
     
     func test_composeButtonDidTapped_informsDelegateToStartCompositingForIsComposeButtonActiveWasFalse() {
         
-        let sut = ControlPanelViewModel(isComposeButtonActive: false)
+        let sut = makeSUT(isComposeButtonActive: false)
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.composeButtonDidTapped()
@@ -134,7 +141,7 @@ final class ControlPanelViewModelTests: XCTestCase {
     
     func test_composeButtonDidTapped_informsDelegateToStopCompositingForIsComposeButtonActiveWasTrue() {
         
-        let sut = ControlPanelViewModel(isComposeButtonActive: true)
+        let sut = makeSUT(isComposeButtonActive: true)
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.composeButtonDidTapped()
@@ -144,7 +151,7 @@ final class ControlPanelViewModelTests: XCTestCase {
     
     func test_playAllButtonDidTapped_informsDelegateToStartPlayingAllForIsPlayAllButtonActiveWasFalse() {
         
-        let sut = ControlPanelViewModel(isRecordButtonActive: false)
+        let sut = makeSUT(isRecordButtonActive: false)
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.playButtonDidTapped()
@@ -154,11 +161,30 @@ final class ControlPanelViewModelTests: XCTestCase {
     
     func test_playAllButtonDidTapped_informsDelegateToStopPlayingAllForIsPlayAllButtonActiveWasTrue() {
         
-        let sut = ControlPanelViewModel(isPlayButtonActive: true)
+        let sut = makeSUT(isPlayButtonActive: true)
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.playButtonDidTapped()
         
         XCTAssertEqual(delegateActionSpy.values, [.stopPlaying])
+    }
+    
+    //MARK: - Helpers
+    
+    private func makeSUT(
+        layersButton: LayersButtonViewModel = .initial,
+        isRecordButtonActive: Bool = false,
+        isComposeButtonActive: Bool = false,
+        isPlayButtonActive: Bool = false,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> ControlPanelViewModel {
+        
+        let sut = ControlPanelViewModel(layersButton: layersButton, isRecordButtonActive: isRecordButtonActive, isComposeButtonActive: isComposeButtonActive, isPlayButtonActive: isPlayButtonActive)
+        
+        trackForMemoryLeaks(sut, file: file, line: line)
+        
+        return sut
+        
     }
 }
