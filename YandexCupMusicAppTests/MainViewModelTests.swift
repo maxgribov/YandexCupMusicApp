@@ -36,21 +36,21 @@ final class MainViewModelTests: XCTestCase {
 
     func test_init_instrumentsContainsCorrectButtons() {
         
-        let sut = MainViewModel(activeLayer: Empty().eraseToAnyPublisher())
+        let sut = makeSUT()
         
         XCTAssertEqual(sut.instrumentSelector.buttons.map(\.instrument), [.guitar, .drums, .brass])
     }
     
     func test_init_sampleControlWithControlNil() {
         
-        let sut = MainViewModel(activeLayer: Empty().eraseToAnyPublisher())
+        let sut = makeSUT()
 
         XCTAssertNil(sut.sampleControl.control)
     }
     
     func test_init_controlPanelContainsCorrectButtons() {
         
-        let sut = MainViewModel(activeLayer: Empty().eraseToAnyPublisher())
+        let sut = makeSUT()
         
         XCTAssertEqual(sut.controlPanel.layersButton.name, "Слои")
         XCTAssertEqual(sut.controlPanel.layersButton.isActive, false)
@@ -67,7 +67,20 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertEqual(sut.controlPanel.playButton.type, .play)
         XCTAssertEqual(sut.controlPanel.layersButton.isActive, false)
         XCTAssertEqual(sut.controlPanel.layersButton.isEnabled, true)
-
     }
-
+    
+    //MARK: - Helpers
+    
+    private func makeSUT(
+        activeLayer: AnyPublisher<Layer?, Never> = Empty().eraseToAnyPublisher(),
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> MainViewModel {
+        
+        let sut = MainViewModel(activeLayer: activeLayer)
+        trackForMemoryLeaks(sut, file: file, line: line)
+        
+        return sut
+        
+    }
 }
