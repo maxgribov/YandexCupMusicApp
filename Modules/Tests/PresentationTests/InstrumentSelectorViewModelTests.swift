@@ -43,7 +43,7 @@ final class InstrumentSelectorViewModelTests: XCTestCase {
         let sut = makeSUT()
         let selectedButton = sut.buttons[0]
         
-        expect(sut, delegateAction: .didTapped(selectedButton.instrument), for: {
+        expect(sut, delegateAction: .selectDefaultSample(selectedButton.instrument), for: {
             
             sut.buttonDidTapped(for: selectedButton.id)
         })
@@ -64,7 +64,7 @@ final class InstrumentSelectorViewModelTests: XCTestCase {
         let sut = makeSUT()
         let selectedButton = sut.buttons[1]
         
-        expect(sut, delegateAction: .didLongTapped(selectedButton.instrument), for: {
+        expect(sut, delegateAction: .showSampleSelector(selectedButton.instrument), for: {
             
             sut.buttonDidLongTapped(for: selectedButton.id)
         })

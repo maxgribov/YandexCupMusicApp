@@ -15,12 +15,41 @@ final class MainViewModel {
     let instrumentSelector: InstrumentSelectorViewModel
     let sampleControl: SampleControlViewModel
     let controlPanel: ControlPanelViewModel
+    
+    private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
+    private var cancellables = Set<AnyCancellable>()
 
     init(activeLayer: AnyPublisher<Layer?, Never>) {
         
         self.instrumentSelector = .initial
         self.sampleControl = SampleControlViewModel(update: activeLayer.compactMap{ $0?.control }.eraseToAnyPublisher())
         self.controlPanel = .initial
+        
+        instrumentSelector.delegateAction
+            .sink { [unowned self] action in
+                
+                switch action {
+                case let .selectDefaultSample(instrument):
+                    delegateActionSubject.send(.addLayerWithDefaultSampleFor(instrument))
+                    
+                default:
+                    break
+                }
+                
+            }.store(in: &cancellables)
+    }
+    
+    var delegateAction: AnyPublisher<DelegateAction, Never> {
+        
+        delegateActionSubject.eraseToAnyPublisher()
+    }
+}
+
+extension MainViewModel {
+    
+    enum DelegateAction: Equatable {
+        
+        case addLayerWithDefaultSampleFor(Instrument)
     }
 }
 
@@ -67,6 +96,16 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertEqual(sut.controlPanel.playButton.type, .play)
         XCTAssertEqual(sut.controlPanel.layersButton.isActive, false)
         XCTAssertEqual(sut.controlPanel.layersButton.isEnabled, true)
+    }
+    
+    func test_instrumentSelectorButtonDidTapped_informDlegateCreateNewLayerWithDefaultSampleForInstrument() {
+        
+        let sut = makeSUT()
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        
+        sut.instrumentSelector.buttonDidTapped(for: Instrument.brass.rawValue)
+        
+        XCTAssertEqual(delegateActionSpy.values, [.addLayerWithDefaultSampleFor(.brass)])
     }
     
     //MARK: - Helpers
