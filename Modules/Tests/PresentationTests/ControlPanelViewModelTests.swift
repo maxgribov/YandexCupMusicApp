@@ -59,6 +59,7 @@ final class ControlPanelViewModel {
         
         playButton.isActive.toggle()
         delegateActionSubject.send(playButton.isActive ? .startPlaying : .stopPlaying)
+        set(all: [layersButton, recordButton, composeButton], to: !playButton.isActive)
     }
     
     private func set(all items: [Enablable], to isEnabled: Bool) {
@@ -279,7 +280,7 @@ final class ControlPanelViewModelTests: XCTestCase {
         XCTAssertEqual(sut.playButton.isEnabled, true)
     }
     
-    func test_playAllButtonDidTapped_informsDelegateToStartPlayingOnActivation() {
+    func test_playButtonDidTapped_informsDelegateToStartPlayingOnActivation() {
         
         let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
@@ -289,7 +290,7 @@ final class ControlPanelViewModelTests: XCTestCase {
         XCTAssertEqual(delegateActionSpy.values, [.startPlaying])
     }
     
-    func test_playAllButtonDidTapped_informsDelegateToStopPlayingAllForIsPlayOnDeactivation() {
+    func test_playButtonDidTapped_informsDelegateToStopPlayingAllForIsPlayOnDeactivation() {
         
         let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
@@ -298,6 +299,31 @@ final class ControlPanelViewModelTests: XCTestCase {
         sut.playButtonDidTapped()
         
         XCTAssertEqual(delegateActionSpy.values, [.stopPlaying])
+    }
+    
+    func test_playButtonDidTapped_makeDisabledAllOtherButtonsOnActivation() {
+        
+        let sut = makeSUT()
+        
+        sut.playButtonDidTapped()
+        
+        XCTAssertEqual(sut.layersButton.isEnabled, false)
+        XCTAssertEqual(sut.recordButton.isEnabled, false)
+        XCTAssertEqual(sut.composeButton.isEnabled, false)
+        XCTAssertEqual(sut.playButton.isEnabled, true)
+    }
+    
+    func test_playButtonDidTapped_makeEnableAllOtherButtonsOnDeactivation() {
+        
+        let sut = makeSUT()
+        
+        sut.playButtonDidTapped()
+        sut.playButtonDidTapped()
+        
+        XCTAssertEqual(sut.layersButton.isEnabled, true)
+        XCTAssertEqual(sut.recordButton.isEnabled, true)
+        XCTAssertEqual(sut.composeButton.isEnabled, true)
+        XCTAssertEqual(sut.playButton.isEnabled, true)
     }
     
     //MARK: - Helpers
