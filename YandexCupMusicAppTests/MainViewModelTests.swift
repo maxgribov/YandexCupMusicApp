@@ -149,7 +149,7 @@ final class MainViewModelTests: XCTestCase {
         activeLayer: AnyPublisher<Layer?, Never> = Empty().eraseToAnyPublisher(),
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error> = { _ in Empty().eraseToAnyPublisher()},
         loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error> = { _ in Empty().eraseToAnyPublisher()},
-        layers: @escaping () -> AnyPublisher<([Layer], Layer.ID?), Never> = { Empty().eraseToAnyPublisher() },
+        layers: @escaping () -> AnyPublisher<LayersUpdate, Never> = { Empty().eraseToAnyPublisher() },
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> MainViewModel {

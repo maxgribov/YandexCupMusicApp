@@ -61,7 +61,7 @@ final class AppModel<S> where S: SamplesLocalStore {
         }.eraseToAnyPublisher()
     }
     
-    func layers() -> AnyPublisher<(LayersUpdate), Never> {
+    func layers() -> AnyPublisher<LayersUpdate, Never> {
         
         producer
             .$layers.combineLatest(producer.$active)

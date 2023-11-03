@@ -37,16 +37,16 @@ extension Publisher where Output == [Sample.ID], Failure == Error {
     }
 }
 
-extension Publisher where Output == ([Layer], Layer.ID?), Failure == Never {
+extension Publisher where Output == LayersUpdate, Failure == Never {
     
     func makeLayerViewModels() -> AnyPublisher<[LayerViewModel], Never> {
         
-        map { (layers, activeID) in
+        map { update in
             
             var viewModels = [LayerViewModel]()
-            for layer in layers {
+            for layer in update.layers {
                 
-                let viewModel = LayerViewModel(id: layer.id, name: layer.name, isPlaying: layer.isPlaying, isMuted: layer.isMuted, isActive: layer.id == activeID)
+                let viewModel = LayerViewModel(id: layer.id, name: layer.name, isPlaying: layer.isPlaying, isMuted: layer.isMuted, isActive: layer.id == update.active)
                 viewModels.append(viewModel)
             }
             

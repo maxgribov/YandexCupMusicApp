@@ -22,7 +22,7 @@ final class MainViewModel: ObservableObject {
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     private let samplesIDs: (Instrument) -> AnyPublisher<[Sample.ID], Error>
     private let loadSample: (Sample.ID) -> AnyPublisher<Sample, Error>
-    private let layers: () -> AnyPublisher<([Layer], Layer.ID?), Never>
+    private let layers: () -> AnyPublisher<LayersUpdate, Never>
     
     private var bindings = Set<AnyCancellable>()
     private var sampleSelectorTask: AnyCancellable?
@@ -31,7 +31,7 @@ final class MainViewModel: ObservableObject {
         activeLayer: AnyPublisher<Layer?, Never>,
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
         loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error>,
-        layers: @escaping () -> AnyPublisher<([Layer], Layer.ID?), Never>
+        layers: @escaping () -> AnyPublisher<LayersUpdate, Never>
     ) {
         
         self.instrumentSelector = .initial
