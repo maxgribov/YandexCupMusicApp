@@ -43,43 +43,19 @@ final class ControlPanelViewModel {
     func recordButtonDidTapped() {
         
         recordButton.isActive.toggle()
-        
-        if recordButton.isActive {
-            
-            delegateActionSubject.send(.startRecording)
-            
-        } else {
-            
-            delegateActionSubject.send(.stopRecording)
-        }
+        delegateActionSubject.send(recordButton.isActive ? .startRecording : .stopRecording)
     }
     
     func composeButtonDidTapped() {
         
         composeButton.isActive.toggle()
-        
-        if composeButton.isActive {
-            
-            delegateActionSubject.send(.startComposing)
-            
-        } else {
-            
-            delegateActionSubject.send(.stopComposing)
-        }
+        delegateActionSubject.send(composeButton.isActive ? .startComposing : .stopComposing)
     }
     
     func playButtonDidTapped() {
         
         playButton.isActive.toggle()
-        
-        if playButton.isActive {
-            
-            delegateActionSubject.send(.startPlaying)
-            
-        } else {
-            
-            delegateActionSubject.send(.stopPlaying)
-        }
+        delegateActionSubject.send(playButton.isActive ? .startPlaying : .stopPlaying)
     }
 }
 
