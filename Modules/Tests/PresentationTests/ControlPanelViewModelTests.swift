@@ -15,12 +15,38 @@ final class ControlPanelViewModel {
     @Published var isComposeButtonActive: Bool
     @Published var isPlayAllButtonActive: Bool
     
+    private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
+    
     init() {
         
         self.layersButton = .initial
         self.isRecordButtonActive = false
         self.isComposeButtonActive = false
         self.isPlayAllButtonActive = false
+    }
+    
+    var delegateAction: AnyPublisher<DelegateAction, Never> {
+        
+        delegateActionSubject.eraseToAnyPublisher()
+    }
+    
+    func recordButtonDidTapped() {
+        
+        isRecordButtonActive.toggle()
+        
+        if isRecordButtonActive {
+            
+            delegateActionSubject.send(.recordingDidStared)
+        }
+    }
+}
+
+extension ControlPanelViewModel {
+    
+    enum DelegateAction: Equatable {
+        
+        case recordingDidStared
+        case recordingDidStopped
     }
 }
 
@@ -49,5 +75,15 @@ final class ControlPanelViewModelTests: XCTestCase {
         XCTAssertEqual(sut.isRecordButtonActive, false)
         XCTAssertEqual(sut.isComposeButtonActive, false)
         XCTAssertEqual(sut.isPlayAllButtonActive, false)
+    }
+    
+    func test_recordButtonDidTapped_informsDelegateThatRecordingStatredOnIsRecordButtonActiveWasFalse() {
+        
+        let sut = ControlPanelViewModel()
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        
+        sut.recordButtonDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.recordingDidStared])
     }
 }
