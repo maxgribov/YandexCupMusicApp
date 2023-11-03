@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		772EEF422AF00AEC0066F12C /* YandexCupMusicAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF412AF00AEC0066F12C /* YandexCupMusicAppApp.swift */; };
+		772EEF422AF00AEC0066F12C /* YandexCupMusicApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF412AF00AEC0066F12C /* YandexCupMusicApp.swift */; };
 		772EEF442AF00AEC0066F12C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772EEF432AF00AEC0066F12C /* ContentView.swift */; };
 		772EEF462AF00AEE0066F12C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 772EEF452AF00AEE0066F12C /* Assets.xcassets */; };
 		772EEF492AF00AEE0066F12C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 772EEF482AF00AEE0066F12C /* Preview Assets.xcassets */; };
@@ -42,7 +42,7 @@
 /* Begin PBXFileReference section */
 		7717EB242AF0F1C500C3FB34 /* Presentation.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = Presentation.xctestplan; path = Modules/Presentation.xctestplan; sourceTree = "<group>"; };
 		772EEF3E2AF00AEC0066F12C /* YandexCupMusicApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YandexCupMusicApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		772EEF412AF00AEC0066F12C /* YandexCupMusicAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicAppApp.swift; sourceTree = "<group>"; };
+		772EEF412AF00AEC0066F12C /* YandexCupMusicApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YandexCupMusicApp.swift; sourceTree = "<group>"; };
 		772EEF432AF00AEC0066F12C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		772EEF452AF00AEE0066F12C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		772EEF482AF00AEE0066F12C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -115,7 +115,7 @@
 		772EEF402AF00AEC0066F12C /* YandexCupMusicApp */ = {
 			isa = PBXGroup;
 			children = (
-				772EEF412AF00AEC0066F12C /* YandexCupMusicAppApp.swift */,
+				772EEF412AF00AEC0066F12C /* YandexCupMusicApp.swift */,
 				7752DA2B2AF59757002EBD4D /* AppModel.swift */,
 				7752DA222AF577B1002EBD4D /* MainViewModel.swift */,
 				7752DA2D2AF597C8002EBD4D /* LayersUpdate.swift */,
@@ -287,7 +287,7 @@
 				7752DA262AF57859002EBD4D /* Publisher+ext.swift in Sources */,
 				7752DA2C2AF59757002EBD4D /* AppModel.swift in Sources */,
 				772EEF442AF00AEC0066F12C /* ContentView.swift in Sources */,
-				772EEF422AF00AEC0066F12C /* YandexCupMusicAppApp.swift in Sources */,
+				772EEF422AF00AEC0066F12C /* YandexCupMusicApp.swift in Sources */,
 				7752DA302AF5A794002EBD4D /* Producer+ext.swift in Sources */,
 				7752DA232AF577B1002EBD4D /* MainViewModel.swift in Sources */,
 				7752DA322AF5A7CE002EBD4D /* SamplesLocalStore+ext.swift in Sources */,
