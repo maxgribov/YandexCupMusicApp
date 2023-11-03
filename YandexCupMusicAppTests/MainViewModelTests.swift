@@ -41,6 +41,16 @@ final class MainViewModel: ObservableObject {
         self.loadSample = loadSample
         self.layers = layers
         
+        bind()
+    }
+    
+    var delegateAction: AnyPublisher<DelegateAction, Never> {
+        
+        delegateActionSubject.eraseToAnyPublisher()
+    }
+    
+    private func bind() {
+        
         instrumentSelector.delegateAction
             .sink { [unowned self] action in handleInstrumentSelector(delegateAction: action) }
             .store(in: &bindings)
@@ -57,11 +67,6 @@ final class MainViewModel: ObservableObject {
             .forwardActions()
             .subscribe(delegateActionSubject)
             .store(in: &bindings)
-    }
-    
-    var delegateAction: AnyPublisher<DelegateAction, Never> {
-        
-        delegateActionSubject.eraseToAnyPublisher()
     }
     
     private func handleInstrumentSelector(delegateAction: InstrumentSelectorViewModel.DelegateAction) {
