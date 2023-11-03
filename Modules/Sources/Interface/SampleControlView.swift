@@ -13,23 +13,58 @@ struct SampleControlView: View {
     
     @ObservedObject var viewModel: SampleControlViewModel
     
+    @State var knobOffset: CGSize = .zero
+    @State var lastEnded: CGSize = .zero
+    @State var isDragging: Bool = false
+    
     var body: some View {
         
         GeometryReader { proxy in
             
-            LinearGradient(gradient: Gradient(colors: [Color(.backControl).opacity(0.1), Color(.backControl)]), startPoint: .top, endPoint: .bottom)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay { volumeRulerView(for: proxy.size.height) }
-                .overlay { speedRulerView(for: proxy.size.width) }
+            ZStack {
+                
+                LinearGradient(gradient: Gradient(colors: [Color(.backControl).opacity(0.1), Color(.backControl)]), startPoint: .top, endPoint: .bottom)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                
+                volumeRulerView(for: proxy.size.height)
+                speedRulerView(for: proxy.size.width)
+                
+                Circle()
+                    .frame(width: 60, height: 60)
+                    .foregroundColor(Color(.backAccent))
+                    .scaleEffect(isDragging ? 2.0 : 1.0)
+                    .offset(knobOffset)
+                    .gesture(
+                        DragGesture()
+                            .onChanged { value in
+                                
+                                knobOffset = knobOffset(lastEnded: lastEnded,
+                                                        translation: value.translation)
+                                isDragging = true
+                            }
+                            .onEnded { value in
+                                
+                                lastEnded = knobOffset
+                                isDragging = false
+                            }
+                    )
+            }
         }
     }
     
+    func knobOffset(lastEnded: CGSize, translation: CGSize) -> CGSize {
+        
+        let newOffset = CGSize(width: lastEnded.width + translation.width ,
+               height: lastEnded.height + translation.height)
+        
+        return newOffset
+    }
+
     func volumeSegmentsCount(for height: CGFloat) -> Int {
         
        Int(height / 70)
     }
     
-    @ViewBuilder
     func volumeRulerView(for height: CGFloat) -> some View {
         
         HStack {
