@@ -38,8 +38,8 @@ struct SampleControlView: View {
                         DragGesture()
                             .onChanged { value in
                                 
-                                knobOffset = knobOffset(lastEnded: lastEnded,
-                                                        translation: value.translation)
+                                knobOffset = lastEnded.offset(translation: value.translation)
+                                    .limit(area: proxy.size.offset(translation: .init(width: -60, height: -60)))
                                 isDragging = true
                             }
                             .onEnded { value in
