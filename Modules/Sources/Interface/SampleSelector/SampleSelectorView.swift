@@ -9,11 +9,16 @@ import SwiftUI
 import Combine
 import Presentation
 
-struct SampleSelectorView: View {
+public struct SampleSelectorView: View {
     
     @ObservedObject var viewModel: SampleSelectorViewModel
     
-    var body: some View {
+    public init(viewModel: SampleSelectorViewModel) {
+        
+        self.viewModel = viewModel
+    }
+    
+    public var body: some View {
         
         VStack {
             

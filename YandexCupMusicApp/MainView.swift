@@ -15,15 +15,24 @@ struct MainView: View {
     
     var body: some View {
         
-        VStack(spacing: 13) {
+        ZStack {
             
-            InstrumentSelectorView(viewModel: viewModel.instrumentSelector)
-            SampleControlView(viewModel: viewModel.sampleControl)
-            SoundWaveProgressView(progress: .constant(0))
-                .frame(height: 30)
-            ControlPanelView(viewModel: viewModel.controlPanel)
+            VStack(spacing: 13) {
+                
+                InstrumentSelectorView(viewModel: viewModel.instrumentSelector)
+                SampleControlView(viewModel: viewModel.sampleControl)
+                SoundWaveProgressView(progress: .constant(0))
+                    .frame(height: 30)
+                ControlPanelView(viewModel: viewModel.controlPanel)
+                
+            }.padding()
             
-        }.padding()
+            if let sampleSelector = viewModel.sampleSelector {
+                
+                SampleSelectorContainerView(viewModel: sampleSelector, dismissAction: {  })
+                    .padding()
+            }
+        }
     }
 }
 
