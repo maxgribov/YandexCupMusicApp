@@ -102,6 +102,39 @@ final class AppModelTests: XCTestCase {
         XCTAssertEqual(sut.localStore.messages, [.retrieveSamplesIDs(.guitar), .retrieveSample(SamplesLocalStoreSpyStub.stabbedSamplesIDs[0])])
         XCTAssertEqual(sut.producer.layers.count, 1)
     }
+    
+    func test_layerDelegateActions_affectsProducerLayersState() {
+
+        let sut = makeSUT()
+        let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
+        sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
+        sut.producer.addLayer(forRecording: Data("some-audio-data".utf8))
+        sut.producer.addLayer(forRecording: Data("some-other-audio-data".utf8))
+        let firstLayerID = sut.producer.layers[0].id
+        let secondLayerID = sut.producer.layers[1].id
+        
+        XCTAssertFalse(sut.producer.layers[0].isPlaying)
+        mainViewModelDelegateStub.send(.layersControl(.isPlayingDidChanged(firstLayerID, true)))
+        XCTAssertTrue(sut.producer.layers[0].isPlaying)
+        
+        mainViewModelDelegateStub.send(.layersControl(.isPlayingDidChanged(firstLayerID, false)))
+        XCTAssertFalse(sut.producer.layers[0].isPlaying)
+        
+        XCTAssertFalse(sut.producer.layers[0].isMuted)
+        mainViewModelDelegateStub.send(.layersControl(.isMutedDidChanged(firstLayerID, true)))
+        XCTAssertTrue(sut.producer.layers[0].isMuted)
+        
+        mainViewModelDelegateStub.send(.layersControl(.isMutedDidChanged(firstLayerID, false)))
+        XCTAssertFalse(sut.producer.layers[0].isMuted)
+        
+        XCTAssertEqual(sut.producer.active, secondLayerID)
+        mainViewModelDelegateStub.send(.layersControl(.selectLayer(firstLayerID)))
+        XCTAssertEqual(sut.producer.active, firstLayerID)
+        
+        XCTAssertEqual(sut.producer.layers.count, 2)
+        mainViewModelDelegateStub.send(.layersControl(.deleteLayer(firstLayerID)))
+        XCTAssertEqual(sut.producer.layers.count, 1)
+    }
 
     private func makeSUT(
         file: StaticString = #filePath,

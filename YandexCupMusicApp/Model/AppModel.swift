@@ -55,6 +55,21 @@ final class AppModel<S> where S: SamplesLocalStore {
                         self.defaultSampleRequest = nil
                     })
                 
+            case let .layersControl(layerAction):
+                switch layerAction {
+                case let .isPlayingDidChanged(layerID, isPlaying):
+                    producer.set(isPlaying: isPlaying, for: layerID)
+                    
+                case let .isMutedDidChanged(layerID, isMuted):
+                    producer.set(isMuted: isMuted, for: layerID)
+                    
+                case let .selectLayer(layerID):
+                    producer.select(layerID: layerID)
+                    
+                case let .deleteLayer(layerID):
+                    producer.delete(layerID: layerID)
+                }
+                
             default:
                 break
             }
