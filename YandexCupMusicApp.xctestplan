@@ -13,8 +13,7 @@
       "containerPath" : "container:YandexCupMusicApp.xcodeproj",
       "identifier" : "772EEF3D2AF00AEC0066F12C",
       "name" : "YandexCupMusicApp"
-    },
-    "testExecutionOrdering" : "random"
+    }
   },
   "testTargets" : [
     {

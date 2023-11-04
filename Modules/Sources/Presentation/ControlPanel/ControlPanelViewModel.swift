@@ -45,21 +45,42 @@ public final class ControlPanelViewModel {
         
         recordButton.isActive.toggle()
         delegateActionSubject.send(recordButton.isActive ? .startRecording : .stopRecording)
-        set(all: [layersButton, composeButton, playButton], to: !recordButton.isActive)
+        if layersButton.name == Self.layersButtonDefaultName {
+            
+            set(all: [composeButton, playButton], to: !recordButton.isActive)
+            
+        } else {
+            
+            set(all: [layersButton, composeButton, playButton], to: !recordButton.isActive)
+        }
     }
     
     public func composeButtonDidTapped() {
         
         composeButton.isActive.toggle()
         delegateActionSubject.send(composeButton.isActive ? .startComposing : .stopComposing)
-        set(all: [layersButton, recordButton, playButton], to: !composeButton.isActive)
+        if layersButton.name == Self.layersButtonDefaultName {
+            
+            set(all: [recordButton, playButton], to: !composeButton.isActive)
+            
+        } else {
+            
+            set(all: [layersButton, recordButton, playButton], to: !composeButton.isActive)
+        }
     }
     
     public func playButtonDidTapped() {
         
         playButton.isActive.toggle()
         delegateActionSubject.send(playButton.isActive ? .startPlaying : .stopPlaying)
-        set(all: [layersButton, recordButton, composeButton], to: !playButton.isActive)
+        if layersButton.name == Self.layersButtonDefaultName {
+            
+            set(all: [recordButton, composeButton], to: !playButton.isActive)
+            
+        } else {
+            
+            set(all: [layersButton, recordButton, composeButton], to: !playButton.isActive)
+        }
     }
     
     private func set(all items: [Enablable], to isEnabled: Bool) {
@@ -69,6 +90,8 @@ public final class ControlPanelViewModel {
             item.isEnabled = isEnabled
         }
     }
+    
+    public static let layersButtonDefaultName = "Слои"
 }
 
 public extension ControlPanelViewModel {

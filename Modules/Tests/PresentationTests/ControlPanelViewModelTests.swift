@@ -81,6 +81,7 @@ final class ControlPanelViewModelTests: XCTestCase {
     func test_recordButtonDidTapped_makeDisabledAllOtherButtonsOnActivation() {
         
         let sut = makeSUT()
+        sut.layersButton.name = "active"
         
         sut.recordButtonDidTapped()
         
@@ -93,6 +94,7 @@ final class ControlPanelViewModelTests: XCTestCase {
     func test_recordButtonDidTapped_makeEnableAllOtherButtonsOnDeactivation() {
         
         let sut = makeSUT()
+        sut.layersButton.name = "active"
         
         sut.recordButtonDidTapped()
         sut.recordButtonDidTapped()
@@ -127,6 +129,7 @@ final class ControlPanelViewModelTests: XCTestCase {
     func test_composeButtonDidTapped_makeDisabledAllOtherButtonsOnActivation() {
         
         let sut = makeSUT()
+        sut.layersButton.name = "active"
         
         sut.composeButtonDidTapped()
         
@@ -139,6 +142,7 @@ final class ControlPanelViewModelTests: XCTestCase {
     func test_composeButtonDidTapped_makeEnableAllOtherButtonsOnDeactivation() {
         
         let sut = makeSUT()
+        sut.layersButton.name = "active"
         
         sut.composeButtonDidTapped()
         sut.composeButtonDidTapped()
@@ -173,6 +177,7 @@ final class ControlPanelViewModelTests: XCTestCase {
     func test_playButtonDidTapped_makeDisabledAllOtherButtonsOnActivation() {
         
         let sut = makeSUT()
+        sut.layersButton.name = "active"
         
         sut.playButtonDidTapped()
         
@@ -185,6 +190,7 @@ final class ControlPanelViewModelTests: XCTestCase {
     func test_playButtonDidTapped_makeEnableAllOtherButtonsOnDeactivation() {
         
         let sut = makeSUT()
+        sut.layersButton.name = "active"
         
         sut.playButtonDidTapped()
         sut.playButtonDidTapped()
@@ -198,7 +204,7 @@ final class ControlPanelViewModelTests: XCTestCase {
     //MARK: - Helpers
     
     private func makeSUT(
-        layersButton: LayersButtonViewModel = LayersButtonViewModel(name: "Слои", isActive: false, isEnabled: true),
+        layersButton: LayersButtonViewModel = LayersButtonViewModel(name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),
         recordButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .record, isActive: false, isEnabled: true),
         composeButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .compose, isActive: false, isEnabled: true),
         playButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .play, isActive: false, isEnabled: true),

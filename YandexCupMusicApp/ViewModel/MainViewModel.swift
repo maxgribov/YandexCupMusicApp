@@ -42,6 +42,29 @@ final class MainViewModel: ObservableObject {
         self.layers = layers
         
         bind()
+        
+        activeLayer
+            .sink {[unowned self] layer in
+                
+                if let layer {
+                    
+                    controlPanel.layersButton.name = layer.name
+                    
+                    if [controlPanel.recordButton,
+                        controlPanel.composeButton,
+                        controlPanel.playButton]
+                        .map(\.isActive)
+                        .reduce(false, { partialResult, value in partialResult || value }) == false {
+                        
+                        controlPanel.layersButton.isEnabled = true
+                    }
+                    
+                } else {
+                    
+                    controlPanel.layersButton.name = ControlPanelViewModel.layersButtonDefaultName
+                    controlPanel.layersButton.isEnabled = false
+                }
+            }.store(in: &bindings)
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
