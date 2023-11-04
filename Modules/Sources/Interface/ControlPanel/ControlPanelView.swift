@@ -8,11 +8,15 @@
 import SwiftUI
 import Presentation
 
-struct ControlPanelView: View {
-    
+public struct ControlPanelView: View {
+
     let viewModel: ControlPanelViewModel
     
-    var body: some View {
+    public init(viewModel: ControlPanelViewModel) {
+        self.viewModel = viewModel
+    }
+    
+    public var body: some View {
         
         HStack {
             

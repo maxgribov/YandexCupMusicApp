@@ -9,14 +9,19 @@ import SwiftUI
 import Combine
 import Presentation
 
-struct SampleControlView: View {
-    
+public struct SampleControlView: View {
+
     @ObservedObject var viewModel: SampleControlViewModel
     
     @State var knobOffset: CGSize = .zero
     @State var lastEnded: CGSize = .zero
     
-    var body: some View {
+    public init(viewModel: SampleControlViewModel) {
+        
+        self.viewModel = viewModel
+    }
+    
+    public var body: some View {
         
         GeometryReader { proxy in
             

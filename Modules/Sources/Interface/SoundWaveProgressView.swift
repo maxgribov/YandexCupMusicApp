@@ -7,11 +7,16 @@
 
 import SwiftUI
 
-struct SoundWaveProgressView: View {
-    
+public struct SoundWaveProgressView: View {
+
     @Binding var progress: Double
     
-    var body: some View {
+    public init(progress: Binding<Double>) {
+        
+        self._progress = progress
+    }
+    
+    public var body: some View {
         
         GeometryReader { proxy in
             

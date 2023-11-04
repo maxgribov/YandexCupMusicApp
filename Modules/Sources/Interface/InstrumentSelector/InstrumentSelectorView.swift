@@ -8,11 +8,16 @@
 import SwiftUI
 import Presentation
 
-struct InstrumentSelectorView: View {
+public struct InstrumentSelectorView: View {
     
     let viewModel: InstrumentSelectorViewModel
     
-    var body: some View {
+    public init(viewModel: InstrumentSelectorViewModel) {
+        
+        self.viewModel = viewModel
+    }
+    
+    public var body: some View {
         
         HStack {
             
