@@ -159,6 +159,7 @@ public extension Producer {
         }
         
         layers = updated
+        player.update(id: activeLayerID, with: control)
     }
 }
 

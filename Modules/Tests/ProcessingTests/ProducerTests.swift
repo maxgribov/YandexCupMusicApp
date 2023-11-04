@@ -403,6 +403,18 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(sut.layers[0].control, updatedControl)
     }
     
+    func test_setActiveLayerControl_messagesPlayerWithUpdateForLayerIDWithControl() {
+        
+        let (sut, player, _) = makeSUT()
+        let layerID = UUID()
+        let recordingData = Data("recording".utf8)
+        sut.addLayer(id: layerID, forRecording: recordingData)
+        
+        let updatedControl = Layer.Control(volume: 1, speed: 1)
+        sut.setActiveLayer(control: updatedControl)
+        XCTAssertEqual(player.messages, [.update(layerID, updatedControl)])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT
@@ -445,6 +457,7 @@ final class ProducerTests: XCTestCase {
         enum Message: Equatable {
             case play(Layer.ID, Data, Layer.Control)
             case stop(Layer.ID)
+            case update(Layer.ID, Layer.Control)
         }
         
         func play(id: Layer.ID, data: Data, control: Layer.Control) {
@@ -461,7 +474,7 @@ final class ProducerTests: XCTestCase {
         
         func update(id: Layer.ID, with control: Layer.Control) {
             
-            
+            messages.append(.update(id, control))
         }
     }
     
