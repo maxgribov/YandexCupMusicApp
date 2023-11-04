@@ -69,6 +69,9 @@ final class AppModel<S> where S: SamplesLocalStore {
                 case let .deleteLayer(layerID):
                     producer.delete(layerID: layerID)
                 }
+            
+            case let .activeLayerControlUpdate(control):
+                producer.setActiveLayer(control: control)
                 
             case .startPlaying:
                 producer.set(isPlayingAll: true)
