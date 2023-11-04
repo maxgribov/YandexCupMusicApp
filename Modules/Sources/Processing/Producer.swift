@@ -13,7 +13,6 @@ public final class Producer {
     
     @Published public private(set) var layers: [Layer]
     @Published public private(set) var active: Layer.ID?
-    @Published public private(set) var isPlayingAll: Bool
     public let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
     private var payloads: [Layer.ID: Payload]
@@ -28,7 +27,6 @@ public final class Producer {
         
         self.layers = []
         self.active = nil
-        self.isPlayingAll = false
         self.payloads = [:]
         self.player = player
         self.recorder = recorder
@@ -82,7 +80,6 @@ public extension Producer {
         }
         
         layers = updated
-        isPlayingAll = false
     }
     
     func set(isMuted: Bool, for layerID: Layer.ID) {
@@ -237,7 +234,6 @@ public extension Producer {
         }
         
         layers = updated
-        self.isPlayingAll = isPlayingAll
     }
 }
 

@@ -352,40 +352,14 @@ final class ProducerTests: XCTestCase {
         sut.set(isMuted: true, for: sut.layers[2].id)
         
         sut.set(isPlayingAll: true)
-        
-        XCTAssertTrue(sut.isPlayingAll)
         XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control),
                                          .play(sut.layers[1].id, drumsData.data, sut.layers[1].control)])
         
         sut.set(isPlayingAll: false)
-        
-        XCTAssertFalse(sut.isPlayingAll)
         XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control),
                                          .play(sut.layers[1].id, drumsData.data, sut.layers[1].control),
                                          .stop(sut.layers[0].id),
                                          .stop(sut.layers[1].id)])
-    }
-    
-    func test_setIsPlayingForLayerID_setIsPlayingAllToFalse() {
-        
-        let (sut, _, _) = makeSUT()
-        sut.addLayer(forRecording: someRecordingData())
-        sut.set(isPlayingAll: true)
-        
-        sut.set(isPlaying: false, for: sut.layers[0].id)
-        
-        XCTAssertFalse(sut.isPlayingAll)
-    }
-    
-    func test_setIsMutedForLayerID_doesNotAffectOnIsPlayingAll() {
-        
-        let (sut, _, _) = makeSUT()
-        sut.addLayer(forRecording: someRecordingData())
-        sut.set(isPlayingAll: true)
-        
-        sut.set(isMuted: true, for: sut.layers[0].id)
-        
-        XCTAssertTrue(sut.isPlayingAll)
     }
     
     func test_setActiveLayerControl_updatesControlForActiveLayer() {
