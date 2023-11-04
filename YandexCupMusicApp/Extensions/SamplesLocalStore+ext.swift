@@ -35,4 +35,12 @@ extension SamplesLocalStore {
             
         }.eraseToAnyPublisher()
     }
+    
+    func defaultSample(for instrument: Instrument) -> AnyPublisher<Sample, Error> {
+        
+        sampleIDs(for: instrument)
+            .compactMap { sampleIDs in return sampleIDs.first }
+            .flatMap { [unowned self] sampleID in return self.loadSample(sampleID: sampleID) }
+            .eraseToAnyPublisher()
+    }
 }

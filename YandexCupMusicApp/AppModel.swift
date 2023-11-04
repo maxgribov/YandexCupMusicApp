@@ -31,9 +31,7 @@ final class AppModel<S> where S: SamplesLocalStore {
             
             switch action {
             case let .addLayerWithDefaultSampleFor(instrument):
-                defaultSampleRequest = localStore.sampleIDs(for: instrument)
-                    .compactMap { sampleIDs in return sampleIDs.first }
-                    .flatMap { [unowned self] sampleID in return self.localStore.loadSample(sampleID: sampleID) }
+                defaultSampleRequest = localStore.defaultSample(for: instrument)
                     .sink(receiveCompletion: {[unowned self] _ in
                         
                         self.defaultSampleRequest = nil
