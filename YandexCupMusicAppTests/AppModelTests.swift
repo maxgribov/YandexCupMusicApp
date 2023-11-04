@@ -135,6 +135,22 @@ final class AppModelTests: XCTestCase {
         mainViewModelDelegateStub.send(.layersControl(.deleteLayer(firstLayerID)))
         XCTAssertEqual(sut.producer.layers.count, 1)
     }
+    
+    func test_startStopPlayMainViewModelDelegateActions_togglesAllLayersIsPlayingState() {
+        
+        let sut = makeSUT()
+        let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
+        sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
+        sut.producer.addLayer(forRecording: Data("some-audio-data".utf8))
+        sut.producer.addLayer(forRecording: Data("some-other-audio-data".utf8))
+        XCTAssertEqual(sut.producer.layers.map(\.isPlaying), [false, false])
+        
+        mainViewModelDelegateStub.send(.startPlaying)
+        XCTAssertEqual(sut.producer.layers.map(\.isPlaying), [true, true])
+        
+        mainViewModelDelegateStub.send(.stopPlaying)
+        XCTAssertEqual(sut.producer.layers.map(\.isPlaying), [false, false])
+    }
 
     private func makeSUT(
         file: StaticString = #filePath,
