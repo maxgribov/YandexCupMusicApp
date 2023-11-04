@@ -9,11 +9,16 @@ import SwiftUI
 import Combine
 import Presentation
 
-struct LayersControlView: View {
+public struct LayersControlView: View {
     
     @ObservedObject var viewModel: LayersControlViewModel
     
-    var body: some View {
+    public init(viewModel: LayersControlViewModel) {
+        
+        self.viewModel = viewModel
+    }
+    
+    public var body: some View {
         
         VStack {
             

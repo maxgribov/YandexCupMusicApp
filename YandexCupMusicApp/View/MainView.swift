@@ -32,6 +32,11 @@ struct MainView: View {
                 SampleSelectorContainerView(viewModel: sampleSelector, dismissAction: viewModel.dismissSampleSelector)
                     .padding()
             }
+            
+            if let layersControl = viewModel.layersControl {
+                
+                LayersControlContainerView(viewModel: layersControl, dismissAction: {})
+            }
         }
     }
 }
