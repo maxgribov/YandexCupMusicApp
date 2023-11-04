@@ -25,6 +25,18 @@ final class AppModel<S> where S: SamplesLocalStore {
         self.localStore = localStore
     }
     
+    func mainViewModel() -> MainViewModel {
+        
+        let viewModel = MainViewModel(
+            activeLayer: producer.activeLayerMain(),
+            samplesIDs: localStore.sampleIDsMain(for:),
+            loadSample: localStore.loadSampleMain(sampleID:),
+            layers: producer.layersMain)
+        bindMainViewModel(delegate: viewModel.delegateAction)
+        
+        return viewModel
+    }
+    
     func bindMainViewModel(delegate: AnyPublisher<MainViewModel.DelegateAction, Never>) {
         
         delegate.sink {[unowned self] action in

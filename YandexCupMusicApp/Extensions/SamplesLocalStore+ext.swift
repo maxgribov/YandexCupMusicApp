@@ -24,6 +24,11 @@ extension SamplesLocalStore {
         }.eraseToAnyPublisher()
     }
     
+    func sampleIDsMain(for instrument: Instrument) -> AnyPublisher<[Sample.ID], Error> {
+        
+        sampleIDs(for: instrument).receive(on: DispatchQueue.main).eraseToAnyPublisher()
+    }
+    
     func loadSample(sampleID: Sample.ID) -> AnyPublisher<Sample, Error> {
         
         Deferred {
@@ -34,6 +39,11 @@ extension SamplesLocalStore {
             }
             
         }.eraseToAnyPublisher()
+    }
+    
+    func loadSampleMain(sampleID: Sample.ID) -> AnyPublisher<Sample, Error> {
+        
+        loadSample(sampleID: sampleID).receive(on: DispatchQueue.main).eraseToAnyPublisher()
     }
     
     func defaultSample(for instrument: Instrument) -> AnyPublisher<Sample, Error> {

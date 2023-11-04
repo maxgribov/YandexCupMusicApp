@@ -26,11 +26,21 @@ extension Producer {
             }.eraseToAnyPublisher()
     }
     
+    func activeLayerMain() -> AnyPublisher<Layer?, Never> {
+        
+        activeLayer().receive(on: DispatchQueue.main).eraseToAnyPublisher()
+    }
+    
     func layers() -> AnyPublisher<LayersUpdate, Never> {
         
         $layers.combineLatest($active)
             .map { layers, active in LayersUpdate(layers: layers, active: active) }
             .removeDuplicates()
             .eraseToAnyPublisher()
+    }
+    
+    func layersMain() -> AnyPublisher<LayersUpdate, Never> {
+        
+        layers().receive(on: DispatchQueue.main).eraseToAnyPublisher()
     }
 }

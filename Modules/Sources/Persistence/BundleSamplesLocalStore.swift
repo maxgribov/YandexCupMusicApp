@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-public final class BundleSamplesLocalStore {
+public final class BundleSamplesLocalStore: SamplesLocalStore {
     
     private let bundle: Bundle
     private let fileManager = FileManager.default
