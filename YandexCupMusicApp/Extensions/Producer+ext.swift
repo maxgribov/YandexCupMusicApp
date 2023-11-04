@@ -14,7 +14,7 @@ extension Producer {
     
     func activeLayer() -> AnyPublisher<Layer?, Never> {
         
-        $layers.zip($active)
+        $layers.combineLatest($active)
             .map { layers, activeLayerID in
                 
                 guard let activeLayerID, let layer = layers.first(where: { $0.id == activeLayerID }) else {

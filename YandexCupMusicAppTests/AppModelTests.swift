@@ -38,17 +38,17 @@ final class AppModelTests: XCTestCase {
         
         sut.producer.addLayer(forRecording: Data("some data".utf8))
         let firstLayer = sut.producer.layers.last
-        XCTAssertEqual(activeLayerSpy.values, [nil, firstLayer])
+        XCTAssertEqual(activeLayerSpy.values, [nil, nil, firstLayer])
         
         sut.producer.addLayer(forRecording: Data("some other data".utf8))
         let secondLayer = sut.producer.layers.last
-        XCTAssertEqual(activeLayerSpy.values, [nil, firstLayer, secondLayer])
+        XCTAssertEqual(activeLayerSpy.values, [nil, nil, firstLayer, firstLayer, secondLayer])
         
         sut.producer.delete(layerID: secondLayer!.id)
-        XCTAssertEqual(activeLayerSpy.values, [nil, firstLayer, secondLayer, firstLayer])
+        XCTAssertEqual(activeLayerSpy.values, [nil, nil, firstLayer, firstLayer, secondLayer, nil, firstLayer])
         
         sut.producer.delete(layerID: firstLayer!.id)
-        XCTAssertEqual(activeLayerSpy.values, [nil, firstLayer, secondLayer, firstLayer, nil])
+        XCTAssertEqual(activeLayerSpy.values, [nil, nil, firstLayer, firstLayer, secondLayer, nil, firstLayer, nil, nil])
     }
     
     func test_sampleIDs_retrievesSampleIDsFromLocalStore() {

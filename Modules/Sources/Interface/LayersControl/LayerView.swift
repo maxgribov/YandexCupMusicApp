@@ -44,6 +44,8 @@ struct LayerView: View {
         }.background {
             RoundedRectangle(cornerRadius: 4)
                 .foregroundColor(Color(viewModel.isActive ? .backAccent : .backPrimary))
+        }.onTapGesture {
+            viewModel.selectDidTapped()
         }
     }
 }
