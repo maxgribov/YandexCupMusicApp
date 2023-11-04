@@ -245,6 +245,18 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(sut.active, activeLayerID)
     }
     
+    func test_deleteLayerID_messagesPlayerToStopPlayLayerWithID() {
+        
+        let (sut, player, _) = makeSUT()
+        let layerID = UUID()
+        sut.addLayer(id: layerID, for: .guitar, with: someSample())
+        sut.set(isPlayingAll: true)
+        
+        sut.delete(layerID: layerID)
+        
+        XCTAssertEqual(player.messages.last, .stop(layerID))
+    }
+    
     func test_selectLayerID_doNothingOnIncorrectID() {
         
         let (sut, _, _) = makeSUT()

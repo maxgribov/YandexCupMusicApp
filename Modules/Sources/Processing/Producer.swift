@@ -108,6 +108,11 @@ public extension Producer {
         layers = layers.filter { $0.id != layerID }
         payloads.removeValue(forKey: layerID)
         
+        if player.playing.contains(layerID) {
+            
+            player.stop(id: layerID)
+        }
+        
         if layers.count == 0 {
             
             active = nil
