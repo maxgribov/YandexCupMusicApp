@@ -38,7 +38,7 @@ let package = Package(
             dependencies: ["Domain"]),
         .target(
             name: "Interface",
-            dependencies: ["Domain", "Presentation"]),
+            dependencies: ["Presentation"]),
         .testTarget(
             name: "PersistenceTests",
             dependencies: ["Domain", "Persistence"]),

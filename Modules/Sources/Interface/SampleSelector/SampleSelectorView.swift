@@ -19,7 +19,7 @@ struct SampleSelectorView: View {
             
             Circle()
                 .foregroundColor(Color(.backAccent))
-                .overlay { viewModel.instrument.buttonIcon }
+                .overlay { buttonIcon }
                 .frame(width: 60, height: 60)
             
             VStack(spacing: 0) {
@@ -48,6 +48,15 @@ struct SampleSelectorView: View {
                 .frame(width: 60, height : 30)
             
         }.background { Capsule().foregroundColor(Color(.backAccent))}
+    }
+    
+    var buttonIcon: Image {
+        
+        switch viewModel.instrument {
+        case .guitar: return Image(.iconGuitar)
+        case .drums: return Image(.iconDrums)
+        case .brass: return Image(.iconBrass)
+        }
     }
 }
 

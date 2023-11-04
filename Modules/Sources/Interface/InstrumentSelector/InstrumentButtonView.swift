@@ -20,7 +20,7 @@ struct InstrumentButtonView: View {
             
             Circle()
                 .foregroundColor(Color(.backPrimary))
-                .overlay { viewModel.instrument.buttonIcon }
+                .overlay { icon }
                 .frame(width: 60, height: 60)
             
             Text(viewModel.instrument.name.lowercased())
@@ -28,6 +28,15 @@ struct InstrumentButtonView: View {
         }
         .onTapGesture { tapAction() }
         .onLongPressGesture { longTapAction() }
+    }
+    
+    var icon: Image {
+        
+        switch viewModel.instrument {
+        case .guitar: return Image(.iconGuitar)
+        case .drums: return Image(.iconDrums)
+        case .brass: return Image(.iconBrass)
+        }
     }
 }
 
