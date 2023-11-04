@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AVFoundation
 import Combine
 import Domain
 import Processing
@@ -60,4 +61,13 @@ final class AppModel<S> where S: SamplesLocalStore {
             
         }.store(in: &bindings)
     }
+}
+
+extension AppModel where S == BundleSamplesLocalStore {
+    
+    static let prod = AppModel(
+        producer: Producer(
+            player: FoundationPlayer(makePlayer: { data in try AVAudioPlayer(data: data) }),
+            recorder: FoundationRecorder(makeRecorder: { url, settings in try AVAudioRecorder(url: url, settings: settings) })),
+        localStore: BundleSamplesLocalStore())
 }

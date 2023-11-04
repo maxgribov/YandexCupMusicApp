@@ -16,11 +16,7 @@ import Interface
 @main
 struct YandexCupMusicApp: App {
     
-    let appModel = AppModel(
-        producer: Producer(
-            player: FoundationPlayer(makePlayer: { data in try AVAudioPlayer(data: data) }),
-            recorder: FoundationRecorder(makeRecorder: { url, settings in try AVAudioRecorder(url: url, settings: settings) })),
-        localStore: BundleSamplesLocalStore())
+    let appModel: AppModel = .prod
     
     var body: some Scene {
         
@@ -32,5 +28,3 @@ struct YandexCupMusicApp: App {
     }
 }
 
-extension AVAudioPlayer: AVAudioPlayerProtocol {}
-extension AVAudioRecorder: AVAudioRecorderProtocol {}
