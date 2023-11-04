@@ -29,7 +29,7 @@ struct MainView: View {
             
             if let sampleSelector = viewModel.sampleSelector {
                 
-                SampleSelectorContainerView(viewModel: sampleSelector, dismissAction: {  })
+                SampleSelectorContainerView(viewModel: sampleSelector, dismissAction: viewModel.dismissSampleSelector)
                     .padding()
             }
         }

@@ -143,6 +143,17 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertEqual(delegateActionSpy.values, [.startPlaying, .stopPlaying])
     }
     
+    func test_dismissSampleSelector_setSampleSelectorToNil() {
+        
+        let sut = makeSUT(samplesIDs: { _ in Just([Sample.ID(), Sample.ID(), Sample.ID()]).setFailureType(to: Error.self).eraseToAnyPublisher() })
+        sut.instrumentSelector.buttonDidLongTapped(for: Instrument.guitar.rawValue)
+        XCTAssertNotNil(sut.sampleSelector)
+        
+        sut.dismissSampleSelector()
+        
+        XCTAssertNil(sut.sampleSelector)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(

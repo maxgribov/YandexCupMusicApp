@@ -48,6 +48,11 @@ final class MainViewModel: ObservableObject {
         
         delegateActionSubject.eraseToAnyPublisher()
     }
+    
+    func dismissSampleSelector() {
+        
+        sampleSelector = nil
+    }
 }
 
 //MARK: - Types
