@@ -46,6 +46,12 @@ public final class FoundationPlayer<P>: Player where P: AVAudioPlayerProtocol {
         activePlayers[id]?.stop()
         activePlayers[id] = nil
     }
+    
+    public func update(id: Layer.ID, with control: Layer.Control) {
+        
+        activePlayers[id]?.volume = Float(control.volume)
+        activePlayers[id]?.rate = Self.rate(from: control.speed)
+    }
 }
 
 public extension FoundationPlayer {

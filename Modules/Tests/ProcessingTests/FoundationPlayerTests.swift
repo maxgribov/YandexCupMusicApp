@@ -166,6 +166,20 @@ final class FoundationPlayerTests: XCTestCase {
         XCTAssertEqual(secondPlayer!.currentTime, 100, accuracy: .ulpOfOne)
     }
     
+    func test_updateWithControl_updatesVolumeAndSpeedValuesForPlayerForLayerID() {
+        
+        let sut = makeSUT()
+        let layerID = anyLayerID()
+        sut.play(id: layerID, data: anyData(), control: .init(volume: 1, speed: 1))
+        let initialVolume = player?.volume
+        let initialRate = player?.rate
+        
+        sut.update(id: layerID, with: .init(volume: 0.5, speed: 0.5))
+        
+        XCTAssertNotEqual(player?.volume, initialVolume)
+        XCTAssertNotEqual(player?.rate, initialRate)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(

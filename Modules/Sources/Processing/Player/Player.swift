@@ -13,4 +13,5 @@ public protocol Player {
     var playing: Set<Layer.ID> { get }
     func play(id: Layer.ID, data: Data, control: Layer.Control)
     func stop(id: Layer.ID)
+    func update(id: Layer.ID, with control: Layer.Control)
 }

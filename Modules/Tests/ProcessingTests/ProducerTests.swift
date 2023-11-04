@@ -458,6 +458,11 @@ final class ProducerTests: XCTestCase {
             messages.append(.stop(id))
             playing.remove(id)
         }
+        
+        func update(id: Layer.ID, with control: Layer.Control) {
+            
+            
+        }
     }
     
     private class RecorderSpy: Recorder {
