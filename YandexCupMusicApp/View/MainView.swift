@@ -35,7 +35,7 @@ struct MainView: View {
             
             if let layersControl = viewModel.layersControl {
                 
-                LayersControlContainerView(viewModel: layersControl, dismissAction: {})
+                LayersControlContainerView(viewModel: layersControl, dismissAction: viewModel.dismissLayersControl)
             }
         }
     }

@@ -154,6 +154,17 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertNil(sut.sampleSelector)
     }
     
+    func test_dismissLayersControl_invokesLayersButtonDidTappedOnControlPanel() {
+        
+        let sut = makeSUT()
+        sut.controlPanel.layersButtonDidTapped()
+        XCTAssertNotNil(sut.layersControl)
+        
+        sut.dismissLayersControl()
+        
+        XCTAssertNil(sut.layersControl)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -169,7 +180,6 @@ final class MainViewModelTests: XCTestCase {
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
-        
     }
     
     private func someLayer() -> Layer {

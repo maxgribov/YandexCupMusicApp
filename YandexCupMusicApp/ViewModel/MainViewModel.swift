@@ -53,6 +53,11 @@ final class MainViewModel: ObservableObject {
         
         sampleSelector = nil
     }
+    
+    func dismissLayersControl() {
+        
+        controlPanel.layersButtonDidTapped()
+    }
 }
 
 //MARK: - Types

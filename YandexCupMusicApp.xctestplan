@@ -1,0 +1,29 @@
+{
+  "configurations" : [
+    {
+      "id" : "AFAD1E40-0822-45FA-9D50-6913273C9864",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:YandexCupMusicApp.xcodeproj",
+      "identifier" : "772EEF3D2AF00AEC0066F12C",
+      "name" : "YandexCupMusicApp"
+    },
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:YandexCupMusicApp.xcodeproj",
+        "identifier" : "772EEF4D2AF00AEE0066F12C",
+        "name" : "YandexCupMusicAppTests"
+      }
+    }
+  ],
+  "version" : 1
+}
