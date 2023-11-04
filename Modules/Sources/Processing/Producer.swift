@@ -74,13 +74,7 @@ public extension Producer {
                 var updatedLayer = layer
                 updatedLayer.isPlaying = isPlaying
                 updated.append(updatedLayer)
-                
-            } else if isPlaying == true, layer.isPlaying == true {
-                
-                var updatedLayer = layer
-                updatedLayer.isPlaying = false
-                updated.append(updatedLayer)
-                
+             
             } else {
                 
                 updated.append(layer)

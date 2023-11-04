@@ -121,10 +121,10 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(sut.layers.map(\.isPlaying), [true, false, false])
         
         sut.set(isPlaying: true, for: sut.layers[1].id)
-        XCTAssertEqual(sut.layers.map(\.isPlaying), [false, true, false])
+        XCTAssertEqual(sut.layers.map(\.isPlaying), [true, true, false])
         
         sut.set(isPlaying: false, for: sut.layers[1].id)
-        XCTAssertEqual(sut.layers.map(\.isPlaying), [false, false, false])
+        XCTAssertEqual(sut.layers.map(\.isPlaying), [true, false, false])
     }
     
     func test_setIsPlayingForLayerID_messagesPlayerWithPlayAndStopCommands() {
@@ -141,12 +141,10 @@ final class ProducerTests: XCTestCase {
         
         sut.set(isPlaying: true, for: sut.layers[1].id)
         XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control),
-                                         .stop(sut.layers[0].id),
                                          .play(sut.layers[1].id, drumsSample.data, sut.layers[1].control)])
         
         sut.set(isPlaying: false, for: sut.layers[1].id)
         XCTAssertEqual(player.messages, [.play(sut.layers[0].id, guitarSample.data, sut.layers[0].control),
-                                         .stop(sut.layers[0].id),
                                          .play(sut.layers[1].id, drumsSample.data, sut.layers[1].control),
                                          .stop(sut.layers[1].id)])
     }
