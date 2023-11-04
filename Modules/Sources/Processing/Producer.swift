@@ -135,6 +135,31 @@ public extension Producer {
         
         active = layerID
     }
+    
+    func setActiveLayer(control: Layer.Control) {
+        
+        guard let activeLayerID = active else {
+            return
+        }
+        
+        var updated = [Layer]()
+        
+        for layer in layers {
+            
+            if layer.id == activeLayerID {
+                
+                var updatedLayer = layer
+                updatedLayer.control = control
+                updated.append(updatedLayer)
+                
+            } else {
+                
+                updated.append(layer)
+            }
+        }
+        
+        layers = updated
+    }
 }
 
 //MARK: - Recordings

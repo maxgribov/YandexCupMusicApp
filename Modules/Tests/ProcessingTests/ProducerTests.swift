@@ -390,6 +390,19 @@ final class ProducerTests: XCTestCase {
         XCTAssertTrue(sut.isPlayingAll)
     }
     
+    func test_setActiveLayerControl_updatesControlForActiveLayer() {
+        
+        let (sut, _, _) = makeSUT()
+        sut.addLayer(forRecording: someRecordingData())
+        let initialControl = sut.layers[0].control
+        
+        let updatedControl = Layer.Control(volume: 0, speed: 0)
+        XCTAssertNotEqual(initialControl, updatedControl)
+        
+        sut.setActiveLayer(control: updatedControl)
+        XCTAssertEqual(sut.layers[0].control, updatedControl)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT
