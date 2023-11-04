@@ -118,11 +118,9 @@
 			isa = PBXGroup;
 			children = (
 				772EEF412AF00AEC0066F12C /* YandexCupMusicApp.swift */,
-				7752DA2B2AF59757002EBD4D /* AppModel.swift */,
-				7752DA222AF577B1002EBD4D /* MainViewModel.swift */,
-				7752DA332AF63954002EBD4D /* MainView.swift */,
-				7752DA352AF64A69002EBD4D /* SampleSelectorContainerView.swift */,
-				7752DA2D2AF597C8002EBD4D /* LayersUpdate.swift */,
+				7752DA382AF64E2F002EBD4D /* Model */,
+				7752DA392AF64E47002EBD4D /* ViewModel */,
+				7752DA372AF64E19002EBD4D /* View */,
 				7752DA242AF57842002EBD4D /* Extensions */,
 				772EEF452AF00AEE0066F12C /* Assets.xcassets */,
 				772EEF472AF00AEE0066F12C /* Preview Content */,
@@ -174,6 +172,32 @@
 				7752DA312AF5A7CE002EBD4D /* SamplesLocalStore+ext.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		7752DA372AF64E19002EBD4D /* View */ = {
+			isa = PBXGroup;
+			children = (
+				7752DA332AF63954002EBD4D /* MainView.swift */,
+				7752DA352AF64A69002EBD4D /* SampleSelectorContainerView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		7752DA382AF64E2F002EBD4D /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				7752DA2B2AF59757002EBD4D /* AppModel.swift */,
+				7752DA2D2AF597C8002EBD4D /* LayersUpdate.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		7752DA392AF64E47002EBD4D /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				7752DA222AF577B1002EBD4D /* MainViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
