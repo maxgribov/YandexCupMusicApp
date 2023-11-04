@@ -44,6 +44,13 @@ final class MainViewModel: ObservableObject {
         
         bind()
         bindings.insert(controlPanel.bind(activeLayer: activeLayer))
+        
+        layers().sink { [unowned self] update in
+            
+            if update.layers.isEmpty, layersControl != nil {
+                dismissLayersControl()
+            }
+        }.store(in: &bindings)
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
