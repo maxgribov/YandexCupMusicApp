@@ -26,6 +26,7 @@ final class MainViewModel: ObservableObject {
     
     private var bindings = Set<AnyCancellable>()
     private var sampleSelectorTask: AnyCancellable?
+    private var layersDelegateBinding: AnyCancellable?
     
     init(
         activeLayer: AnyPublisher<Layer?, Never>,
@@ -75,6 +76,7 @@ extension MainViewModel {
         case stopComposing
         case startPlaying
         case stopPlaying
+        case layersControl(LayersControlViewModel.DelegateAction)
     }
 }
 
@@ -135,7 +137,11 @@ private extension MainViewModel {
         
         switch delegateAction {
         case .showLayers:
-            layersControl = LayersControlViewModel(initial: [], updates: layers().makeLayerViewModels())
+            let layersControl = LayersControlViewModel(initial: [], updates: layers().makeLayerViewModels())
+            self.layersControl = layersControl
+            layersDelegateBinding = layersControl.delegateAction.sink(receiveValue: {[unowned self] action in
+                delegateActionSubject.send(.layersControl(action))
+            })
             
         case .hideLayers:
             layersControl = nil

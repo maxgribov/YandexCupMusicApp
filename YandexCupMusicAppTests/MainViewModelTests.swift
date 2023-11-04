@@ -194,6 +194,27 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertFalse(sut.controlPanel.layersButton.isEnabled)
     }
     
+    func test_layersDelegateAction_forwardingWithMainViewModelDelegateAction() {
+        
+        let layerID = UUID()
+        let layers = [Layer(id: layerID, name: "some", isPlaying: false, isMuted: false, control: .initial)]
+        let sut = makeSUT(layers: { Just(LayersUpdate(layers: layers, active: layerID)).eraseToAnyPublisher() })
+        sut.controlPanel.layersButtonDidTapped()
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        
+        sut.layersControl?.layers[0].playButtonDidTaped()
+        XCTAssertEqual(delegateActionSpy.values, [.layersControl(.isPlayingDidChanged(layerID, true))])
+        
+        sut.layersControl?.layers[0].muteButtonDidTapped()
+        XCTAssertEqual(delegateActionSpy.values, [.layersControl(.isPlayingDidChanged(layerID, true)),
+                                                  .layersControl(.isMutedDidChanged(layerID, true))])
+        
+        sut.layersControl?.layers[0].deleteButtonDidTapped()
+        XCTAssertEqual(delegateActionSpy.values, [.layersControl(.isPlayingDidChanged(layerID, true)),
+                                                  .layersControl(.isMutedDidChanged(layerID, true)),
+                                                  .layersControl(.deleteLayer(layerID))])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
