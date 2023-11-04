@@ -61,7 +61,7 @@ final class AppModelTests: XCTestCase {
                 receivedResult = result
             }.store(in: &cancellables)
         
-        XCTAssertEqual(receivedResult, SamplesLocalStoreStub.stabbedSamplesIDs)
+        XCTAssertEqual(receivedResult, SamplesLocalStoreSpyStub.stabbedSamplesIDs)
     }
     
     func test_loadSample_retrievesSampleFromLocalStore() {
@@ -74,7 +74,7 @@ final class AppModelTests: XCTestCase {
                 receivedResult = result
             }.store(in: &cancellables)
         
-        XCTAssertEqual(receivedResult, SamplesLocalStoreStub.stabbedSample)
+        XCTAssertEqual(receivedResult, SamplesLocalStoreSpyStub.stabbedSample)
     }
     
     func test_producerAddLayer_makeLayersPublishUpdates() {
@@ -90,17 +90,29 @@ final class AppModelTests: XCTestCase {
                                           .init(layers: [firstLayer], active: nil),
                                           .init(layers: [firstLayer], active: firstLayer.id)])
     }
+    
+    func test_bindMainViewModelDelegate_requestSampleFromLocalStoreAndAddLayerToProducerOnActionAddLayerWithDefaultSampleForInstrument() {
+        
+        let sut = makeSUT()
+        let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
+        sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
+        
+        mainViewModelDelegateStub.send(.addLayerWithDefaultSampleFor(.guitar))
+        
+        XCTAssertEqual(sut.localStore.messages, [.retrieveSamplesIDs(.guitar), .retrieveSample(SamplesLocalStoreSpyStub.stabbedSamplesIDs[0])])
+        XCTAssertEqual(sut.producer.layers.count, 1)
+    }
 
     private func makeSUT(
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> AppModel<SamplesLocalStoreStub> {
+    ) -> AppModel<SamplesLocalStoreSpyStub> {
         
         let sut = AppModel(
             producer: Producer(
                 player: FoundationPlayer(makePlayer: { data in try AudioPlayerDummy(data: data) }),
                 recorder: FoundationRecorder(makeRecorder: { url, settings in try AudioRecorderDummy(url: url, settings: settings) })),
-            localStore: SamplesLocalStoreStub()
+            localStore: SamplesLocalStoreSpyStub()
         )
         
         trackForMemoryLeaks(sut, file: file, line: line)
@@ -139,15 +151,24 @@ final class AppModelTests: XCTestCase {
         func stop() {}
     }
     
-    private class SamplesLocalStoreStub: SamplesLocalStore {
+    private class SamplesLocalStoreSpyStub: SamplesLocalStore {
+        
+        private(set) var messages = [Message]()
+        
+        enum Message: Equatable {
+            case retrieveSamplesIDs(Instrument)
+            case retrieveSample(Sample.ID)
+        }
         
         func retrieveSamplesIDs(for instrument: Domain.Instrument, complete: @escaping (Result<[Domain.Sample.ID], Error>) -> Void) {
             
+            messages.append(.retrieveSamplesIDs(instrument))
             complete(.success(Self.stabbedSamplesIDs))
         }
         
         func retrieveSample(for sampleID: Domain.Sample.ID, completion: @escaping (Result<Domain.Sample, Error>) -> Void) {
             
+            messages.append(.retrieveSample(sampleID))
             completion(.success(Self.stabbedSample))
         }
         

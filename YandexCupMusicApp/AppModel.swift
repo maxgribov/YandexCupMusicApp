@@ -16,9 +16,38 @@ final class AppModel<S> where S: SamplesLocalStore {
     let producer: Producer
     let localStore: S
     
+    private var bindings = Set<AnyCancellable>()
+    private var defaultSampleRequest: AnyCancellable?
+    
     init(producer: Producer, localStore: S) {
         
         self.producer = producer
         self.localStore = localStore
+    }
+    
+    func bindMainViewModel(delegate: AnyPublisher<MainViewModel.DelegateAction, Never>) {
+        
+        delegate.sink {[unowned self] action in
+            
+            switch action {
+            case let .addLayerWithDefaultSampleFor(instrument):
+                defaultSampleRequest = localStore.sampleIDs(for: instrument)
+                    .compactMap { sampleIDs in return sampleIDs.first }
+                    .flatMap { [unowned self] sampleID in return self.localStore.loadSample(sampleID: sampleID) }
+                    .sink(receiveCompletion: {[unowned self] _ in
+                        
+                        self.defaultSampleRequest = nil
+                        
+                    }, receiveValue: {[unowned self] sample in
+                        
+                        producer.addLayer(for: instrument, with: sample)
+                        self.defaultSampleRequest = nil
+                    })
+                
+            default:
+                break
+            }
+            
+        }.store(in: &bindings)
     }
 }
