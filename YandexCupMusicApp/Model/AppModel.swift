@@ -70,6 +70,12 @@ final class AppModel<S> where S: SamplesLocalStore {
                     producer.delete(layerID: layerID)
                 }
                 
+            case .startPlaying:
+                producer.set(isPlayingAll: true)
+                
+            case .stopPlaying:
+                producer.set(isPlayingAll: false)
+                
             default:
                 break
             }
