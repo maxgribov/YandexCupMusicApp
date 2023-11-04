@@ -14,10 +14,10 @@ extension Producer {
     
     func activeLayer() -> AnyPublisher<Layer?, Never> {
         
-        $layers.combineLatest($active)
-            .map { layers, activeLayerID in
+        $active
+            .map {[unowned self] activeLayerID in
                 
-                guard let activeLayerID, let layer = layers.first(where: { $0.id == activeLayerID }) else {
+                guard let activeLayerID, let layer = self.layers.first(where: { $0.id == activeLayerID }) else {
                     return nil
                 }
                 

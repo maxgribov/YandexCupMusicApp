@@ -28,7 +28,7 @@ public final class SampleControlViewModel: ObservableObject {
     
     public var isKnobPresented: Bool { control != nil }
     
-    public func knobOffset(in area: CGSize) -> CGSize {
+    public func knobOffset(with control: Layer.Control?, in area: CGSize) -> CGSize {
         
         guard let control else {
             return .zero

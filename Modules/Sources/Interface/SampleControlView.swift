@@ -34,9 +34,14 @@ public struct SampleControlView: View {
                 if viewModel.isKnobPresented {
                     
                     ControlKnobView(knobOffset: $knobOffset, lastEnded: $lastEnded, area: proxy.size)
-                        .onAppear {
-                            knobOffset = viewModel.knobOffset(in: proxy.size.offset(translation: .init(width: -60, height: -60)))
-                            lastEnded = viewModel.knobOffset(in: proxy.size.offset(translation: .init(width: -60, height: -60)))
+                        .onReceive(viewModel.$control) { value in
+                            
+                            knobOffset = viewModel.knobOffset(with: value, in: proxy.size.offset(translation: .init(width: -60, height: -60)))
+                            lastEnded = viewModel.knobOffset(with: value, in: proxy.size.offset(translation: .init(width: -60, height: -60)))
+                        }
+                        .onChange(of: knobOffset) { newValue in
+                            
+                            viewModel.knobOffsetDidChanged(offset: newValue, area: proxy.size.offset(translation: .init(width: -60, height: -60)))
                         }
                 }
             }

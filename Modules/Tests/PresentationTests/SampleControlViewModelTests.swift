@@ -55,7 +55,7 @@ final class SampleControlViewModelTests: XCTestCase {
         
         let sut = makeSUT()
         
-        XCTAssertEqual(sut.knobOffset(in: someSize()), .zero)
+        XCTAssertEqual(sut.knobOffset(with: nil, in: someSize()), .zero)
     }
     
     func test_calculateKnobOffset_expectedResults() {
@@ -75,9 +75,9 @@ final class SampleControlViewModelTests: XCTestCase {
     
     func test_knobOffset_deliversExpectedValueOnControlNotNil() {
         
-        let sut = makeSUT(initial: .init(volume: 0.5, speed: 0.9))
+        let sut = makeSUT()
         
-        XCTAssertEqual(sut.knobOffset(in: .init(width: 100, height: 100)), .init(width: 40, height: 0))
+        XCTAssertEqual(sut.knobOffset(with: .init(volume: 0.5, speed: 0.9), in: .init(width: 100, height: 100)), .init(width: 40, height: 0))
     }
     
     func test_knobPositionDidChanged_doesNotInformDelegateOnControlNil() {
