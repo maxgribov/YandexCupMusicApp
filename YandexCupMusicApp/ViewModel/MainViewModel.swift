@@ -18,7 +18,7 @@ final class MainViewModel: ObservableObject {
     
     @Published private(set) var sampleSelector: SampleSelectorViewModel?
     @Published private(set) var layersControl: LayersControlViewModel?
-    @Published private(set) var playingProgress: Double
+    @Published var playingProgress: Double
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     private let layers: () -> AnyPublisher<LayersUpdate, Never>

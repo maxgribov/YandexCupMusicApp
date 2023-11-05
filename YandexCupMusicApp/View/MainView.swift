@@ -21,7 +21,7 @@ struct MainView: View {
                 
                 InstrumentSelectorView(viewModel: viewModel.instrumentSelector)
                 SampleControlView(viewModel: viewModel.sampleControl)
-                SoundWaveProgressView(progress: .constant(0))
+                SoundWaveProgressView(progress: $viewModel.playingProgress)
                     .frame(height: 30)
                 ControlPanelView(viewModel: viewModel.controlPanel)
                 
