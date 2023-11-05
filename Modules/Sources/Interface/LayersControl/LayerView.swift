@@ -17,6 +17,7 @@ struct LayerView: View {
         HStack(spacing: 0) {
             
             Text(viewModel.name)
+                .foregroundStyle(Color(.textPrimary))
                 .padding(.leading, 10)
             
             Spacer()
