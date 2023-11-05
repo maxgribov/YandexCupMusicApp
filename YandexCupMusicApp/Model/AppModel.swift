@@ -12,19 +12,21 @@ import Domain
 import Processing
 import Persistence
 
-final class AppModel<S> where S: SamplesLocalStore {
+final class AppModel<S, C> where S: SamplesLocalStore, C: AVAudioSessionProtocol {
     
     let producer: Producer
     let localStore: S
+    let sessionConfigurator: FoundationRecordingSessionConfigurator<C>
     
     private var bindings = Set<AnyCancellable>()
     private var defaultSampleRequest: AnyCancellable?
     private var loadSampleBinding: AnyCancellable?
     
-    init(producer: Producer, localStore: S) {
+    init(producer: Producer, localStore: S, sessionConfigurator: FoundationRecordingSessionConfigurator<C>) {
         
         self.producer = producer
         self.localStore = localStore
+        self.sessionConfigurator = sessionConfigurator
     }
     
     func mainViewModel() -> MainViewModel {
@@ -90,6 +92,14 @@ final class AppModel<S> where S: SamplesLocalStore {
                         })
                 }
                 
+            case .startRecording:
+                sessionConfigurator
+                    .isRecordingEnabled()
+                    .sink(receiveCompletion: { _ in }, receiveValue: { _ in
+                        
+                        print("fff")
+                    }).store(in: &bindings)
+                
             default:
                 break
             }
@@ -98,11 +108,14 @@ final class AppModel<S> where S: SamplesLocalStore {
     }
 }
 
-extension AppModel where S == BundleSamplesLocalStore {
+extension AppModel where S == BundleSamplesLocalStore, C == AVAudioSession {
     
     static let prod = AppModel(
         producer: Producer(
             player: FoundationPlayer(makePlayer: { data in try AVAudioPlayer(data: data) }),
             recorder: FoundationRecorder(makeRecorder: { url, settings in try AVAudioRecorder(url: url, settings: settings) })),
-        localStore: BundleSamplesLocalStore())
+        localStore: BundleSamplesLocalStore(),
+        sessionConfigurator: .init(session: AVAudioSession.sharedInstance()))
 }
+
+extension AVAudioSession: AVAudioSessionProtocol {}

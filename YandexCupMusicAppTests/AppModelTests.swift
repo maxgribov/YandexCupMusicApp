@@ -188,17 +188,31 @@ final class AppModelTests: XCTestCase {
         
         XCTAssertEqual(sut.producer.layers.count, 1)
     }
+    
+    func test_startRecording_requestsRecordPermissionOnFirstAttempt() {
+        
+        let sessionSpy = SessionSpy()
+        let sut = makeSUT(sessionSpy: sessionSpy)
+        let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
+        sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
+        
+        mainViewModelDelegateStub.send(.startRecording)
+        
+        XCTAssertEqual(sessionSpy.messages, [.recordPermissionRequest])
+    }
 
     private func makeSUT(
+        sessionSpy: SessionSpy = .init(),
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> AppModel<SamplesLocalStoreSpyStub> {
+    ) -> AppModel<SamplesLocalStoreSpyStub, SessionSpy> {
         
         let sut = AppModel(
             producer: Producer(
                 player: FoundationPlayer(makePlayer: { data in try AudioPlayerDummy(data: data) }),
                 recorder: FoundationRecorder(makeRecorder: { url, settings in try AudioRecorderDummy(url: url, settings: settings) })),
-            localStore: SamplesLocalStoreSpyStub()
+            localStore: SamplesLocalStoreSpyStub(),
+            sessionConfigurator: FoundationRecordingSessionConfigurator(session: sessionSpy)
         )
         
         trackForMemoryLeaks(sut, file: file, line: line)
@@ -262,6 +276,32 @@ final class AppModelTests: XCTestCase {
         
         static let stabbedSamplesIDs = ["sample1", "sample2", "sample3"]
         static let stabbedSample = Sample(id: UUID().uuidString, data: Data(UUID().uuidString.utf8))
+    }
+    
+    private class SessionSpy: AVAudioSessionProtocol {
+        
+        private(set) var messages = [Message]()
+        private var responses = [(Bool) -> Void]()
+        
+        enum Message: Equatable {
+            
+            case recordPermissionRequest
+        }
+
+        func setCategory(_ category: AVAudioSession.Category, mode: AVAudioSession.Mode, options: AVAudioSession.CategoryOptions) throws {}
+        
+        func setActive(_ active: Bool, options: AVAudioSession.SetActiveOptions) throws {}
+        
+        func requestRecordPermission(_ response: @escaping (Bool) -> Void) {
+            
+            messages.append(.recordPermissionRequest)
+            responses.append(response)
+        }
+        
+        func sendResponse(_ value: Bool, at index: Int = 0) {
+            
+            responses[index](value)
+        }
     }
     
     private func anySampleID() -> Sample.ID { UUID().uuidString }
