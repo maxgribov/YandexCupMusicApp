@@ -262,6 +262,34 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertNil(sut.sampleSelector)
     }
     
+    func test_layers_controlPanelPlayButtonIsActiveTrueOnAllLayersIsPlaying() {
+        
+        let layersStub = PassthroughSubject<LayersUpdate, Never>()
+        let sut = makeSUT(layers: { layersStub.eraseToAnyPublisher() })
+        sut.controlPanel.playButton.isActive = false
+
+        let layers = [Layer(id: UUID(), name: "some1", isPlaying: true, isMuted: false, control: .initial),
+                      Layer(id: UUID(), name: "some2", isPlaying: true, isMuted: false, control: .initial),
+                      Layer(id: UUID(), name: "some3", isPlaying: true, isMuted: false, control: .initial)]
+        layersStub.send(LayersUpdate(layers: layers, active: layers[0].id))
+        
+        XCTAssertTrue(sut.controlPanel.playButton.isActive)
+    }
+    
+    func test_layers_controlPanelPlayButtonIsActiveFalseOnNotAllLayersIsPlaying() {
+        
+        let layersStub = PassthroughSubject<LayersUpdate, Never>()
+        let sut = makeSUT(layers: { layersStub.eraseToAnyPublisher() })
+        sut.controlPanel.playButton.isActive = true
+
+        let layers = [Layer(id: UUID(), name: "some1", isPlaying: true, isMuted: false, control: .initial),
+                      Layer(id: UUID(), name: "some2", isPlaying: false, isMuted: false, control: .initial),
+                      Layer(id: UUID(), name: "some3", isPlaying: true, isMuted: false, control: .initial)]
+        layersStub.send(LayersUpdate(layers: layers, active: layers[0].id))
+        
+        XCTAssertFalse(sut.controlPanel.playButton.isActive)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(

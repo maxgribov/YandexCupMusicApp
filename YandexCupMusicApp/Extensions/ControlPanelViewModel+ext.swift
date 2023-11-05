@@ -15,7 +15,7 @@ extension ControlPanelViewModel {
     func bind(activeLayer: AnyPublisher<Layer?, Never>) -> AnyCancellable {
         
         activeLayer
-            .sink {[unowned self] layer in
+            .sink { [unowned self] layer in
                 
                 if let layer {
                     
@@ -34,5 +34,13 @@ extension ControlPanelViewModel {
                     layersButton.isEnabled = false
                 }
             }
+    }
+    
+    func bind(isPlayingAll: AnyPublisher<Bool, Never>) -> AnyCancellable {
+        
+        isPlayingAll.sink { [unowned self] isActive in
+            
+            playButton.isActive = isActive
+        }
     }
 }

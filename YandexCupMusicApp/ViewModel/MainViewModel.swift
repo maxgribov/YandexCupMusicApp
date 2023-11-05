@@ -43,6 +43,7 @@ final class MainViewModel: ObservableObject {
         bind()
         bind(layers())
         bindings.insert(controlPanel.bind(activeLayer: activeLayer))
+        bindings.insert(controlPanel.bind(isPlayingAll: layers().isPlayingAll()))
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
@@ -167,5 +168,16 @@ private extension MainViewModel {
         default:
             break
         }
+    }
+}
+
+extension Publisher where Output == LayersUpdate, Failure == Never {
+    
+    func isPlayingAll() -> AnyPublisher<Bool, Never> {
+        
+        compactMap{ $0.layers.isEmpty == true ? nil : $0.layers }
+        .map{ $0.map(\.isPlaying).reduce(true, { result, current in result && current }) }
+        .removeDuplicates()
+        .eraseToAnyPublisher()
     }
 }
