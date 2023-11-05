@@ -19,6 +19,7 @@ final class AppModel<S> where S: SamplesLocalStore {
     
     private var bindings = Set<AnyCancellable>()
     private var defaultSampleRequest: AnyCancellable?
+    private var loadSampleBinding: AnyCancellable?
     
     init(producer: Producer, localStore: S) {
         
@@ -77,6 +78,16 @@ final class AppModel<S> where S: SamplesLocalStore {
                 
             case .stopPlaying:
                 producer.set(isPlayingAll: false)
+                
+            case let .sampleSelector(sampleSelectorAction):
+                switch sampleSelectorAction {
+                case let .sampleDidSelected(sampleID, instrument):
+                    loadSampleBinding = localStore.loadSample(sampleID: sampleID)
+                        .sink(receiveCompletion: { _ in }, receiveValue: { [unowned self] sample in
+                            
+                            producer.addLayer(for: instrument, with: sample)
+                        })
+                }
                 
             default:
                 break

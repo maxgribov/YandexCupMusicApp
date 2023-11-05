@@ -164,6 +164,30 @@ final class AppModelTests: XCTestCase {
         
         XCTAssertEqual(sut.producer.layers.first?.control, updatedControl)
     }
+    
+    func test_sampleSelectedInstrumentAction_retrievesSampleFromLocalStore() {
+        
+        let sut = makeSUT()
+        let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
+        sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
+        
+        let sampleID = Sample.ID()
+        mainViewModelDelegateStub.send(.sampleSelector(.sampleDidSelected(sampleID, .drums)))
+        
+        XCTAssertEqual(sut.localStore.messages, [.retrieveSample(sampleID)])
+    }
+    
+    func test_sampleSelectedInstrumentAction_addLayerOnSuccessSampleLoading() {
+        
+        let sut = makeSUT()
+        let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
+        sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
+        
+        let sampleID = Sample.ID()
+        mainViewModelDelegateStub.send(.sampleSelector(.sampleDidSelected(sampleID, .drums)))
+        
+        XCTAssertEqual(sut.producer.layers.count, 1)
+    }
 
     private func makeSUT(
         file: StaticString = #filePath,
