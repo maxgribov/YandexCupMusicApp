@@ -195,6 +195,22 @@ final class FoundationPlayerTests: XCTestCase {
         XCTAssertEqual(receivedDuration, AVAudioPlayerSpy.stubbedDurationValue)
     }
     
+    func test_playingEvent_doesNotDeliverValueOnPlayIfAnyLayerAlreadyPlaying() {
+        
+        let sut = makeSUT()
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        var receivedDuration: TimeInterval? = 100
+        sut.playing { duration in
+            
+            receivedDuration = duration
+        }
+        
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        XCTAssertEqual(receivedDuration, 100)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(

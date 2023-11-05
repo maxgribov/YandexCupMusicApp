@@ -44,8 +44,13 @@ public final class FoundationPlayer<P>: Player where P: AVAudioPlayerProtocol {
         }
         
         player.play()
+        
+        if activePlayers.isEmpty {
+            
+            event?(player.duration)
+        }
+        
         activePlayers[id] = player
-        event?(player.duration)
     }
     
     public func stop(id: Layer.ID) {
