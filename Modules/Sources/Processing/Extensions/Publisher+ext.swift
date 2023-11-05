@@ -12,7 +12,7 @@ extension Publisher where Output == TimeInterval?, Failure == Never {
     
     func progressEvents() -> AnyPublisher<Double, Never> {
         
-        flatMap { duration in
+        map { duration in
             
             if let duration {
                 
@@ -21,18 +21,19 @@ extension Publisher where Output == TimeInterval?, Failure == Never {
                         .publish(every: duration, on: .main, in: .common)
                         .autoconnect()
                         .map { $0.timeIntervalSinceReferenceDate })
-                    .flatMap { startTime in
+                    .map { startTime in
                         
                         return Timer
                             .publish(every: 0.1, on: .main, in: .common)
                             .autoconnect()
                             .map { $0.timeIntervalSinceReferenceDate }
-                            .map { [startTime] currentTime in
+                            .map { currentTime in
                                 
                                 duration > 0 ? (currentTime - startTime) / duration : 0
                                 
                             }.eraseToAnyPublisher()
                     }
+                    .switchToLatest()
                     .eraseToAnyPublisher()
                 
             } else {
@@ -41,6 +42,7 @@ extension Publisher where Output == TimeInterval?, Failure == Never {
             }
             
         }
+        .switchToLatest()
         .eraseToAnyPublisher()
     }
 }
