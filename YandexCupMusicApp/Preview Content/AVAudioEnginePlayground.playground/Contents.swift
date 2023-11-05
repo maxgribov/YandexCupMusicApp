@@ -122,7 +122,7 @@ let format1 = AVAudioFormat(settings: settings)!
 
 let guitarUncompressedData = try Data(contentsOf: url(aifFileName: "guitar_01"))
 let file = try AVAudioFile(forReading: url(aifFileName: "guitar_01"))
-print(file.processingFormat.settings["AVChannelLayoutKey"])
+//print(file.processingFormat.settings["AVChannelLayoutKey"])
 
 /// Terrible noise, no audio
 
