@@ -12,6 +12,14 @@ import Processing
 
 final class ProducerTests: XCTestCase {
     
+    private var playingProgressBinding: AnyCancellable?
+    
+    override func setUp() async throws {
+        try await super.setUp()
+        
+        playingProgressBinding = nil
+    }
+    
     func test_init_emptyLayers() {
         
         let (sut, _, _) = makeSUT()
@@ -399,6 +407,29 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(player.messages, [.update(layerID, updatedControl)])
     }
     
+    func test_setIsPlayingForLayerID_firesPlayingProgressOnStartPlaying(){
+        
+        let (sut, player, _) = makeSUT()
+        let layerID = Layer.ID()
+        sut.addLayer(id: layerID, for: .guitar, with: someSample())
+        
+        let exp = expectation(description: "Wait for first timer value")
+        playingProgressBinding = sut.playingProgress
+            .print("SUB")
+            .sink { progress in
+                
+                if progress > 0 {
+                    exp.fulfill()
+                    self.playingProgressBinding = nil
+                }
+            }
+        
+        sut.set(isPlaying: true, for: layerID)
+        player.sendPlaying(event: 5)
+        
+        wait(for: [exp], timeout: 0.5)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT
@@ -425,6 +456,7 @@ final class ProducerTests: XCTestCase {
         
         private (set) var playing = Set<Layer.ID>()
         private (set) var messages = [Message]()
+        private var events = [(TimeInterval?) -> Void]()
         
         var messagesData: [Data] {
             
@@ -463,6 +495,12 @@ final class ProducerTests: XCTestCase {
         
         func playing(event: @escaping (TimeInterval?) -> Void) {
             
+            events.append(event)
+        }
+        
+        func sendPlaying(event: TimeInterval?, at index: Int = 0) {
+            
+            events[index](event)
         }
     }
     

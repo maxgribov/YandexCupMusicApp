@@ -19,9 +19,45 @@ public final class Producer {
     
     private let player: any Player
     private let recorder: any Recorder
+    private let playerEventsSubject = PassthroughSubject<TimeInterval?, Never>()
     
     private var cancellable: AnyCancellable?
     private var recording: AnyCancellable?
+    private var playingTimer: AnyCancellable?
+    
+    public var playingProgress: AnyPublisher<Double, Never> {
+
+        playerEventsSubject
+            .flatMap { duration in
+                
+                if let duration {
+                    
+                    return Just(Date() .timeIntervalSinceReferenceDate)
+                        .merge(with: Timer
+                            .publish(every: duration, on: .main, in: .common)
+                            .autoconnect()
+                            .map { $0.timeIntervalSinceReferenceDate })
+                        .flatMap { startTime in
+                            
+                            return Timer
+                                .publish(every: 0.1, on: .main, in: .common)
+                                .autoconnect()
+                                .map { $0.timeIntervalSinceReferenceDate }
+                                .map { [startTime] currentTime in
+                                    
+                                    (currentTime - startTime) / duration
+                                    
+                                }.eraseToAnyPublisher()
+                        }
+                        .eraseToAnyPublisher()
+                    
+                } else {
+                    
+                    return Just(Double(0)).eraseToAnyPublisher()
+                }
+                
+            }.eraseToAnyPublisher()
+    }
     
     public init(player: any Player, recorder: any Recorder) {
         
@@ -33,6 +69,11 @@ public final class Producer {
         
         cancellable = $layers
             .sink { [unowned self] layers in handleUpdate(layers: layers) }
+        
+        player.playing { [unowned self] duration in
+            
+            playerEventsSubject.send(duration)
+        }
     }
 }
 
