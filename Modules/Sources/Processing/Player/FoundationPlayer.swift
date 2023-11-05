@@ -57,6 +57,7 @@ public final class FoundationPlayer<P>: Player where P: AVAudioPlayerProtocol {
         
         activePlayers[id]?.stop()
         activePlayers[id] = nil
+        event?(nil)
     }
     
     public func update(id: Layer.ID, with control: Layer.Control) {
