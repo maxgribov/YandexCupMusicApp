@@ -14,6 +14,8 @@ struct InstrumentButtonView: View {
     let tapAction: () -> Void
     let longTapAction: () -> Void
     
+    @State private var isTapped: Bool = false
+    
     var body: some View {
         
         VStack {
@@ -26,7 +28,20 @@ struct InstrumentButtonView: View {
             Text(viewModel.instrument.name.lowercased())
                 .foregroundColor(Color(.textSecondary))
         }
-        .onTapGesture { tapAction() }
+        .scaleEffect(isTapped ? 0.8 : 1.0)
+        .onTapGesture {
+            
+            tapAction()
+            
+            withAnimation(.easeOut(duration: 0.15)) {
+                
+                isTapped = true
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    isTapped = false
+                }
+            }
+        }
         .onLongPressGesture { longTapAction() }
     }
     
