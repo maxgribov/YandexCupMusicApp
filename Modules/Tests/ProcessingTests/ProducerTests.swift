@@ -415,7 +415,6 @@ final class ProducerTests: XCTestCase {
         
         let exp = expectation(description: "Wait for first timer value")
         playingProgressBinding = sut.playingProgress
-            .print("SUB")
             .sink { progress in
                 
                 if progress > 0 {
@@ -427,6 +426,34 @@ final class ProducerTests: XCTestCase {
         sut.set(isPlaying: true, for: layerID)
         player.sendPlaying(event: 5)
         
+        wait(for: [exp], timeout: 0.5)
+    }
+    
+    func test_setIsPlayingForLayerID_stopsPlayingProgressUpdatesOnFinishPlaying(){
+        
+        let (sut, player, _) = makeSUT()
+        let layerID = Layer.ID()
+        sut.addLayer(id: layerID, for: .guitar, with: someSample())
+        
+        let exp = expectation(description: "Wait for first timer zero")
+        playingProgressBinding = sut.playingProgress
+            .sink { progress in
+                
+                if progress == 0 {
+                    exp.fulfill()
+                    self.playingProgressBinding = nil
+                }
+            }
+        
+        sut.set(isPlaying: true, for: layerID)
+        player.sendPlaying(event: 2)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            
+            sut.set(isPlaying: false, for: layerID)
+            player.sendPlaying(event: nil)
+        }
+
         wait(for: [exp], timeout: 0.5)
     }
     

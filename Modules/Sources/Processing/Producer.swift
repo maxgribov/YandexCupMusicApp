@@ -45,7 +45,7 @@ public final class Producer {
                                 .map { $0.timeIntervalSinceReferenceDate }
                                 .map { [startTime] currentTime in
                                     
-                                    (currentTime - startTime) / duration
+                                    duration > 0 ? (currentTime - startTime) / duration : 0
                                     
                                 }.eraseToAnyPublisher()
                         }
@@ -56,7 +56,8 @@ public final class Producer {
                     return Just(Double(0)).eraseToAnyPublisher()
                 }
                 
-            }.eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
     }
     
     public init(player: any Player, recorder: any Recorder) {
