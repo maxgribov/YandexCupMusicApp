@@ -14,11 +14,17 @@ public final class FoundationPlayer<P>: Player where P: AVAudioPlayerProtocol {
     
     private var activePlayers: [Layer.ID: P]
     private let makePlayer: (Data) throws -> P
+    private var event: ((TimeInterval?) -> Void)?
     
     public init(makePlayer: @escaping (Data) throws -> P) {
         
         self.activePlayers = [:]
         self.makePlayer = makePlayer
+    }
+    
+    public func playing(event: @escaping (TimeInterval?) -> Void) {
+        
+        self.event = event
     }
     
     public func play(id: Layer.ID, data: Data, control: Layer.Control) {
@@ -39,6 +45,7 @@ public final class FoundationPlayer<P>: Player where P: AVAudioPlayerProtocol {
         
         player.play()
         activePlayers[id] = player
+        event?(player.duration)
     }
     
     public func stop(id: Layer.ID) {

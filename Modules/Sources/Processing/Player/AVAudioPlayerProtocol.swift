@@ -16,6 +16,7 @@ public protocol AVAudioPlayerProtocol: AnyObject {
     var rate: Float { get set }
     var numberOfLoops: Int { get set }
     var currentTime: TimeInterval { get set }
+    var duration: TimeInterval { get }
     
     @discardableResult
     func play() -> Bool

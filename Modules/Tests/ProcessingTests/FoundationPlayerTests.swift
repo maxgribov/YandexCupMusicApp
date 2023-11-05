@@ -180,6 +180,21 @@ final class FoundationPlayerTests: XCTestCase {
         XCTAssertNotEqual(player?.rate, initialRate)
     }
     
+    func test_playingEvent_deliversDurationOnPlay() {
+        
+        let sut = makeSUT()
+        
+        var receivedDuration: TimeInterval? = nil
+        sut.playing { duration in
+            
+            receivedDuration = duration
+        }
+        
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        XCTAssertEqual(receivedDuration, AVAudioPlayerSpy.stubbedDurationValue)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -205,6 +220,7 @@ final class FoundationPlayerTests: XCTestCase {
         var rate: Float = 1.0
         var numberOfLoops: Int = 0
         var currentTime: TimeInterval = AVAudioPlayerSpy.defaultCurrentTimeValue
+        var duration: TimeInterval { AVAudioPlayerSpy.stubbedDurationValue }
         
         enum Message: Equatable {
             
@@ -231,6 +247,7 @@ final class FoundationPlayerTests: XCTestCase {
         }
         
         static let defaultCurrentTimeValue: TimeInterval = 0
+        static let stubbedDurationValue: TimeInterval = 5
     }
     
     class AlwaysFailingAVAudioPlayerStub: AVAudioPlayerProtocol {
@@ -240,6 +257,7 @@ final class FoundationPlayerTests: XCTestCase {
         var rate: Float = 1.0
         var numberOfLoops: Int = 0
         var currentTime: TimeInterval = 0
+        var duration: TimeInterval { 0 }
         
         required init(data: Data) throws {
             
