@@ -18,6 +18,7 @@ final class MainViewModel: ObservableObject {
     
     @Published private(set) var sampleSelector: SampleSelectorViewModel?
     @Published private(set) var layersControl: LayersControlViewModel?
+    @Published private(set) var playingProgress: Double
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     private let layers: () -> AnyPublisher<LayersUpdate, Never>
@@ -31,7 +32,8 @@ final class MainViewModel: ObservableObject {
     init(
         activeLayer: AnyPublisher<Layer?, Never>,
         layers: @escaping () -> AnyPublisher<LayersUpdate, Never>,
-        samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>
+        samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
+        playingProgressUpdates: AnyPublisher<Double, Never>
     ) {
         
         self.instrumentSelector = .initial
@@ -39,11 +41,13 @@ final class MainViewModel: ObservableObject {
         self.controlPanel = .initial
         self.layers = layers
         self.samplesIDs = samplesIDs
+        self.playingProgress = 0
         
         bind()
         bind(layers())
         bindings.insert(controlPanel.bind(activeLayer: activeLayer))
         bindings.insert(controlPanel.bind(isPlayingAll: layers().isPlayingAll()))
+        playingProgressUpdates.assign(to: &$playingProgress)
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {

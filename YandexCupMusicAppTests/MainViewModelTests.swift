@@ -290,17 +290,29 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertFalse(sut.controlPanel.playButton.isActive)
     }
     
+    func test_playingProgressUpdates_updatePlayingProgressProperty() {
+        
+        let playingProgressUpdatesStub = PassthroughSubject<Double, Never>()
+        let sut = makeSUT(playingProgressUpdates: playingProgressUpdatesStub.eraseToAnyPublisher())
+        
+        XCTAssertEqual(sut.playingProgress, 0, accuracy: .ulpOfOne)
+        
+        playingProgressUpdatesStub.send(0.5)
+        XCTAssertEqual(sut.playingProgress, 0.5, accuracy: .ulpOfOne)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
         activeLayer: AnyPublisher<Layer?, Never> = Empty().eraseToAnyPublisher(),
         layers: @escaping () -> AnyPublisher<LayersUpdate, Never> = { Empty().eraseToAnyPublisher() },
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error> = { _ in Empty().eraseToAnyPublisher()},
+        playingProgressUpdates: AnyPublisher<Double, Never> = Empty().eraseToAnyPublisher(),
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> MainViewModel {
         
-        let sut = MainViewModel(activeLayer: activeLayer, layers: layers, samplesIDs: samplesIDs)
+        let sut = MainViewModel(activeLayer: activeLayer, layers: layers, samplesIDs: samplesIDs, playingProgressUpdates: playingProgressUpdates)
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
