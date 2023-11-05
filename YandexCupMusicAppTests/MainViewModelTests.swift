@@ -236,6 +236,19 @@ final class MainViewModelTests: XCTestCase {
     }
      */
     
+    func test_sampleSelectorItemDidSelected_informsMainViewModelDelegateThatSampleIDSelectedForIstrument() {
+        
+        let sampleID = Sample.ID()
+        let sut = makeSUT(samplesIDs: { _ in Just([sampleID, Sample.ID(), Sample.ID()]).setFailureType(to: Error.self).eraseToAnyPublisher() })
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        sut.instrumentSelector.buttonDidLongTapped(for: Instrument.guitar.rawValue)
+        XCTAssertNotNil(sut.sampleSelector)
+        
+        sut.sampleSelector?.itemDidSelected(for: sampleID)
+        
+        XCTAssertEqual(delegateActionSpy.values, [.sampleSelector(.sampleDidSelected(sampleID, .guitar))])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(

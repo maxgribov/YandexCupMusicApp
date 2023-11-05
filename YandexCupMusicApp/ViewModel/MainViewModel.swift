@@ -24,7 +24,8 @@ final class MainViewModel: ObservableObject {
     private let layers: () -> AnyPublisher<LayersUpdate, Never>
     
     private var bindings = Set<AnyCancellable>()
-    private var sampleSelectorTask: AnyCancellable?
+    private var sampleSelectorBinding: AnyCancellable?
+    private var sampleSelectorDelegate: AnyCancellable?
     private var layersDelegateBinding: AnyCancellable?
     
     init(
@@ -81,6 +82,7 @@ extension MainViewModel {
         case startPlaying
         case stopPlaying
         case layersControl(LayersControlViewModel.DelegateAction)
+        case sampleSelector(SampleSelectorViewModel.DelegateAction)
     }
 }
 
@@ -115,16 +117,16 @@ private extension MainViewModel {
             delegateActionSubject.send(.addLayerWithDefaultSampleFor(instrument))
             
         case let .showSampleSelector(instrument):
-            sampleSelectorTask = samplesIDs(instrument)
+            sampleSelectorBinding = samplesIDs(instrument)
                 .makeSampleItemViewModels()
-                .sink(receiveCompletion: {[unowned self] _ in
+                .sink(receiveCompletion: { _ in }) { [unowned self] items in
                     
-                    sampleSelectorTask = nil
+                    let sampleSelector = SampleSelectorViewModel(instrument: instrument, items: items)
+                    self.sampleSelector = sampleSelector
                     
-                }) {[unowned self] items in
-                    
-                    sampleSelector = .init(instrument: instrument, items: items)
-                    sampleSelectorTask = nil
+                    sampleSelectorDelegate = sampleSelector.delegateAction
+                        .map { MainViewModel.DelegateAction.sampleSelector($0) }
+                        .subscribe(delegateActionSubject)
                 }
         }
     }
@@ -155,4 +157,3 @@ private extension MainViewModel {
         }
     }
 }
-
