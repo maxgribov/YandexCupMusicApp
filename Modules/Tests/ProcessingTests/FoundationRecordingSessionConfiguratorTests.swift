@@ -117,6 +117,7 @@ final class FoundationRecordingSessionConfiguratorTests: XCTestCase {
     }
     
     private class AVAudioSessionSpy: AVAudioSessionProtocol {
+
         
         private(set) var messages = [Message]()
         private var responses = [(Bool) -> Void]()
@@ -160,6 +161,9 @@ final class FoundationRecordingSessionConfiguratorTests: XCTestCase {
         func respondForRecordPermissionRequest(allowed: Bool, at index: Int = 0) {
             
             responses[index](allowed)
+        }
+        
+        func overrideOutputAudioPort(_ portOverride: AVAudioSession.PortOverride) throws {
         }
     }
     

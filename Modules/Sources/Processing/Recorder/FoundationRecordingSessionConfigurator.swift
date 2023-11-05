@@ -58,7 +58,8 @@ public final class FoundationRecordingSessionConfigurator<S> where S: AVAudioSes
             do {
                 
                 try self?.session.setCategory(.playAndRecord, mode: .default, options: [])
-                try self?.session.setActive(true, options: [])
+                try self?.session.setActive(true, options: .notifyOthersOnDeactivation)
+                try self?.session.overrideOutputAudioPort(.speaker)
                 self?.session.requestRecordPermission { result in
                     
                     promise(.success(result))

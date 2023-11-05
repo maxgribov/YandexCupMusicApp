@@ -311,7 +311,7 @@ final class AppModelTests: XCTestCase {
     }
     
     private class SessionSpy: AVAudioSessionProtocol {
-        
+
         private(set) var messages = [Message]()
         private var responses = [(Bool) -> Void]()
         
@@ -333,6 +333,9 @@ final class AppModelTests: XCTestCase {
         func sendResponse(_ value: Bool, at index: Int = 0) {
             
             responses[index](value)
+        }
+        
+        func overrideOutputAudioPort(_ portOverride: AVAudioSession.PortOverride) throws {
         }
     }
     

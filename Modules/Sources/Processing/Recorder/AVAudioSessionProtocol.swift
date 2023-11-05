@@ -26,5 +26,7 @@ public protocol AVAudioSessionProtocol: AnyObject {
             Bool
         ) -> Void
     )
+    
+    func overrideOutputAudioPort(_ portOverride: AVAudioSession.PortOverride) throws
 }
 #endif
