@@ -97,7 +97,7 @@ final class AppModelTests: XCTestCase {
         let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
         sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
         
-        mainViewModelDelegateStub.send(.addLayerWithDefaultSampleFor(.guitar))
+        mainViewModelDelegateStub.send(.defaultSampleSelected(.guitar))
         
         XCTAssertEqual(sut.localStore.messages, [.retrieveSamplesIDs(.guitar), .retrieveSample(SamplesLocalStoreSpyStub.stabbedSamplesIDs[0])])
         XCTAssertEqual(sut.producer.layers.count, 1)
@@ -160,7 +160,7 @@ final class AppModelTests: XCTestCase {
         sut.producer.addLayer(forRecording: Data("some-audio-data".utf8))
         
         let updatedControl = Layer.Control(volume: 0, speed: 0)
-        mainViewModelDelegateStub.send(.activeLayerControlUpdate(updatedControl))
+        mainViewModelDelegateStub.send(.activeLayerUpdate(updatedControl))
         
         XCTAssertEqual(sut.producer.layers.first?.control, updatedControl)
     }

@@ -31,8 +31,8 @@ final class AppModel<S> where S: SamplesLocalStore {
         
         let viewModel = MainViewModel(
             activeLayer: producer.activeLayerMain(),
-            samplesIDs: localStore.sampleIDsMain(for:),
-            layers: producer.layersMain)
+            layers: producer.layersMain,
+            samplesIDs: localStore.sampleIDsMain(for:))
         bindMainViewModel(delegate: viewModel.delegateAction)
         
         return viewModel
@@ -43,7 +43,7 @@ final class AppModel<S> where S: SamplesLocalStore {
         delegate.sink {[unowned self] action in
             
             switch action {
-            case let .addLayerWithDefaultSampleFor(instrument):
+            case let .defaultSampleSelected(instrument):
                 defaultSampleRequest = localStore.defaultSample(for: instrument)
                     .sink(receiveCompletion: {[unowned self] _ in
                         
@@ -70,7 +70,7 @@ final class AppModel<S> where S: SamplesLocalStore {
                     producer.delete(layerID: layerID)
                 }
             
-            case let .activeLayerControlUpdate(control):
+            case let .activeLayerUpdate(control):
                 producer.setActiveLayer(control: control)
                 
             case .startPlaying:

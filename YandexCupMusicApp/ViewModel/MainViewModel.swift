@@ -20,8 +20,8 @@ final class MainViewModel: ObservableObject {
     @Published private(set) var layersControl: LayersControlViewModel?
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
-    private let samplesIDs: (Instrument) -> AnyPublisher<[Sample.ID], Error>
     private let layers: () -> AnyPublisher<LayersUpdate, Never>
+    private let samplesIDs: (Instrument) -> AnyPublisher<[Sample.ID], Error>
     
     private var bindings = Set<AnyCancellable>()
     private var sampleSelectorBinding: AnyCancellable?
@@ -30,25 +30,19 @@ final class MainViewModel: ObservableObject {
     
     init(
         activeLayer: AnyPublisher<Layer?, Never>,
-        samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
-        layers: @escaping () -> AnyPublisher<LayersUpdate, Never>
+        layers: @escaping () -> AnyPublisher<LayersUpdate, Never>,
+        samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>
     ) {
         
         self.instrumentSelector = .initial
         self.sampleControl = SampleControlViewModel(update: activeLayer.control())
         self.controlPanel = .initial
-        self.samplesIDs = samplesIDs
         self.layers = layers
+        self.samplesIDs = samplesIDs
         
         bind()
+        bind(layers())
         bindings.insert(controlPanel.bind(activeLayer: activeLayer))
-        
-        layers().sink { [unowned self] update in
-            
-            if update.layers.isEmpty, layersControl != nil {
-                dismissLayersControl()
-            }
-        }.store(in: &bindings)
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
@@ -73,16 +67,16 @@ extension MainViewModel {
     
     enum DelegateAction: Equatable {
         
-        case addLayerWithDefaultSampleFor(Instrument)
-        case activeLayerControlUpdate(Layer.Control)
+        case defaultSampleSelected(Instrument)
+        case activeLayerUpdate(Layer.Control)
+        case layersControl(LayersControlViewModel.DelegateAction)
+        case sampleSelector(SampleSelectorViewModel.DelegateAction)
         case startRecording
         case stopRecording
         case startComposing
         case stopComposing
         case startPlaying
         case stopPlaying
-        case layersControl(LayersControlViewModel.DelegateAction)
-        case sampleSelector(SampleSelectorViewModel.DelegateAction)
     }
 }
 
@@ -110,11 +104,23 @@ private extension MainViewModel {
             .store(in: &bindings)
     }
     
+    func bind(_ layers:  AnyPublisher<LayersUpdate, Never>) {
+        
+        layers.sink { [unowned self] update in
+            
+            if update.layers.isEmpty, layersControl != nil {
+                
+                dismissLayersControl()
+            }
+            
+        }.store(in: &bindings)
+    }
+    
     func handleInstrumentSelector(delegateAction: InstrumentSelectorViewModel.DelegateAction) {
         
         switch delegateAction {
         case let .selectDefaultSample(instrument):
-            delegateActionSubject.send(.addLayerWithDefaultSampleFor(instrument))
+            delegateActionSubject.send(.defaultSampleSelected(instrument))
             
         case let .showSampleSelector(instrument):
             sampleSelectorBinding = samplesIDs(instrument)
@@ -141,7 +147,7 @@ private extension MainViewModel {
         
         switch delegateAction {
         case let .controlDidUpdated(control):
-            delegateActionSubject.send(.activeLayerControlUpdate(control))
+            delegateActionSubject.send(.activeLayerUpdate(control))
         }
     }
     

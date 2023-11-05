@@ -50,7 +50,7 @@ struct MainView: View {
         
         MainView(viewModel: MainViewModel(
             activeLayer: Empty().eraseToAnyPublisher(),
-            samplesIDs: { _ in Empty().eraseToAnyPublisher() },
-            layers: { Empty().eraseToAnyPublisher() }))
+            layers: { Empty().eraseToAnyPublisher() },
+            samplesIDs: { _ in Empty().eraseToAnyPublisher() }))
     }
 }

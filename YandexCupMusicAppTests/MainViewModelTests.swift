@@ -57,14 +57,14 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertNil(sut.sampleSelector)
     }
     
-    func test_instrumentSelectorButtonDidTapped_informDlegateCreateNewLayerWithDefaultSampleForInstrument() {
+    func test_instrumentSelectorButtonDidTapped_informDlegateThatDefaultSampleSelected() {
         
         let sut = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.instrumentSelector.buttonDidTapped(for: Instrument.brass.rawValue)
         
-        XCTAssertEqual(delegateActionSpy.values, [.addLayerWithDefaultSampleFor(.brass)])
+        XCTAssertEqual(delegateActionSpy.values, [.defaultSampleSelected(.brass)])
     }
     
     func test_instrumentSelectorButtonDidLongTapped_createsSampleSelectorViewModel() {
@@ -98,7 +98,7 @@ final class MainViewModelTests: XCTestCase {
 
         sut.sampleControl.knobOffsetDidChanged(offset: .zero, area: .init(width: 100, height: 100))
         
-        XCTAssertEqual(delegateActionSpy.values, [.activeLayerControlUpdate(.init(volume: 0.5, speed: 0.5))])
+        XCTAssertEqual(delegateActionSpy.values, [.activeLayerUpdate(.init(volume: 0.5, speed: 0.5))])
     }
     
     func test_controlPanelLayersButtonDidTapped_createsAndRemovesLayersControl() {
@@ -253,7 +253,7 @@ final class MainViewModelTests: XCTestCase {
         
         let sampleID = Sample.ID()
         let sut = makeSUT(samplesIDs: { _ in Just([sampleID, Sample.ID(), Sample.ID()]).setFailureType(to: Error.self).eraseToAnyPublisher() })
-        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        _ = ValueSpy(sut.delegateAction)
         sut.instrumentSelector.buttonDidLongTapped(for: Instrument.guitar.rawValue)
         XCTAssertNotNil(sut.sampleSelector)
         
@@ -266,13 +266,13 @@ final class MainViewModelTests: XCTestCase {
     
     private func makeSUT(
         activeLayer: AnyPublisher<Layer?, Never> = Empty().eraseToAnyPublisher(),
-        samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error> = { _ in Empty().eraseToAnyPublisher()},
         layers: @escaping () -> AnyPublisher<LayersUpdate, Never> = { Empty().eraseToAnyPublisher() },
+        samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error> = { _ in Empty().eraseToAnyPublisher()},
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> MainViewModel {
         
-        let sut = MainViewModel(activeLayer: activeLayer, samplesIDs: samplesIDs, layers: layers)
+        let sut = MainViewModel(activeLayer: activeLayer, layers: layers, samplesIDs: samplesIDs)
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
