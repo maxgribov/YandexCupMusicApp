@@ -104,6 +104,9 @@ final class AppModel<S, C> where S: SamplesLocalStore, C: AVAudioSessionProtocol
                         
                     }).store(in: &bindings)
                 
+            case .stopRecording:
+                producer.stopRecording()
+                
             default:
                 break
             }

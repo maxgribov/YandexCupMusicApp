@@ -214,6 +214,24 @@ final class AppModelTests: XCTestCase {
         
         XCTAssertEqual(isRecordingSpy.values, [false, true])
     }
+    
+    //TODO: AudioPlayer delegate stub required for this test
+    /*
+    func test_stopRecording_stopsPreviouslyStartedRecording() {
+        
+        let sessionSpy = SessionSpy()
+        let sut = makeSUT(sessionSpy: sessionSpy)
+        let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
+        sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
+        let isRecordingSpy = ValueSpy(sut.producer.isRecording())
+        mainViewModelDelegateStub.send(.startRecording)
+        sessionSpy.sendResponse(true)
+        
+        mainViewModelDelegateStub.send(.stopRecording)
+        
+        XCTAssertEqual(isRecordingSpy.values, [false, true, false])
+    }
+     */
 
     private func makeSUT(
         sessionSpy: SessionSpy = .init(),
