@@ -16,7 +16,7 @@ final class AppModel<S, C> where S: SamplesLocalStore, C: AVAudioSessionProtocol
     
     let producer: Producer
     let localStore: S
-    let sessionConfigurator: FoundationRecordingSessionConfigurator<C>
+    private let sessionConfigurator: FoundationRecordingSessionConfigurator<C>
     
     private var bindings = Set<AnyCancellable>()
     private var defaultSampleRequest: AnyCancellable?
