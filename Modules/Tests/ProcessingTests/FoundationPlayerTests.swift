@@ -227,6 +227,23 @@ final class FoundationPlayerTests: XCTestCase {
         
         XCTAssertEqual(receivedDuration, nil)
     }
+    func test_playingEvent_doesNotDeliverValueOnStopIfAnyLayerStillPlaying() {
+        
+        let sut = makeSUT()
+        let layerID = anyLayerID()
+        sut.play(id: layerID, data: anyData(), control: .initial)
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        var receivedDuration: TimeInterval? = 100
+        sut.playing { duration in
+            
+            receivedDuration = duration
+        }
+        
+        sut.stop(id: layerID)
+        
+        XCTAssertEqual(receivedDuration, 100)
+    }
     
     //MARK: - Helpers
     
