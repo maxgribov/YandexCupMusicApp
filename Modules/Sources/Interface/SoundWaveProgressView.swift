@@ -55,7 +55,7 @@ extension SoundWaveProgressView {
                 ForEach(0..<elements, id: \.self) { _ in
                     
                     Capsule()
-                        .foregroundColor(Color(white: 1))
+                        .foregroundStyle(Color(white: 1))
                         .frame(width: 2, height: randomHeight(for: size.height))
                 }
             }

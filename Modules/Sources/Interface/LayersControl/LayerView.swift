@@ -37,14 +37,14 @@ struct LayerView: View {
             Button(action: viewModel.deleteButtonDidTapped) {
                 
                 RoundedRectangle(cornerRadius: 4)
-                    .foregroundColor(Color(.backMiddle))
+                    .foregroundStyle(Color(.backMiddle))
                     .overlay { Image(.iconCross) }
                     .frame(width: 44, height: 44)
             }
             
         }.background {
             RoundedRectangle(cornerRadius: 4)
-                .foregroundColor(Color(viewModel.isActive ? .backAccent : .backPrimary))
+                .foregroundStyle(Color(viewModel.isActive ? .backAccent : .backPrimary))
         }.onTapGesture {
             viewModel.selectDidTapped()
         }

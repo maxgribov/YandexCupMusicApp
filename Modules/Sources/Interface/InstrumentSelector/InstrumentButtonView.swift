@@ -21,12 +21,12 @@ struct InstrumentButtonView: View {
         VStack {
             
             Circle()
-                .foregroundColor(Color(.backPrimary))
+                .foregroundStyle(Color(.backPrimary))
                 .overlay { icon }
                 .frame(width: 60, height: 60)
             
             Text(viewModel.instrument.name.lowercased())
-                .foregroundColor(Color(.textSecondary))
+                .foregroundStyle(Color(.textSecondary))
         }
         .scaleEffect(isTapped ? 0.8 : 1.0)
         .onTapGesture {

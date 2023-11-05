@@ -95,7 +95,7 @@ extension SampleControlView {
                             
                             Capsule()
                                 .frame(width: 1, height: 14)
-                                .foregroundColor(Color(.backPrimary))
+                                .foregroundStyle(Color(.backPrimary))
                         }
                     }
                 }
@@ -128,13 +128,13 @@ extension SampleControlView {
                 
                 Capsule()
                     .frame(width: 14, height: 1)
-                    .foregroundColor(Color(.backPrimary))
+                    .foregroundStyle(Color(.backPrimary))
                 
                 ForEach(0..<5) { _ in
                     
                     Capsule()
                         .frame(width: 7, height: 1)
-                        .foregroundColor(Color(.backPrimary))
+                        .foregroundStyle(Color(.backPrimary))
                     
                 }
             }
@@ -152,7 +152,7 @@ extension SampleControlView {
             
             Circle()
                 .frame(width: 60, height: 60)
-                .foregroundColor(Color(.backAccent))
+                .foregroundStyle(Color(.backAccent))
                 .scaleEffect(isDragging ? 2.0 : 1.0)
                 .offset(knobOffset)
                 .gesture(

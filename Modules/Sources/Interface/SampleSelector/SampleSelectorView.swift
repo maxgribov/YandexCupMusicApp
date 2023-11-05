@@ -23,7 +23,7 @@ public struct SampleSelectorView: View {
         VStack {
             
             Circle()
-                .foregroundColor(Color(.backAccent))
+                .foregroundStyle(Color(.backAccent))
                 .overlay { buttonIcon }
                 .frame(width: 60, height: 60)
             
@@ -46,7 +46,7 @@ public struct SampleSelectorView: View {
             Color.clear
                 .frame(width: 60, height : 30)
             
-        }.background { Capsule().foregroundColor(Color(.backAccent))}
+        }.background { Capsule().foregroundStyle(Color(.backAccent))}
     }
     
     var buttonIcon: Image {

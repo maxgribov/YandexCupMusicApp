@@ -15,7 +15,7 @@ struct SampleItemView: View {
     var body: some View {
         
         Text(viewModel.name)
-            .foregroundColor(Color(.textPrimary))
+            .foregroundStyle(Color(.textPrimary))
             .frame(minHeight: 44)
             .padding(.horizontal, 5)
             .background {
