@@ -95,9 +95,13 @@ final class AppModel<S, C> where S: SamplesLocalStore, C: AVAudioSessionProtocol
             case .startRecording:
                 sessionConfigurator
                     .isRecordingEnabled()
-                    .sink(receiveCompletion: { _ in }, receiveValue: { _ in
+                    .sink(receiveCompletion: { _ in }, receiveValue: { [unowned self] isEnabled in
                         
-                        print("fff")
+                        if isEnabled {
+                            
+                            producer.startRecording()
+                        }
+                        
                     }).store(in: &bindings)
                 
             default:

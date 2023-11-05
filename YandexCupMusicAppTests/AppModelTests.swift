@@ -200,6 +200,20 @@ final class AppModelTests: XCTestCase {
         
         XCTAssertEqual(sessionSpy.messages, [.recordPermissionRequest])
     }
+    
+    func test_startRecording_startsRecordingOnPermissionsGranted() {
+        
+        let sessionSpy = SessionSpy()
+        let sut = makeSUT(sessionSpy: sessionSpy)
+        let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
+        sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
+        let isRecordingSpy = ValueSpy(sut.producer.isRecording())
+        
+        mainViewModelDelegateStub.send(.startRecording)
+        sessionSpy.sendResponse(true)
+        
+        XCTAssertEqual(isRecordingSpy.values, [false, true])
+    }
 
     private func makeSUT(
         sessionSpy: SessionSpy = .init(),
