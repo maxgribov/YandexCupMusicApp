@@ -460,6 +460,10 @@ final class ProducerTests: XCTestCase {
             
             messages.append(.update(id, control))
         }
+        
+        func playing(event: @escaping (TimeInterval?) -> Void) {
+            
+        }
     }
     
     private class RecorderSpy: Recorder {

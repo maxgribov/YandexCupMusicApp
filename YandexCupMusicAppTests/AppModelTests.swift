@@ -213,6 +213,7 @@ final class AppModelTests: XCTestCase {
         var rate: Float
         var numberOfLoops: Int
         var currentTime: TimeInterval
+        var duration: TimeInterval { 1 }
         
         required init(data: Data) throws {
             
@@ -225,6 +226,7 @@ final class AppModelTests: XCTestCase {
         
         func play() -> Bool { false }
         func stop() {}
+        
     }
     
     private class AudioRecorderDummy: AVAudioRecorderProtocol {
