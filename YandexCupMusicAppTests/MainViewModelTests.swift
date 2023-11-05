@@ -312,7 +312,7 @@ final class MainViewModelTests: XCTestCase {
         line: UInt = #line
     ) -> MainViewModel {
         
-        let sut = MainViewModel(activeLayer: activeLayer, layers: layers, samplesIDs: samplesIDs, playingProgressUpdates: playingProgressUpdates)
+        let sut = MainViewModel(activeLayerUpdates: activeLayer, layersUpdated: layers, samplesIDs: samplesIDs, playingProgressUpdates: playingProgressUpdates)
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut

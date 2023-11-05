@@ -49,8 +49,8 @@ struct MainView: View {
             .ignoresSafeArea()
         
         MainView(viewModel: MainViewModel(
-            activeLayer: Empty().eraseToAnyPublisher(),
-            layers: { Empty().eraseToAnyPublisher() },
+            activeLayerUpdates: Empty().eraseToAnyPublisher(),
+            layersUpdated: { Empty().eraseToAnyPublisher() },
             samplesIDs: { _ in Empty().eraseToAnyPublisher() },
             playingProgressUpdates: Empty().eraseToAnyPublisher()))
     }

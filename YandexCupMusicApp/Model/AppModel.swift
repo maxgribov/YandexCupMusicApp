@@ -32,8 +32,8 @@ final class AppModel<S, C> where S: SamplesLocalStore, C: AVAudioSessionProtocol
     func mainViewModel() -> MainViewModel {
         
         let viewModel = MainViewModel(
-            activeLayer: producer.activeLayerMain(),
-            layers: producer.layersMain,
+            activeLayerUpdates: producer.activeLayerMain(),
+            layersUpdated: producer.layersMain,
             samplesIDs: localStore.sampleIDsMain(for:),
             playingProgressUpdates: producer.playingProgress)
         bindMainViewModel(delegate: viewModel.delegateAction)

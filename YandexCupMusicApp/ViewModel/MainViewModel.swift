@@ -21,7 +21,7 @@ final class MainViewModel: ObservableObject {
     @Published var playingProgress: Double
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
-    private let layers: () -> AnyPublisher<LayersUpdate, Never>
+    private let layersUpdates: () -> AnyPublisher<LayersUpdate, Never>
     private let samplesIDs: (Instrument) -> AnyPublisher<[Sample.ID], Error>
     
     private var bindings = Set<AnyCancellable>()
@@ -30,23 +30,23 @@ final class MainViewModel: ObservableObject {
     private var layersDelegateBinding: AnyCancellable?
     
     init(
-        activeLayer: AnyPublisher<Layer?, Never>,
-        layers: @escaping () -> AnyPublisher<LayersUpdate, Never>,
+        activeLayerUpdates: AnyPublisher<Layer?, Never>,
+        layersUpdated: @escaping () -> AnyPublisher<LayersUpdate, Never>,
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
         playingProgressUpdates: AnyPublisher<Double, Never>
     ) {
         
         self.instrumentSelector = .initial
-        self.sampleControl = SampleControlViewModel(update: activeLayer.control())
+        self.sampleControl = SampleControlViewModel(update: activeLayerUpdates.control())
         self.controlPanel = .initial
-        self.layers = layers
+        self.layersUpdates = layersUpdated
         self.samplesIDs = samplesIDs
         self.playingProgress = 0
         
         bind()
-        bind(layers())
-        bindings.insert(controlPanel.bind(activeLayer: activeLayer))
-        bindings.insert(controlPanel.bind(isPlayingAll: layers().isPlayingAll()))
+        bind(layersUpdated())
+        bindings.insert(controlPanel.bind(activeLayer: activeLayerUpdates))
+        bindings.insert(controlPanel.bind(isPlayingAll: layersUpdated().isPlayingAll()))
         playingProgressUpdates.assign(to: &$playingProgress)
     }
     
@@ -160,7 +160,7 @@ private extension MainViewModel {
         
         switch delegateAction {
         case .showLayers:
-            let layersControl = LayersControlViewModel(initial: [], updates: layers().makeLayerViewModels())
+            let layersControl = LayersControlViewModel(initial: [], updates: layersUpdates().makeLayerViewModels())
             self.layersControl = layersControl
             layersDelegateBinding = layersControl.delegateAction.sink(receiveValue: {[unowned self] action in
                 delegateActionSubject.send(.layersControl(action))
