@@ -174,14 +174,14 @@ final class ControlPanelViewModelTests: XCTestCase {
         XCTAssertEqual(delegateActionSpy.values, [.stopPlaying])
     }
     
-    func test_playButtonDidTapped_makeDisabledAllOtherButtonsOnActivation() {
+    func test_playButtonDidTapped_makeDisabledAllOtherButtonsButPlayButtonOnActivation() {
         
         let sut = makeSUT()
         sut.layersButton.name = "active"
         
         sut.playButtonDidTapped()
         
-        XCTAssertEqual(sut.layersButton.isEnabled, false)
+        XCTAssertEqual(sut.layersButton.isEnabled, true)
         XCTAssertEqual(sut.recordButton.isEnabled, false)
         XCTAssertEqual(sut.composeButton.isEnabled, false)
         XCTAssertEqual(sut.playButton.isEnabled, true)

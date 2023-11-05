@@ -73,14 +73,7 @@ public final class ControlPanelViewModel {
         
         playButton.isActive.toggle()
         delegateActionSubject.send(playButton.isActive ? .startPlaying : .stopPlaying)
-        if layersButton.name == Self.layersButtonDefaultName {
-            
-            set(all: [recordButton, composeButton], to: !playButton.isActive)
-            
-        } else {
-            
-            set(all: [layersButton, recordButton, composeButton], to: !playButton.isActive)
-        }
+        set(all: [recordButton, composeButton], to: !playButton.isActive)
     }
     
     private func set(all items: [Enablable], to isEnabled: Bool) {

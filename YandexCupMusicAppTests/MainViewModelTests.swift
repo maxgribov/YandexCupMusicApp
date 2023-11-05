@@ -186,7 +186,7 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertFalse(sut.controlPanel.layersButton.isEnabled)
         
         sut.controlPanel.playButtonDidTapped()
-        XCTAssertTrue(sut.controlPanel.layersButton.isEnabled)
+        XCTAssertFalse(sut.controlPanel.layersButton.isEnabled)
         
         activeLayerStub.send(nil)
         XCTAssertFalse(sut.controlPanel.layersButton.isEnabled)
