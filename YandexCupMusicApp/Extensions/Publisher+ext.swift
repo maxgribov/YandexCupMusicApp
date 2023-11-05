@@ -88,3 +88,15 @@ extension Publisher where Output == ControlPanelViewModel.DelegateAction, Failur
         }.eraseToAnyPublisher()
     }
 }
+
+extension Publisher where Output == LayersUpdate, Failure == Never {
+    
+    func isPlayingAll() -> AnyPublisher<Bool, Never> {
+        
+        compactMap{ $0.layers.isEmpty == true ? nil : $0.layers }
+        .map{ $0.map(\.isPlaying).reduce(true, { result, current in result && current }) }
+        .removeDuplicates()
+        .eraseToAnyPublisher()
+    }
+}
+
