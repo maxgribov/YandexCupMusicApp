@@ -125,6 +125,12 @@ private extension MainViewModel {
                     self.sampleSelector = sampleSelector
                     
                     sampleSelectorDelegate = sampleSelector.delegateAction
+                        .handleEvents(receiveOutput: {[unowned self] action in
+                            switch action {
+                            case .sampleDidSelected:
+                                dismissSampleSelector()
+                            }
+                        })
                         .map { MainViewModel.DelegateAction.sampleSelector($0) }
                         .subscribe(delegateActionSubject)
                 }
