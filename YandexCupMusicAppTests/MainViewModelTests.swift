@@ -241,13 +241,12 @@ final class MainViewModelTests: XCTestCase {
     private func makeSUT(
         activeLayer: AnyPublisher<Layer?, Never> = Empty().eraseToAnyPublisher(),
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error> = { _ in Empty().eraseToAnyPublisher()},
-        loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error> = { _ in Empty().eraseToAnyPublisher()},
         layers: @escaping () -> AnyPublisher<LayersUpdate, Never> = { Empty().eraseToAnyPublisher() },
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> MainViewModel {
         
-        let sut = MainViewModel(activeLayer: activeLayer, samplesIDs: samplesIDs, loadSample: loadSample, layers: layers)
+        let sut = MainViewModel(activeLayer: activeLayer, samplesIDs: samplesIDs, layers: layers)
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut

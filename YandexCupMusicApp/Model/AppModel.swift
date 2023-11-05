@@ -31,7 +31,6 @@ final class AppModel<S> where S: SamplesLocalStore {
         let viewModel = MainViewModel(
             activeLayer: producer.activeLayerMain(),
             samplesIDs: localStore.sampleIDsMain(for:),
-            loadSample: localStore.loadSampleMain(sampleID:),
             layers: producer.layersMain)
         bindMainViewModel(delegate: viewModel.delegateAction)
         

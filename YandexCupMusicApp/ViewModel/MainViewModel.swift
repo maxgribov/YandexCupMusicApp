@@ -21,7 +21,6 @@ final class MainViewModel: ObservableObject {
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     private let samplesIDs: (Instrument) -> AnyPublisher<[Sample.ID], Error>
-    private let loadSample: (Sample.ID) -> AnyPublisher<Sample, Error>
     private let layers: () -> AnyPublisher<LayersUpdate, Never>
     
     private var bindings = Set<AnyCancellable>()
@@ -31,7 +30,6 @@ final class MainViewModel: ObservableObject {
     init(
         activeLayer: AnyPublisher<Layer?, Never>,
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
-        loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error>,
         layers: @escaping () -> AnyPublisher<LayersUpdate, Never>
     ) {
         
@@ -39,7 +37,6 @@ final class MainViewModel: ObservableObject {
         self.sampleControl = SampleControlViewModel(update: activeLayer.control())
         self.controlPanel = .initial
         self.samplesIDs = samplesIDs
-        self.loadSample = loadSample
         self.layers = layers
         
         bind()
@@ -126,7 +123,7 @@ private extension MainViewModel {
                     
                 }) {[unowned self] items in
                     
-                    sampleSelector = .init(instrument: instrument, items: items, loadSample: loadSample)
+                    sampleSelector = .init(instrument: instrument, items: items)
                     sampleSelectorTask = nil
                 }
         }

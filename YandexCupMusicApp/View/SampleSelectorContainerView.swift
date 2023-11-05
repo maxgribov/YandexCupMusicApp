@@ -53,7 +53,6 @@ struct SampleSelectorContainerView: View {
             instrument: .guitar,
             items: [.init(id: "1", name: "sample 1", isOdd: false),
                     .init(id: "2", name: "sample 2", isOdd: true),
-                    .init(id: "3", name: "sample 3", isOdd: false)],
-            loadSample: { _ in Empty().eraseToAnyPublisher() }),
+                    .init(id: "3", name: "sample 3", isOdd: false)]),
         dismissAction: {})
 }

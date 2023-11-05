@@ -28,13 +28,6 @@ final class SampleSelectorViewModelTests: XCTestCase {
         XCTAssertEqual(sut.items, items)
     }
     
-    func test_init_isSampleLoadingFalse() {
-        
-        let sut = makeSUT()
-        
-        XCTAssertFalse(sut.isSampleLoading)
-    }
-    
     func test_init_instrumentCorrectlyInjected() {
         
         let sut = makeSUT(instrument: .brass)
@@ -51,109 +44,16 @@ final class SampleSelectorViewModelTests: XCTestCase {
             sut.itemDidSelected(for: wrongItemID())
         })
     }
-    
-    func test_itemDidSelected_startSampleLoadingForCorrectID() {
+ 
+    func test_itemDidSelected_informDelegateSampleSelectedForIDOnCorrectItemID() {
         
-        var isSubscribed: Bool = false
-        let loadSampleSpy = PassthroughSubject<Sample, Error>()
-            .handleEvents(receiveSubscription: { _ in isSubscribed = true })
-            .eraseToAnyPublisher()
-        let sut = makeSUT(loadSample: { _ in loadSampleSpy })
+        let sut = makeSUT(instrument: .brass, items: [.init(id: "1", name: "", isOdd: false)])
         
-        sut.itemDidSelected(for: sut.items[0].id)
-        XCTWaiter().wait(for: [], timeout: 0.01)
-        
-        XCTAssertTrue(isSubscribed)
-    }
-    
-    func test_itemDidSelected_informDelegateSampleSelectionFailForSampleLoadingError() {
-        
-        let loadSampleStub = PassthroughSubject<Sample, Error>()
-        let sut = makeSUT(loadSample: { _ in loadSampleStub.eraseToAnyPublisher() })
-        
-        let selectedItem = sut.items[0]
-        sut.itemDidSelected(for: selectedItem.id)
-        XCTWaiter().wait(for: [], timeout: 0.01)
-        
-        expect(sut, delegateAction: .failedSelectSample(selectedItem.id), for: {
+        let selectedSampleID = "1"
+        expect(sut, delegateAction: .sampleDidSelected(selectedSampleID, .brass), for: {
             
-            loadSampleStub.send(completion: .failure(anyNSError()))
+            sut.itemDidSelected(for: selectedSampleID)
         })
-    }
-    
-    func test_itemDidSelected_informDelegateSampleSelectionForSuccessSampleLoading() {
-        
-        let loadSampleStub = PassthroughSubject<Sample, Error>()
-        let sut = makeSUT(loadSample: { _ in loadSampleStub.eraseToAnyPublisher() })
-        
-        let selectedItem = sut.items[0]
-        sut.itemDidSelected(for: selectedItem.id)
-        XCTWaiter().wait(for: [], timeout: 0.01)
-        
-        let loadedSample = anySample()
-        expect(sut, delegateAction: .sampleDidSelected(loadedSample), for: {
-            
-            loadSampleStub.send(loadedSample)
-        })
-    }
-    
-    func test_isSampleLoading_falseOnWrongItemIDSelected() {
-        
-        let sut = makeSUT()
-        
-        sut.itemDidSelected(for: wrongItemID())
-        
-        XCTAssertFalse(sut.isSampleLoading)
-    }
-    
-    func test_isSampleLoading_trueOnCorrectItemSelected() {
-        
-        let sut = makeSUT()
-        
-        sut.itemDidSelected(for: sut.items[0].id)
-        
-        XCTAssertTrue(sut.isSampleLoading)
-    }
-    
-    func test_itemDidSelected_ignoreIfSampleAlreadyLoading() {
-        
-        var isCancelled: Bool = false
-        let loadSampleSpy = PassthroughSubject<Sample, Error>()
-            .handleEvents(receiveCancel: { isCancelled = true })
-            .eraseToAnyPublisher()
-        let sut = makeSUT(loadSample: { _ in loadSampleSpy })
-        
-        sut.itemDidSelected(for: sut.items[0].id)
-        XCTWaiter().wait(for: [], timeout: 0.01)
-        
-        sut.itemDidSelected(for: sut.items[1].id)
-        XCTWaiter().wait(for: [], timeout: 0.01)
-        
-        XCTAssertFalse(isCancelled)
-    }
-    
-    func test_isSampleLoading_falseOnSampleLoadingFailure() {
-        
-        let loadSampleStub = PassthroughSubject<Sample, Error>()
-        let sut = makeSUT(loadSample: { _ in loadSampleStub.eraseToAnyPublisher() })
-        let selectedItem = sut.items[0]
-        sut.itemDidSelected(for: selectedItem.id)
-        
-        loadSampleStub.send(completion: .failure(anyNSError()))
-        
-        XCTAssertFalse(sut.isSampleLoading)
-    }
-    
-    func test_isSampleLoading_falseOnSampleLoadingSuccess() {
-        
-        let loadSampleStub = PassthroughSubject<Sample, Error>()
-        let sut = makeSUT(loadSample: { _ in loadSampleStub.eraseToAnyPublisher() })
-        let selectedItem = sut.items[0]
-        sut.itemDidSelected(for: selectedItem.id)
-        
-        loadSampleStub.send(anySample())
-        
-        XCTAssertFalse(sut.isSampleLoading)
     }
     
     //MARK: - Helpers
@@ -161,12 +61,11 @@ final class SampleSelectorViewModelTests: XCTestCase {
     private func makeSUT(
         instrument: Instrument = SampleSelectorViewModelTests.someInstrument(),
         items: [SampleItemViewModel] = SampleSelectorViewModelTests.sampleItems(),
-        loadSample: @escaping (Sample.ID) -> AnyPublisher<Sample, Error> = SampleSelectorViewModelTests.loadSampleDummy,
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> SampleSelectorViewModel {
         
-        let sut = SampleSelectorViewModel(instrument: instrument, items: items, loadSample: loadSample)
+        let sut = SampleSelectorViewModel(instrument: instrument, items: items)
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
