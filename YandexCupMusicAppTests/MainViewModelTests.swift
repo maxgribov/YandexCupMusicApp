@@ -15,21 +15,21 @@ final class MainViewModelTests: XCTestCase {
     
     func test_init_instrumentsContainsCorrectButtons() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         
         XCTAssertEqual(sut.instrumentSelector.buttons.map(\.instrument), [.guitar, .drums, .brass])
     }
     
     func test_init_sampleControlWithControlNil() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         
         XCTAssertNil(sut.sampleControl.control)
     }
     
     func test_init_controlPanelContainsCorrectButtons() {
 
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         
         XCTAssertEqual(sut.controlPanel.layersButton.name, "Слои")
         XCTAssertEqual(sut.controlPanel.layersButton.isActive, false)
@@ -50,14 +50,14 @@ final class MainViewModelTests: XCTestCase {
     
     func test_init_sampleSelectorNil() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         
         XCTAssertNil(sut.sampleSelector)
     }
     
     func test_instrumentSelectorButtonDidTapped_informDlegateThatDefaultSampleSelected() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
         sut.instrumentSelector.buttonDidTapped(for: Instrument.brass.rawValue)
@@ -67,7 +67,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_instrumentSelectorButtonDidLongTapped_createsSampleSelectorViewModel() {
         
-        let (sut, _, _) = makeSUT(samplesIDs: { _ in Just([Sample.ID(), Sample.ID(), Sample.ID()]).setFailureType(to: Error.self).eraseToAnyPublisher() })
+        let (sut, _, _, _) = makeSUT()
         
         sut.instrumentSelector.buttonDidLongTapped(for: Instrument.guitar.rawValue)
         
@@ -76,7 +76,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_activeLevel_setsAndRemovesControlValueForSampleControl() {
         
-        let (sut, activeLayerStub, _) = makeSUT()
+        let (sut, activeLayerStub, _, _) = makeSUT()
         
         XCTAssertNil(sut.sampleControl.control)
         
@@ -90,7 +90,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_sampleControlKnobOffsetDidChanged_informsDelegateCurrentLayerControlUpdate() {
         
-        let (sut, activeLayerStub, _) = makeSUT()
+        let (sut, activeLayerStub, _, _) = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         activeLayerStub.publishUpdate(someLayer())
 
@@ -101,7 +101,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_controlPanelLayersButtonDidTapped_createsAndRemovesLayersControl() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         
         sut.controlPanel.layersButtonDidTapped()
         XCTAssertNotNil(sut.layersControl)
@@ -112,7 +112,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_controlPanelRecordButtonDidTapped_informsDelegateStartAndStopRecording() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
 
         sut.controlPanel.recordButtonDidTapped()
@@ -123,7 +123,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_controlPanelComposeButtonDidTapped_informsDelegateStartAndStopCompositing() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
 
         sut.controlPanel.composeButtonDidTapped()
@@ -134,7 +134,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_controlPanelPlayButtonDidTapped_informsDelegateStartAndStopPlaying() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
 
         sut.controlPanel.playButtonDidTapped()
@@ -145,7 +145,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_dismissSampleSelector_setSampleSelectorToNil() {
         
-        let (sut, _, _) = makeSUT(samplesIDs: { _ in Just([Sample.ID(), Sample.ID(), Sample.ID()]).setFailureType(to: Error.self).eraseToAnyPublisher() })
+        let (sut, _, _, _) = makeSUT()
         sut.instrumentSelector.buttonDidLongTapped(for: Instrument.guitar.rawValue)
         XCTAssertNotNil(sut.sampleSelector)
         
@@ -156,7 +156,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_dismissLayersControl_invokesLayersButtonDidTappedOnControlPanel() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         sut.controlPanel.layersButtonDidTapped()
         XCTAssertNotNil(sut.layersControl)
         
@@ -167,7 +167,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_activeLayer_affectLayersButtonIsEnabled() {
     
-        let (sut, activeLayerStub, _) = makeSUT()
+        let (sut, activeLayerStub, _, _) = makeSUT()
         
         activeLayerStub.publishUpdate(nil)
         XCTAssertFalse(sut.controlPanel.layersButton.isEnabled)
@@ -195,7 +195,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_layersDelegateAction_forwardingWithMainViewModelDelegateAction() {
 
-        let (sut, _, layersUpdate) = makeSUT()
+        let (sut, _, layersUpdate, _) = makeSUT()
         
         let layerID = UUID()
         let layers = [someLayer(id: layerID)]
@@ -218,7 +218,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_layers_onReceiveEmptyLayersRemoveLayersControlOnExists() {
         
-        let (sut, _, layersStub) = makeSUT()
+        let (sut, _, layersStub, _) = makeSUT()
         let layerID = UUID()
         let layers = [someLayer()]
         layersStub.publish(LayersUpdate(layers: layers, active: layerID))
@@ -230,9 +230,9 @@ final class MainViewModelTests: XCTestCase {
     }
     
     func test_sampleSelectorItemDidSelected_informsMainViewModelDelegateThatSampleIDSelectedForIstrument() {
-        
-        let sampleID = Sample.ID()
-        let (sut, _, _) = makeSUT(samplesIDs: { _ in Just([sampleID, Sample.ID(), Sample.ID()]).setFailureType(to: Error.self).eraseToAnyPublisher() })
+
+        let (sut, _, _, samplesIdsStub) = makeSUT()
+        let sampleID = samplesIdsStub.stubbed[0]
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         sut.instrumentSelector.buttonDidLongTapped(for: Instrument.guitar.rawValue)
         XCTAssertNotNil(sut.sampleSelector)
@@ -244,8 +244,8 @@ final class MainViewModelTests: XCTestCase {
     
     func test_sampleSelectorItemDidSelected_dismissesSampleSelector() {
         
-        let sampleID = Sample.ID()
-        let (sut, _, _) = makeSUT(samplesIDs: { _ in Just([sampleID, Sample.ID(), Sample.ID()]).setFailureType(to: Error.self).eraseToAnyPublisher() })
+        let (sut, _, _, samplesIdsStub) = makeSUT()
+        let sampleID = samplesIdsStub.stubbed[0]
         // delegateActionSubject is subscriber to sampleSelector.delegateAction. Active subscription to it required for that all pipeline works.
         _ = sut.delegateAction.sink { _ in }
         sut.instrumentSelector.buttonDidLongTapped(for: Instrument.guitar.rawValue)
@@ -258,7 +258,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_layers_controlPanelPlayButtonIsActiveTrueOnAllLayersIsPlaying() {
         
-        let (sut, _, layersStub) = makeSUT()
+        let (sut, _, layersStub, _) = makeSUT()
         sut.controlPanel.playButton.isActive = false
 
         let layers = [someLayer(name: "one", isPlaying: true),
@@ -271,7 +271,7 @@ final class MainViewModelTests: XCTestCase {
     
     func test_layers_controlPanelPlayButtonIsActiveFalseOnNotAllLayersIsPlaying() {
         
-        let (sut, _, layersStub) = makeSUT()
+        let (sut, _, layersStub, _) = makeSUT()
         sut.controlPanel.playButton.isActive = true
 
         let layers = [someLayer(name: "one", isPlaying: true),
@@ -285,7 +285,7 @@ final class MainViewModelTests: XCTestCase {
     func test_playingProgressUpdates_updatePlayingProgressProperty() {
         
         let playingProgressUpdatesStub = PassthroughSubject<Double, Never>()
-        let (sut, _, _) = makeSUT(playingProgressUpdates: playingProgressUpdatesStub.eraseToAnyPublisher())
+        let (sut, _, _, _) = makeSUT(playingProgressUpdates: playingProgressUpdatesStub.eraseToAnyPublisher())
         
         XCTAssertEqual(sut.playingProgress, 0, accuracy: .ulpOfOne)
         
@@ -296,26 +296,27 @@ final class MainViewModelTests: XCTestCase {
     //MARK: - Helpers
     
     private func makeSUT(
-        samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error> = { _ in Empty().eraseToAnyPublisher()},
         playingProgressUpdates: AnyPublisher<Double, Never> = Empty().eraseToAnyPublisher(),
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> (sut: MainViewModel, activeLayerUpdates: ActiveLayerUpdatesSub, layersUpdate: LayersUpdateStub) {
+    ) -> (sut: MainViewModel, activeLayerUpdates: ActiveLayerUpdatesSub, layersUpdate: LayersUpdateStub, sampleIds: SamplesIDsStub) {
         
         let activeLayerUpdatedStub = ActiveLayerUpdatesSub()
         let layersUpdateStub = LayersUpdateStub()
+        let samplesIDsStub = SamplesIDsStub()
         let sut = MainViewModel(
             activeLayerUpdates: activeLayerUpdatedStub.updates,
             layersUpdated: layersUpdateStub.update,
-            samplesIDs: samplesIDs,
+            samplesIDs: samplesIDsStub.sampleIdsFor(_:),
             playingProgressUpdates: playingProgressUpdates
         )
         
         trackForMemoryLeaks(sut, file: file, line: line)
         trackForMemoryLeaks(activeLayerUpdatedStub, file: file, line: line)
         trackForMemoryLeaks(layersUpdateStub, file: file, line: line)
+        trackForMemoryLeaks(samplesIDsStub, file: file, line: line)
         
-        return (sut, activeLayerUpdatedStub, layersUpdateStub)
+        return (sut, activeLayerUpdatedStub, layersUpdateStub, samplesIDsStub)
     }
     
     private class ActiveLayerUpdatesSub {
@@ -344,6 +345,16 @@ final class MainViewModelTests: XCTestCase {
         func publish(_ update: LayersUpdate) {
             
             updateSubject.send(update)
+        }
+    }
+    
+    private class SamplesIDsStub {
+        
+        let stubbed: [Sample.ID] = [Sample.ID(), Sample.ID(), Sample.ID()]
+        
+        func sampleIdsFor(_ instrument: Instrument) -> AnyPublisher<[Sample.ID], Error> {
+            
+            Just(stubbed).setFailureType(to: Error.self).eraseToAnyPublisher()
         }
     }
     
