@@ -28,11 +28,11 @@ final class AppModelTests: XCTestCase {
         let sut = makeSUT()
         let activeLayerSpy = ValueSpy(sut.producer.activeLayer())
         
-        sut.producer.addLayer(forRecording: Data("some data".utf8))
+        sut.producer.addLayer(forRecording: someAudioData())
         let firstLayer = sut.producer.layers.last
         XCTAssertEqual(activeLayerSpy.values, [nil, firstLayer])
         
-        sut.producer.addLayer(forRecording: Data("some other data".utf8))
+        sut.producer.addLayer(forRecording: someOtherAudioData())
         let secondLayer = sut.producer.layers.last
         XCTAssertEqual(activeLayerSpy.values, [nil, firstLayer, secondLayer])
         
@@ -68,7 +68,7 @@ final class AppModelTests: XCTestCase {
         
         XCTAssertEqual(layersSpy.values, [.init(layers: [], active: nil)])
         
-        sut.producer.addLayer(forRecording: Data("some data".utf8))
+        sut.producer.addLayer(forRecording: someAudioData())
         let firstLayer = sut.producer.layers[0]
         XCTAssertEqual(layersSpy.values, [.init(layers: [], active: nil),
                                           .init(layers: [firstLayer], active: nil),
@@ -92,8 +92,8 @@ final class AppModelTests: XCTestCase {
         let sut = makeSUT()
         let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
         sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
-        sut.producer.addLayer(forRecording: Data("some-audio-data".utf8))
-        sut.producer.addLayer(forRecording: Data("some-other-audio-data".utf8))
+        sut.producer.addLayer(forRecording: someAudioData())
+        sut.producer.addLayer(forRecording: someOtherAudioData())
         let firstLayerID = sut.producer.layers[0].id
         let secondLayerID = sut.producer.layers[1].id
         
@@ -125,8 +125,8 @@ final class AppModelTests: XCTestCase {
         let sut = makeSUT()
         let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
         sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
-        sut.producer.addLayer(forRecording: Data("some-audio-data".utf8))
-        sut.producer.addLayer(forRecording: Data("some-other-audio-data".utf8))
+        sut.producer.addLayer(forRecording: someAudioData())
+        sut.producer.addLayer(forRecording: someOtherAudioData())
         XCTAssertEqual(sut.producer.layers.map(\.isPlaying), [false, false])
         
         mainViewModelDelegateStub.send(.startPlaying)
@@ -141,7 +141,7 @@ final class AppModelTests: XCTestCase {
         let sut = makeSUT()
         let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
         sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
-        sut.producer.addLayer(forRecording: Data("some-audio-data".utf8))
+        sut.producer.addLayer(forRecording: someAudioData())
         
         let updatedControl = Layer.Control(volume: 0, speed: 0)
         mainViewModelDelegateStub.send(.activeLayerUpdate(updatedControl))
@@ -325,4 +325,6 @@ final class AppModelTests: XCTestCase {
     
     private func anySampleID() -> Sample.ID { UUID().uuidString }
     
+    private func someAudioData() -> Data { Data("some-audio-data".utf8) }
+    private func someOtherAudioData() -> Data { Data("some-other-audio-data".utf8) }
 }
