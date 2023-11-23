@@ -50,3 +50,5 @@ final class ValueSpy<Value> {
     }
 }
 
+extension ValueSpy.Event: Equatable where Value: Equatable {}
+

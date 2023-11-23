@@ -33,25 +33,11 @@ final class FoundationRecorderTests: XCTestCase {
     func test_startRecording_deliversErrorOnRecorderInitFailure() throws {
         
         let sut = FoundationRecorder() { url, settings in
-            try AlwaysFailsAVAudioRecorderSpy(url: url, settings: settings)
+            try AlwaysFailsAVAudioRecorderStub(url: url, settings: settings)
         }
+        let startRecordingSpy = ValueSpy(sut.startRecording())
         
-        var receivedError: Error? = nil
-        sut.startRecording()
-            .sink(receiveCompletion: { completion in
-                
-                switch completion {
-                case let .failure(error):
-                    receivedError = error
-                    
-                case .finished:
-                    break
-                }
-                
-            }, receiveValue: { _ in  })
-            .store(in: &cancellables)
-        
-        XCTAssertEqual(receivedError as? FoundationRecorderError, .recorderInitFailure)
+        XCTAssertEqual(startRecordingSpy.events, [.failure])
     }
     
     func test_startRecording_invokesRecordMethodOnRecorder() {
@@ -219,7 +205,7 @@ final class FoundationRecorderTests: XCTestCase {
         }
     }
     
-    private class AlwaysFailsAVAudioRecorderSpy: AVAudioRecorderProtocol {
+    private class AlwaysFailsAVAudioRecorderStub: AVAudioRecorderProtocol {
         
         weak var delegate: AVAudioRecorderDelegate?
         
