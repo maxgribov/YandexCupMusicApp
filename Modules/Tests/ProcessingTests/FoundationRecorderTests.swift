@@ -37,7 +37,7 @@ final class FoundationRecorderTests: XCTestCase {
         }
         let startRecordingSpy = ValueSpy(sut.startRecording())
         
-        XCTAssertEqual(startRecordingSpy.events, [.failure])
+        XCTAssertEqual(startRecordingSpy.events, [.failure(FoundationRecorderError.recorderInitFailure as NSError)])
     }
     
     func test_startRecording_invokesRecordMethodOnRecorder() {

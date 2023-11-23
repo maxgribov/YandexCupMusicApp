@@ -14,21 +14,11 @@ import Processing
 
 final class FoundationRecordingSessionConfiguratorTests: XCTestCase {
     
-    private var cancellables = Set<AnyCancellable>()
-    
-    override func setUp() async throws {
-        try await super.setUp()
-        
-        cancellables = []
-    }
-    
     func test_isRecordingEnabled_receiveConfigureSessionAndRequestPermissionOnFirstAttempt() {
         
         let (sut, session) = makeSUT()
         
-        sut.isRecordingEnabled()
-            .sink(receiveCompletion: { _ in  }, receiveValue: { _ in })
-            .store(in: &cancellables)
+        _ = ValueSpy(sut.isRecordingEnabled())
         
         XCTAssertEqual(session.messages, [.setCategory(.playAndRecord, .default), .setActive(true), .requestPermission])
     }
@@ -164,6 +154,8 @@ final class FoundationRecordingSessionConfiguratorTests: XCTestCase {
         }
         
         func overrideOutputAudioPort(_ portOverride: AVAudioSession.PortOverride) throws {
+            
+            //TODO: Tests required
         }
     }
     
@@ -175,31 +167,11 @@ final class FoundationRecordingSessionConfiguratorTests: XCTestCase {
         line: UInt = #line
     ) {
         
-        let resultExp = expectation(description: "Wait for result")
-        let completionExp = expectation(description: "Wait for completion")
-        sut.isRecordingEnabled()
-            .sink(receiveCompletion: { completion in
-                
-                switch completion {
-                case let .failure(error):
-                    XCTFail("Expected result: \(expectedResult), got \(error) instead", file: file, line: line)
-                    
-                case .finished:
-                    break
-                }
-                
-                completionExp.fulfill()
-                
-            }, receiveValue: { receivedResult in
-                
-                XCTAssertEqual(receivedResult, expectedResult, file: file, line: line)
-                resultExp.fulfill()
-            })
-            .store(in: &cancellables)
+        let isRecordingEnabledSpy = ValueSpy(sut.isRecordingEnabled())
         
         action()
         
-        wait(for: [resultExp, completionExp], timeout: 1.0)
+        XCTAssertEqual(isRecordingEnabledSpy.values, [expectedResult])
     }
     
     private func expect(
@@ -210,29 +182,11 @@ final class FoundationRecordingSessionConfiguratorTests: XCTestCase {
         line: UInt = #line
     ) {
         
-        let completionExp = expectation(description: "Wait for completion")
-        sut.isRecordingEnabled()
-            .sink(receiveCompletion: { completion in
-                
-                switch completion {
-                case let .failure(error):
-                    XCTAssertEqual(error as NSError, expectedError as NSError, file: file, line: line)
-                    
-                case .finished:
-                    break
-                }
-                
-                completionExp.fulfill()
-                
-            }, receiveValue: { receivedResult in
-                
-                XCTFail("Expect error: \(expectedError), got result: \(receivedResult) instead", file: file, line: line)
-            })
-            .store(in: &cancellables)
+        let isRecordingEnabledSpy = ValueSpy(sut.isRecordingEnabled())
         
         action()
         
-        wait(for: [completionExp], timeout: 1.0)
+        XCTAssertEqual(isRecordingEnabledSpy.events, [.failure(expectedError as NSError)], file: file, line: line)
     }
     
     private func anyNSError() -> NSError {
