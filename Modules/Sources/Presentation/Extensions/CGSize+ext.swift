@@ -11,10 +11,8 @@ public extension CGSize {
     
     func offset(translation: CGSize) -> CGSize {
         
-        let newOffset = CGSize(width: width + translation.width ,
+        CGSize(width: width + translation.width ,
                                height: height + translation.height)
-        
-        return newOffset
     }
     
     func limit(area: CGSize) -> CGSize {

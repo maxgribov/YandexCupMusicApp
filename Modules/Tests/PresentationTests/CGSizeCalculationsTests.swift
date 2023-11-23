@@ -10,7 +10,7 @@ import Presentation
 
 final class CGSizeCalculationsTests: XCTestCase {
 
-    func test_offset_expectedResults() {
+    func test_offset_expectedWidthAndHeigthValuesForCorrespondingTranslationValues() {
         
         XCTAssertEqual(CGSize.zero.offset(translation: .zero), .zero)
         XCTAssertEqual(CGSize.zero.offset(translation: .init(width: 100, height: 200)), .init(width: 100, height: 200))
@@ -19,7 +19,7 @@ final class CGSizeCalculationsTests: XCTestCase {
         XCTAssertEqual(CGSize(width: 100, height: 100).offset(translation: .init(width: -50, height: -50)), .init(width: 50, height: 50))
     }
     
-    func test_limit_expectedResults() {
+    func test_limit_expectedWidthAndHeigthValuesForCorrespondingAreaWithAndHeightValues() {
         
         XCTAssertEqual(CGSize.zero.limit(area: .zero), .zero)
         XCTAssertEqual(CGSize.zero.limit(area: .init(width: 100, height: 100)), .zero)

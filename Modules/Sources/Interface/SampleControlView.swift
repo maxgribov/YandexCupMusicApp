@@ -173,10 +173,8 @@ extension SampleControlView {
         
         func knobOffset(lastEnded: CGSize, translation: CGSize) -> CGSize {
             
-            let newOffset = CGSize(width: lastEnded.width + translation.width ,
+            CGSize(width: lastEnded.width + translation.width ,
                                    height: lastEnded.height + translation.height)
-            
-            return newOffset
         }
     }
 }
