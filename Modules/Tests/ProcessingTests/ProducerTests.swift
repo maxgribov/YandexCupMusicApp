@@ -12,14 +12,6 @@ import Processing
 
 final class ProducerTests: XCTestCase {
     
-    private var playingProgressBinding: AnyCancellable?
-    
-    override func setUp() async throws {
-        try await super.setUp()
-        
-        playingProgressBinding = nil
-    }
-    
     func test_init_emptyLayers() {
         
         let (sut, _, _) = makeSUT()
@@ -407,54 +399,29 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(player.messages, [.update(layerID, updatedControl)])
     }
     
-    func test_setIsPlayingForLayerID_firesPlayingProgressOnStartPlaying(){
+    func test_setIsPlayingForLayerID_firesPlayingProgressOnStartPlaying() {
         
         let (sut, player, _) = makeSUT()
-        let layerID = Layer.ID()
-        sut.addLayer(id: layerID, for: .guitar, with: someSample())
         
-        let exp = expectation(description: "Wait for first timer value")
-        playingProgressBinding = sut.playingProgress
-            .sink { progress in
-                
-                if progress > 0 {
-                    exp.fulfill()
-                    self.playingProgressBinding = nil
-                }
-            }
-        
-        sut.set(isPlaying: true, for: layerID)
-        player.sendPlaying(event: 5)
-        
-        wait(for: [exp], timeout: 0.5)
+        expectPlayingProgressStartIncreasing(sut, on: {
+            
+            player.sendPlaying(event: 5)
+        })
     }
-    
+
     func test_setIsPlayingForLayerID_stopsPlayingProgressUpdatesOnFinishPlaying(){
         
         let (sut, player, _) = makeSUT()
-        let layerID = Layer.ID()
-        sut.addLayer(id: layerID, for: .guitar, with: someSample())
         
-        let exp = expectation(description: "Wait for first timer zero")
-        playingProgressBinding = sut.playingProgress
-            .sink { progress in
-                
-                if progress == 0 {
-                    exp.fulfill()
-                    self.playingProgressBinding = nil
-                }
-            }
-        
-        sut.set(isPlaying: true, for: layerID)
-        player.sendPlaying(event: 2)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        expectPlayingProgressDropsToZero(sut, on: {
             
-            sut.set(isPlaying: false, for: layerID)
-            player.sendPlaying(event: nil)
-        }
-
-        wait(for: [exp], timeout: 0.5)
+            player.sendPlaying(event: 2)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                
+                player.sendPlaying(event: nil)
+            }
+        })
     }
     
     //MARK: - Helpers
@@ -575,6 +542,44 @@ final class ProducerTests: XCTestCase {
         }
         
         func stopRecording() {}
+    }
+    
+    private func expectPlayingProgressStartIncreasing(
+        _ sut: Producer,
+        on action: () -> Void
+    ) {
+        
+        let exp = expectation(description: "Wait for first progress value")
+        let cancellable = sut.playingProgress
+            .sink { progress in
+                
+                if progress > 0 {
+                    exp.fulfill()
+                }
+            }
+        
+        action()
+        
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    private func expectPlayingProgressDropsToZero(
+        _ sut: Producer,
+        on action: () -> Void
+    ) {
+        
+        let exp = expectation(description: "Wait for first progress zero")
+        let cancellable = sut.playingProgress
+            .sink { progress in
+                
+                if progress == 0 {
+                    exp.fulfill()
+                }
+            }
+        
+        action()
+        
+        wait(for: [exp], timeout: 0.2)
     }
     
     private func someSample() -> Sample {
