@@ -44,9 +44,7 @@ final class FoundationRecorderTests: XCTestCase {
         
         let sut = makeSUT()
         
-        sut.startRecording()
-            .sink(receiveCompletion: { _ in}, receiveValue: { _ in  })
-            .store(in: &cancellables)
+        _ = sut.startRecording()
         
         XCTAssertEqual(recorder?.messages, [.initialisation, .record])
     }
@@ -72,10 +70,7 @@ final class FoundationRecorderTests: XCTestCase {
         
         let sut = makeSUT()
         
-        sut.startRecording()
-            .sink(receiveCompletion: { _ in}, receiveValue: { _ in  })
-            .store(in: &cancellables)
-        
+        _ = sut.startRecording()
         sut.stopRecording()
         
         XCTAssertEqual(recorder?.messages, [.initialisation, .record, .stop])
