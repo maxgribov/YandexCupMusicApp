@@ -60,7 +60,7 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     func test_retrieveSample_deliversSampleExistingFileForSampleID() throws {
         
         let sut = makeSUT()
-        let expectedFile = try firstFile(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "guitar")
+        let expectedFile = try expectedFirstFile(for: .guitar)
         
         expect(sut, retrieveSample: .success(Sample(id: expectedFile.name, data: expectedFile.data)), for: expectedFile.name)
     }
@@ -164,7 +164,12 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     
     private func expectedFileNames(for instrument: Instrument) throws -> [String] {
         
-        try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: instrument.fileName)
+        try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: instrument.fileNamePrefix)
+    }
+    
+    private func expectedFirstFile(for instrument: Instrument) throws -> (name: String, data: Data) {
+        
+        try firstFile(bundle: BundleSamplesLocalStore.moduleBundle, prefix: instrument.fileNamePrefix)
     }
     
     private func invalidBundle() -> Bundle {
@@ -182,5 +187,5 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
 
 private extension Instrument {
     
-    var fileName: String { rawValue }
+    var fileNamePrefix: String { rawValue }
 }
