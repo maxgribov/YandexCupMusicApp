@@ -23,25 +23,22 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     func test_retrieveSamplesIDs_deliversGuitarFilesNamesAsIDsForGuitarInstrument() throws {
         
         let sut = makeSUT()
-        let expected = try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "guitar")
         
-        expect(sut, retrieveSamplesIDsResult: .success(expected), for: .guitar)
+        expect(sut, retrieveSamplesIDsResult: .success(try expectedFileNames(for: .guitar)), for: .guitar)
     }
     
     func test_retrieveSamplesIDs_deliversDrumsFilesNamesAsIDsForDrumsInstrument() throws {
         
         let sut = makeSUT()
-        let expected = try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "drums")
         
-        expect(sut, retrieveSamplesIDsResult: .success(expected), for: .drums)
+        expect(sut, retrieveSamplesIDsResult: .success(try expectedFileNames(for: .drums)), for: .drums)
     }
     
     func test_retrieveSamplesIDs_deliversBrassFilesNamesAsIDsForBrassInstrument() throws {
         
         let sut = makeSUT()
-        let expected = try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "brass")
         
-        expect(sut, retrieveSamplesIDsResult: .success(expected), for: .brass)
+        expect(sut, retrieveSamplesIDsResult: .success(try expectedFileNames(for: .brass)), for: .brass)
     }
     
     //MARK: - Sample
@@ -165,6 +162,11 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         return (firstFileName, data)
     }
     
+    private func expectedFileNames(for instrument: Instrument) throws -> [String] {
+        
+        try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: instrument.fileName)
+    }
+    
     private func invalidBundle() -> Bundle {
         Bundle()
     }
@@ -176,4 +178,9 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     private func notExistingSampleID() -> Sample.ID {
         "Sample file not exists"
     }
+}
+
+private extension Instrument {
+    
+    var fileName: String { rawValue }
 }
