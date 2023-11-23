@@ -15,14 +15,6 @@ import Persistence
 
 final class AppModelTests: XCTestCase {
     
-    var cancellables = Set<AnyCancellable>()
-    
-    override func setUp() async throws {
-        try await super.setUp()
-        
-        cancellables = []
-    }
-
     func test_init_activeLayerNil() {
         
         let sut = makeSUT()
@@ -55,26 +47,18 @@ final class AppModelTests: XCTestCase {
         
         let sut = makeSUT()
         
-        var receivedResult: [Sample.ID]? = nil
-        sut.localStore.sampleIDs(for: .brass)
-            .sink(receiveCompletion: { _ in }) { result in
-                receivedResult = result
-            }.store(in: &cancellables)
+        let sampleIDsSpy = ValueSpy(sut.localStore.sampleIDs(for: .brass))
         
-        XCTAssertEqual(receivedResult, SamplesLocalStoreSpyStub.stabbedSamplesIDs)
+        XCTAssertEqual(sampleIDsSpy.values, [SamplesLocalStoreSpyStub.stabbedSamplesIDs])
     }
     
     func test_loadSample_retrievesSampleFromLocalStore() {
         
         let sut = makeSUT()
         
-        var receivedResult: Sample? = nil
-        sut.localStore.loadSample(sampleID: anySampleID())
-            .sink(receiveCompletion: { _ in }) { result in
-                receivedResult = result
-            }.store(in: &cancellables)
+        let loadSampleSpy = ValueSpy(sut.localStore.loadSample(sampleID: anySampleID()))
         
-        XCTAssertEqual(receivedResult, SamplesLocalStoreSpyStub.stabbedSample)
+        XCTAssertEqual(loadSampleSpy.values, [SamplesLocalStoreSpyStub.stabbedSample])
     }
     
     func test_producerAddLayer_makeLayersPublishUpdates() {
