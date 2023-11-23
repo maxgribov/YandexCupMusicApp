@@ -12,14 +12,6 @@ import Combine
 
 final class SampleSelectorViewModelTests: XCTestCase {
     
-    var cancellables = Set<AnyCancellable>()
-    
-    override func setUp() async throws {
-        try await super.setUp()
-        
-        cancellables = []
-    }
-
     func test_init_itemsConstructorInjected() {
         
         let items = [SampleItemViewModel(id: "1", name: "sample 1", isOdd: false)]

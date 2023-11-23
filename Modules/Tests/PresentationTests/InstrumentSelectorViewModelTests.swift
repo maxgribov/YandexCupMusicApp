@@ -12,14 +12,6 @@ import Combine
 
 final class InstrumentSelectorViewModelTests: XCTestCase {
     
-    var cancellables = Set<AnyCancellable>()
-    
-    override func setUp() async throws {
-        try await super.setUp()
-        
-        cancellables = []
-    }
-
     func test_init_buttonsConstructorInjected() {
         
         let buttons: [InstrumentButtonViewModel] = [.init(instrument: .guitar)]

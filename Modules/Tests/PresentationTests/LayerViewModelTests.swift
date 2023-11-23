@@ -12,14 +12,6 @@ import Presentation
 
 final class LayerViewModelTests: XCTestCase {
     
-    var cancellables = Set<AnyCancellable>()
-    
-    override func setUp() async throws {
-        try await super.setUp()
-        
-        cancellables = []
-    }
-
     func test_initWitLayer_correctlySetup() {
         
         let layer = Layer(id: UUID(), name: "some layer", isPlaying: true, isMuted: false, control: .init(volume: 0, speed: 0))

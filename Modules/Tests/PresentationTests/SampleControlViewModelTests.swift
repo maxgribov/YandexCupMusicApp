@@ -12,14 +12,6 @@ import Presentation
 
 final class SampleControlViewModelTests: XCTestCase {
     
-    var cancellables = Set<AnyCancellable>()
-    
-    override func setUp() async throws {
-        try await super.setUp()
-        
-        cancellables = []
-    }
-    
     func test_init_controlNilWithUpdateNil() {
         
         let sut = makeSUT()
