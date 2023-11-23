@@ -27,10 +27,3 @@ public final class ToggleButtonViewModel: ObservableObject, Enablable {
         case play
     }
 }
-
-public extension ToggleButtonViewModel {
-    
-    static let initialRecord = ToggleButtonViewModel(type: .record, isActive: false, isEnabled: true)
-    static let initialCompose = ToggleButtonViewModel(type: .compose, isActive: false, isEnabled: true)
-    static let initialPlay = ToggleButtonViewModel(type: .play, isActive: false, isEnabled: true)
-}

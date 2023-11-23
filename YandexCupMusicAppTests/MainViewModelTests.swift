@@ -27,28 +27,26 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertNil(sut.sampleControl.control)
     }
     
-    //FIXME: test broken because of some kind of memory leak. Values from publishers from another tests some how affect values in this tests. Not sure why.
-    
-//    func test_init_controlPanelContainsCorrectButtons() {
-//
-//        let sut = makeSUT()
-//        
-//        XCTAssertEqual(sut.controlPanel.layersButton.name, "Слои")
-//        XCTAssertEqual(sut.controlPanel.layersButton.isActive, false)
-//        XCTAssertEqual(sut.controlPanel.layersButton.isEnabled, true)
-//        
-//        XCTAssertEqual(sut.controlPanel.recordButton.type, .record)
-//        XCTAssertEqual(sut.controlPanel.layersButton.isActive, false)
-//        XCTAssertEqual(sut.controlPanel.layersButton.isEnabled, true)
-//        
-//        XCTAssertEqual(sut.controlPanel.composeButton.type, .compose)
-//        XCTAssertEqual(sut.controlPanel.layersButton.isActive, false)
-//        XCTAssertEqual(sut.controlPanel.layersButton.isEnabled, true)
-//        
-//        XCTAssertEqual(sut.controlPanel.playButton.type, .play)
-//        XCTAssertEqual(sut.controlPanel.layersButton.isActive, false)
-//        XCTAssertEqual(sut.controlPanel.layersButton.isEnabled, true)
-//    }
+    func test_init_controlPanelContainsCorrectButtons() {
+
+        let sut = makeSUT()
+        
+        XCTAssertEqual(sut.controlPanel.layersButton.name, "Слои")
+        XCTAssertEqual(sut.controlPanel.layersButton.isActive, false)
+        XCTAssertEqual(sut.controlPanel.layersButton.isEnabled, true)
+        
+        XCTAssertEqual(sut.controlPanel.recordButton.type, .record)
+        XCTAssertEqual(sut.controlPanel.layersButton.isActive, false)
+        XCTAssertEqual(sut.controlPanel.layersButton.isEnabled, true)
+        
+        XCTAssertEqual(sut.controlPanel.composeButton.type, .compose)
+        XCTAssertEqual(sut.controlPanel.layersButton.isActive, false)
+        XCTAssertEqual(sut.controlPanel.layersButton.isEnabled, true)
+        
+        XCTAssertEqual(sut.controlPanel.playButton.type, .play)
+        XCTAssertEqual(sut.controlPanel.layersButton.isActive, false)
+        XCTAssertEqual(sut.controlPanel.layersButton.isEnabled, true)
+    }
     
     func test_init_sampleSelectorNil() {
         
@@ -167,7 +165,7 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertNil(sut.layersControl)
     }
     
-    func test_z_activeLayer_affectLayersButtonIsEnabled() {
+    func test_activeLayer_affectLayersButtonIsEnabled() {
     
         let activeLayerStub = PassthroughSubject<Layer?, Never>()
         let sut = makeSUT(activeLayer: activeLayerStub.eraseToAnyPublisher())
@@ -217,8 +215,6 @@ final class MainViewModelTests: XCTestCase {
                                                   .layersControl(.deleteLayer(layerID))])
     }
     
-    //FIXME: test passes but for some reason breaks previous test. Looks like some strange memory leak. Not sure what exactly happening.
-    /*
     func test_layers_onReceiveEmptyLayersRemoveLayersControlOnExists() {
         
         
@@ -234,7 +230,6 @@ final class MainViewModelTests: XCTestCase {
         XCTAssertNil(sut.layersControl)
 
     }
-     */
     
     func test_sampleSelectorItemDidSelected_informsMainViewModelDelegateThatSampleIDSelectedForIstrument() {
         
