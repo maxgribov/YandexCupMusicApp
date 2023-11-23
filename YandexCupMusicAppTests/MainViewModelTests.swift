@@ -245,7 +245,8 @@ final class MainViewModelTests: XCTestCase {
         
         let sampleID = Sample.ID()
         let (sut, _) = makeSUT(samplesIDs: { _ in Just([sampleID, Sample.ID(), Sample.ID()]).setFailureType(to: Error.self).eraseToAnyPublisher() })
-        _ = ValueSpy(sut.delegateAction)
+        // delegateActionSubject is subscriber to sampleSelector.delegateAction. Active subscription to it required for that all pipeline works.
+        _ = sut.delegateAction.sink { _ in }
         sut.instrumentSelector.buttonDidLongTapped(for: Instrument.guitar.rawValue)
         XCTAssertNotNil(sut.sampleSelector)
         
