@@ -173,14 +173,14 @@ final class MainViewModelTests: XCTestCase {
         activeLayerStub.send(nil)
         XCTAssertFalse(sut.controlPanel.layersButton.isEnabled)
         
-        activeLayerStub.send(Layer(id: UUID(), name: "SomeLayer", isPlaying: true, isMuted: true, control: .initial))
+        activeLayerStub.send(someLayer())
         XCTAssertTrue(sut.controlPanel.layersButton.isEnabled)
         
         activeLayerStub.send(nil)
         XCTAssertFalse(sut.controlPanel.layersButton.isEnabled)
         
         sut.controlPanel.playButtonDidTapped()
-        activeLayerStub.send(Layer(id: UUID(), name: "SomeLayer2", isPlaying: true, isMuted: true, control: .initial))
+        activeLayerStub.send(someLayer(name: "some other layer"))
         XCTAssertFalse(sut.controlPanel.layersButton.isEnabled)
         
         sut.controlPanel.playButtonDidTapped()
@@ -197,7 +197,7 @@ final class MainViewModelTests: XCTestCase {
     func test_layersDelegateAction_forwardingWithMainViewModelDelegateAction() {
         
         let layerID = UUID()
-        let layers = [Layer(id: layerID, name: "some", isPlaying: false, isMuted: false, control: .initial)]
+        let layers = [someLayer(id: layerID)]
         let sut = makeSUT(layers: { Just(LayersUpdate(layers: layers, active: layerID)).eraseToAnyPublisher() })
         sut.controlPanel.layersButtonDidTapped()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
@@ -217,18 +217,16 @@ final class MainViewModelTests: XCTestCase {
     
     func test_layers_onReceiveEmptyLayersRemoveLayersControlOnExists() {
         
-        
         let layersStub = PassthroughSubject<LayersUpdate, Never>()
         let sut = makeSUT(layers: { layersStub.eraseToAnyPublisher() })
         let layerID = UUID()
-        let layers = [Layer(id: UUID(), name: "some", isPlaying: false, isMuted: false, control: .initial)]
+        let layers = [someLayer()]
         layersStub.send(LayersUpdate(layers: layers, active: layerID))
         sut.controlPanel.layersButtonDidTapped()
         
         layersStub.send(LayersUpdate(layers: [], active: nil))
         
         XCTAssertNil(sut.layersControl)
-
     }
     
     func test_sampleSelectorItemDidSelected_informsMainViewModelDelegateThatSampleIDSelectedForIstrument() {
@@ -263,9 +261,9 @@ final class MainViewModelTests: XCTestCase {
         let sut = makeSUT(layers: { layersStub.eraseToAnyPublisher() })
         sut.controlPanel.playButton.isActive = false
 
-        let layers = [Layer(id: UUID(), name: "some1", isPlaying: true, isMuted: false, control: .initial),
-                      Layer(id: UUID(), name: "some2", isPlaying: true, isMuted: false, control: .initial),
-                      Layer(id: UUID(), name: "some3", isPlaying: true, isMuted: false, control: .initial)]
+        let layers = [someLayer(name: "one", isPlaying: true),
+                      someLayer(name: "two", isPlaying: true),
+                      someLayer(name: "three", isPlaying: true)]
         layersStub.send(LayersUpdate(layers: layers, active: layers[0].id))
         
         XCTAssertTrue(sut.controlPanel.playButton.isActive)
@@ -277,9 +275,9 @@ final class MainViewModelTests: XCTestCase {
         let sut = makeSUT(layers: { layersStub.eraseToAnyPublisher() })
         sut.controlPanel.playButton.isActive = true
 
-        let layers = [Layer(id: UUID(), name: "some1", isPlaying: true, isMuted: false, control: .initial),
-                      Layer(id: UUID(), name: "some2", isPlaying: false, isMuted: false, control: .initial),
-                      Layer(id: UUID(), name: "some3", isPlaying: true, isMuted: false, control: .initial)]
+        let layers = [someLayer(name: "one", isPlaying: true),
+                      someLayer(name: "two", isPlaying: false),
+                      someLayer(name: "three", isPlaying: true)]
         layersStub.send(LayersUpdate(layers: layers, active: layers[0].id))
         
         XCTAssertFalse(sut.controlPanel.playButton.isActive)
@@ -313,8 +311,20 @@ final class MainViewModelTests: XCTestCase {
         return sut
     }
     
-    private func someLayer() -> Layer {
+    private func someLayer(
+        id: Layer.ID = Layer.ID(),
+        name: String = "Some Layer",
+        isPlaying: Bool = false,
+        isMuted: Bool = false,
+        control: Layer.Control = .initial
+    ) -> Layer {
         
-        Layer(id: UUID(), name: "layer 1", isPlaying: true, isMuted: false, control: .init(volume: 0.7, speed: 1.0))
+        Layer(
+            id: id,
+            name: name,
+            isPlaying: isPlaying,
+            isMuted: isMuted,
+            control: control
+        )
     }
 }
