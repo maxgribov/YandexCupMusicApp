@@ -33,7 +33,10 @@ final class AudioEnginePlayer<Engine, Node> where Engine: AVAudioEngineProtocol,
     
     func play(id: Layer.ID, data: Data, control: Layer.Control) {
         
-        try? engine.start()
+        if engine.isRunning == false {
+            
+            try? engine.start()
+        }
         
         guard let playerNode = makePlayerNode(data) else {
             return
@@ -114,6 +117,7 @@ protocol AudioEnginePlayerNodeProtocol {
 
 protocol AVAudioEngineProtocol {
     
+    var isRunning: Bool { get }
     func prepare()
     func start() throws
 }
@@ -303,6 +307,17 @@ final class AudioEnginePlayerTests: XCTestCase {
         XCTAssertEqual(engine.messages, [.prepare, .start])
     }
     
+    func test_play_doesNotInvokeEngineStartIfEngineAlreadyIsRunning() {
+        
+        let (sut, engine) = makeSUT()
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        engine.simulateEngineStarted()
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        XCTAssertEqual(engine.messages, [.prepare, .start])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -417,6 +432,9 @@ final class AudioEnginePlayerTests: XCTestCase {
             case start
         }
         
+        var isRunning: Bool { _isRunning }
+        private var _isRunning: Bool = false
+        
         func prepare() {
             
             messages.append(.prepare)
@@ -425,6 +443,11 @@ final class AudioEnginePlayerTests: XCTestCase {
         func start() throws {
              
             messages.append(.start)
+        }
+        
+        func simulateEngineStarted() {
+            
+            _isRunning = true
         }
     }
     
