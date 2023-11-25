@@ -38,7 +38,7 @@ final class AudioEnginePlayer {
     
     func stop(id: Layer.ID) {
         
-        
+        activeNodes.removeValue(forKey: id)
     }
 }
 
@@ -119,6 +119,18 @@ final class AudioEnginePlayerTests: XCTestCase {
         sut.stop(id: anyLayerID())
         
         XCTAssertFalse(sut.playing.isEmpty)
+    }
+    
+    func test_stop_removesExistingLayerIDFromPlaying() {
+        
+        let sut = makeSUT()
+        let layerID = anyLayerID()
+        sut.play(id: layerID, data: anyData(), control: .initial)
+        XCTAssertTrue(sut.playing.contains(layerID))
+        
+        sut.stop(id: layerID)
+        
+        XCTAssertTrue(sut.playing.isEmpty)
     }
 
     //MARK: - Helpers
