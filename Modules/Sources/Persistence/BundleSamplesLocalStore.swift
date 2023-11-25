@@ -13,10 +13,12 @@ public final class BundleSamplesLocalStore: SamplesLocalStore {
     private let bundle: Bundle
     private let fileManager = FileManager.default
     private let queue = DispatchQueue(label: "BundleSamplesLocalStoreQueue", qos: .userInitiated, attributes: [.concurrent])
+    private let mapper: (URL) -> Data?
     
-    public init(bundle: Bundle? = nil) {
+    public init(bundle: Bundle? = nil, mapper: @escaping (URL) -> Data? = BundleSamplesLocalStore.basicMapper(url:)) {
         
         self.bundle = bundle ?? Self.moduleBundle
+        self.mapper = mapper
     }
         
     public func retrieveSamplesIDs(for instrument: Instrument, complete: @escaping (Result<[Sample.ID], Swift.Error>) -> Void) {
@@ -44,7 +46,7 @@ public final class BundleSamplesLocalStore: SamplesLocalStore {
             
             queue.async {
                 
-                guard let data = try? Data(contentsOf: url) else {
+                guard let data = self.mapper(url) else {
                     return completion(.failure(Error.retrieveSampleFileFailed))
                 }
                 
@@ -76,4 +78,9 @@ public final class BundleSamplesLocalStore: SamplesLocalStore {
 public extension BundleSamplesLocalStore {
     
     static var moduleBundle: Bundle { Bundle.module }
+    
+    static func basicMapper(url: URL) -> Data? {
+        
+        try? Data(contentsOf: url)
+    }
 }
