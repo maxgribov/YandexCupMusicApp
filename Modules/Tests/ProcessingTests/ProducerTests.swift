@@ -12,6 +12,14 @@ import Processing
 
 final class ProducerTests: XCTestCase {
     
+    var cancellables = Set<AnyCancellable>()
+    
+    override func setUp() async throws {
+        try await super.setUp()
+        
+        cancellables = []
+    }
+    
     func test_init_emptyLayers() {
         
         let (sut, _, _) = makeSUT()
@@ -550,13 +558,15 @@ final class ProducerTests: XCTestCase {
     ) {
         
         let exp = expectation(description: "Wait for first progress value")
-        let cancellable = sut.playingProgress
+        exp.assertForOverFulfill = false
+        sut.playingProgress
             .sink { progress in
                 
                 if progress > 0 {
                     exp.fulfill()
                 }
             }
+            .store(in: &cancellables)
         
         action()
         
@@ -569,13 +579,14 @@ final class ProducerTests: XCTestCase {
     ) {
         
         let exp = expectation(description: "Wait for first progress zero")
-        let cancellable = sut.playingProgress
+        sut.playingProgress
             .sink { progress in
                 
                 if progress == 0 {
                     exp.fulfill()
                 }
             }
+            .store(in: &cancellables)
         
         action()
         
