@@ -9,19 +9,21 @@ import XCTest
 import Domain
 import AVFoundation
 
-final class AudioEnginePlayer {
+final class AudioEnginePlayer<Engine, Node> where Engine: AVAudioEngineProtocol, Node: AudioEnginePlayerNodeProtocol, Node.Engine == Engine {
     
     var playing: Set<Layer.ID> { Set(activeNodes.keys) }
-    private let engine: AVAudioEngine
-    private var activeNodes: [Layer.ID: AudioEnginePlayerNodeProtocol]
-    private let makePlayerNode: (Data) -> AudioEnginePlayerNodeProtocol?
+    private let engine: Engine
+    private var activeNodes: [Layer.ID: Node]
+    private let makePlayerNode: (Data) -> Node?
     private var event: ((TimeInterval?) -> Void)?
     
-    init(makePlayerNode: @escaping (Data) -> AudioEnginePlayerNodeProtocol?) {
+    init(engine: Engine, makePlayerNode: @escaping (Data) -> Node?) {
         
-        self.engine = AVAudioEngine()
+        self.engine = engine
         self.makePlayerNode = makePlayerNode
         self.activeNodes = [:]
+        
+        engine.prepare()
     }
     
     func playing(event: @escaping (TimeInterval?) -> Void) {
@@ -93,17 +95,24 @@ extension AudioEnginePlayer {
 
 protocol AudioEnginePlayerNodeProtocol {
     
+    associatedtype Engine: AVAudioEngineProtocol
+    
     var offset: AVAudioTime { get }
     var duration: TimeInterval { get }
     
     init?(with data: Data)
-    func connect(to engine: AVAudioEngine)
-    func disconnect(from engine: AVAudioEngine)
+    func connect(to engine: Engine)
+    func disconnect(from engine: Engine)
     func play()
     func stop()
     func set(volume: Float)
     func set(rate: Float)
     func set(offset: AVAudioTime)
+}
+
+protocol AVAudioEngineProtocol {
+    
+    func prepare()
 }
 
 final class AudioEnginePlayerTests: XCTestCase {
@@ -118,14 +127,14 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_init_nothingPlaying() {
         
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         
         XCTAssertTrue(sut.playing.isEmpty)
     }
     
     func test_play_nothingPlayingOnNodeCreationFailure() {
         
-        let sut = AudioEnginePlayer(makePlayerNode: { data in
+        let sut = AudioEnginePlayer(engine: AudioEngineSpy(), makePlayerNode: { data in
             AlwaysFailingAudioEnginePlayerNodeStub(with: data)
         })
         
@@ -136,7 +145,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_play_invokesPlayerNodeConnectToEngineAndPlayMethodsOnNodeCreationSuccess() {
         
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         
         let data = anyData()
         sut.play(id: anyLayerID(), data: data, control: .init(volume: 0.5, speed: 1.0))
@@ -146,7 +155,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_play_playingContainsLayerIDOnNodeCreationSuccess() {
         
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         
         let layerID = anyLayerID()
         sut.play(id: layerID, data: anyData(), control: .initial)
@@ -156,7 +165,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_stop_doesNotAffectPlayingOnIncorrectLayerID() {
         
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         let layerID = anyLayerID()
         sut.play(id: layerID, data: anyData(), control: .initial)
         XCTAssertTrue(sut.playing.contains(layerID))
@@ -168,7 +177,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_stop_removesExistingLayerIDFromPlaying() {
         
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         let layerID = anyLayerID()
         sut.play(id: layerID, data: anyData(), control: .initial)
         XCTAssertTrue(sut.playing.contains(layerID))
@@ -180,7 +189,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_stop_invokesPlayerNodeWithStopAnDisconnectFromEngine() {
         
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         let layerID = anyLayerID()
         let data = anyData()
         sut.play(id: layerID, data: data, control: .init(volume: 0.5, speed: 1.0))
@@ -193,7 +202,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_start_invokesSetOffsetOnAnotherPlayerNode() {
         
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         sut.play(id: anyLayerID(), data: anyData(), control: .initial)
         
         let firstPlayerNode = playerNodeSpy
@@ -208,7 +217,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_updateWithControl_doesNotAffectOnPlayerNodeForWrongLayerID() {
         
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         let data = anyData()
         sut.play(id: anyLayerID(), data: data, control: .init(volume: 0.5, speed: 1.0))
         
@@ -219,7 +228,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_updateWithControl_invokesSetVolumeAndSetRateForCorrectLayerID() {
         
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         let layerID = anyLayerID()
         let data = anyData()
         sut.play(id: layerID, data: data, control: .init(volume: 0.5, speed: 1.0))
@@ -231,7 +240,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_playingEvent_deliversPlayerNodeDurationOnFirstLayerPlaying() {
         
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         
         expect(sut, playingEvents: [AudioEnginePlayerNodeSpy.durationStub], on: {
             
@@ -241,7 +250,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_playingEvent_doesNotDeliverValueOnPlayerNodeStartIfAlreadyAnyNodePlaying() {
         
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         sut.play(id: anyLayerID(), data: anyData(), control: .initial)
         
         expect(sut, playingEvents: [], on: {
@@ -252,7 +261,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_playingEvent_deliverNilValueOnLastPlayerNodeStop() {
         
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         let layerID = anyLayerID()
         sut.play(id: layerID, data: anyData(), control: .initial)
         
@@ -264,7 +273,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_playingEvent_doesNotDeliverAnyValueIfAnyPlayerNodeStillPlaying() {
         
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         let layerID = anyLayerID()
         sut.play(id: layerID, data: anyData(), control: .initial)
         sut.play(id: anyLayerID(), data: anyData(), control: .initial)
@@ -275,26 +284,36 @@ final class AudioEnginePlayerTests: XCTestCase {
         })
     }
     
+    func test_init_invokesEnginePrepareMethod() {
+        
+        let (_, engine) = makeSUT()
+        
+        XCTAssertEqual(engine.messages, [.prepare])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> AudioEnginePlayer {
+    ) -> (sut: AudioEnginePlayer<AudioEngineSpy, AudioEnginePlayerNodeSpy>, engine: AudioEngineSpy) {
         
-        let sut = AudioEnginePlayer(makePlayerNode: { data in
+        let engineSpy = AudioEngineSpy()
+        let sut = AudioEnginePlayer(engine: engineSpy, makePlayerNode: { data in
             
             self.playerNodeSpy = AudioEnginePlayerNodeSpy(with: data)
             return self.playerNodeSpy
         })
         
         trackForMemoryLeaks(sut, file: file, line: line)
+        trackForMemoryLeaks(engineSpy, file: file, line: line)
         
-        return sut
+        return (sut, engineSpy)
     }
     
     private class AudioEnginePlayerNodeSpy: AudioEnginePlayerNodeProtocol {
         
+        typealias Engine = AudioEngineSpy
         private(set) var messages = [Message]()
         
         enum Message: Equatable {
@@ -319,12 +338,12 @@ final class AudioEnginePlayerTests: XCTestCase {
             messages.append(.initWithData(data))
         }
         
-        func connect(to engine: AVAudioEngine) {
+        func connect(to engine: Engine) {
             
             messages.append(.connectToEngine)
         }
         
-        func disconnect(from engine: AVAudioEngine) {
+        func disconnect(from engine: Engine) {
             
             messages.append(.disconnectFromEngine)
         }
@@ -357,6 +376,8 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     private class AlwaysFailingAudioEnginePlayerNodeStub: AudioEnginePlayerNodeProtocol {
         
+        typealias Engine = AudioEngineSpy
+        
         var offset: AVAudioTime = .init()
         var duration: TimeInterval { 0 }
         
@@ -365,8 +386,8 @@ final class AudioEnginePlayerTests: XCTestCase {
             return nil
         }
         
-        func connect(to engine: AVAudioEngine) {}
-        func disconnect(from engine: AVAudioEngine) {}
+        func connect(to engine: Engine) {}
+        func disconnect(from engine: Engine) {}
         func play() {}
         func stop() {}
         func set(volume: Float) {}
@@ -374,8 +395,23 @@ final class AudioEnginePlayerTests: XCTestCase {
         func set(offset: AVAudioTime) {}
     }
     
+    private class AudioEngineSpy: AVAudioEngineProtocol {
+        
+        private(set) var messages = [Message]()
+        
+        enum Message: Equatable {
+            
+            case prepare
+        }
+        
+        func prepare() {
+            
+            messages.append(.prepare)
+        }
+    }
+    
     private func expect(
-        _ sut: AudioEnginePlayer,
+        _ sut: AudioEnginePlayer<AudioEngineSpy, AudioEnginePlayerNodeSpy>,
         playingEvents expectedPlayingEvents: [TimeInterval?],
         on action: () -> Void,
         file: StaticString = #filePath,
