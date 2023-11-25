@@ -11,21 +11,27 @@ import AVFoundation
 
 final class AudioEnginePlayer {
     
-    var playing: Set<Layer.ID> { [] }
+    var playing: Set<Layer.ID> { Set(activeNodes.keys) }
     private let engine: AVAudioEngine
+    private var activeNodes: [Layer.ID: AudioEnginePlayerNodeProtocol]
     private let makePlayerNode: (Data) -> AudioEnginePlayerNodeProtocol?
     
     init(makePlayerNode: @escaping (Data) -> AudioEnginePlayerNodeProtocol?) {
         
         self.engine = AVAudioEngine()
         self.makePlayerNode = makePlayerNode
+        self.activeNodes = [:]
     }
     
     func play(id: Layer.ID, data: Data, control: Layer.Control) {
         
-        let playerNode = makePlayerNode(data)
-        playerNode?.connect(to: engine)
-        playerNode?.play()
+        guard let playerNode = makePlayerNode(data) else {
+            return
+        }
+        
+        playerNode.connect(to: engine)
+        playerNode.play()
+        activeNodes[id] = playerNode
     }
 }
 
@@ -64,7 +70,7 @@ final class AudioEnginePlayerTests: XCTestCase {
         XCTAssertTrue(sut.playing.isEmpty)
     }
     
-    func test_play_invokesPlayerNodeConnectToEngineAndPlayMethods() {
+    func test_play_invokesPlayerNodeConnectToEngineAndPlayMethodsOnNodeCreationSuccess() {
         
         let sut = makeSUT()
         
@@ -72,6 +78,16 @@ final class AudioEnginePlayerTests: XCTestCase {
         sut.play(id: anyLayerID(), data: data, control: .initial)
         
         XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .play])
+    }
+    
+    func test_play_playingContainsLayerIDOnNodeCreationSuccess() {
+        
+        let sut = makeSUT()
+        
+        let layerID = anyLayerID()
+        sut.play(id: layerID, data: anyData(), control: .initial)
+        
+        XCTAssertTrue(sut.playing.contains(layerID))
     }
 
     //MARK: - Helpers
