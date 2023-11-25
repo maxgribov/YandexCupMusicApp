@@ -52,6 +52,11 @@ final class AudioEnginePlayer {
         playerNode.stop()
         playerNode.disconnect(from: engine)
     }
+    
+    func update(id: Layer.ID, with control: Layer.Control) {
+        
+        
+    }
 }
 
 extension AudioEnginePlayer {
@@ -177,6 +182,19 @@ final class AudioEnginePlayerTests: XCTestCase {
         
         XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .setOffset(offset), .play])
     }
+    
+    func test_updateWithControl_doesNotAffectOnPlayerNodeForWrongLayerID() {
+        
+        let sut = makeSUT()
+        let data = anyData()
+        sut.play(id: anyLayerID(), data: data, control: .init(volume: 0.5, speed: 1.0))
+        
+        sut.update(id: anyLayerID(), with: .init(volume: 1, speed: 0))
+        
+        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .play])
+    }
+    
+    
     //MARK: - Helpers
     
     private func makeSUT(
