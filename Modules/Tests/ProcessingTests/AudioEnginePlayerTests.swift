@@ -38,9 +38,17 @@ protocol AudioEnginePlayerNodeProtocol {
 
 final class AudioEnginePlayerTests: XCTestCase {
     
+    private var playerNodeSpy: AudioEnginePlayerNodeSpy?
+    
+    override func setUp() async throws {
+        try await super.setUp()
+        
+        playerNodeSpy = nil
+    }
+    
     func test_init_nothingPlaying() {
         
-        let sut = AudioEnginePlayer(makePlayerNode: { _ in return nil })
+        let sut = makeSUT()
         
         XCTAssertTrue(sut.playing.isEmpty)
     }
@@ -58,12 +66,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_play_invokesPlayerNodeConnectToEngineAndPlayMethods() {
         
-        var playerNodeSpy: AudioEnginePlayerNodeSpy? = nil
-        let sut = AudioEnginePlayer(makePlayerNode: { data in
-            
-            playerNodeSpy = AudioEnginePlayerNodeSpy(with: data)
-            return playerNodeSpy
-        })
+        let sut = makeSUT()
         
         let data = anyData()
         sut.play(id: anyLayerID(), data: data, control: .initial)
@@ -73,7 +76,23 @@ final class AudioEnginePlayerTests: XCTestCase {
 
     //MARK: - Helpers
     
-    class AudioEnginePlayerNodeSpy: AudioEnginePlayerNodeProtocol {
+    private func makeSUT(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> AudioEnginePlayer {
+        
+        let sut = AudioEnginePlayer(makePlayerNode: { data in
+            
+            self.playerNodeSpy = AudioEnginePlayerNodeSpy(with: data)
+            return self.playerNodeSpy
+        })
+        
+        trackForMemoryLeaks(sut, file: file, line: line)
+        
+        return sut
+    }
+    
+    private class AudioEnginePlayerNodeSpy: AudioEnginePlayerNodeProtocol {
         
         private(set) var messages = [Message]()
         
@@ -101,7 +120,7 @@ final class AudioEnginePlayerTests: XCTestCase {
         
     }
     
-    class AlwaysFailingAudioEnginePlayerNodeStub: AudioEnginePlayerNodeProtocol {
+    private class AlwaysFailingAudioEnginePlayerNodeStub: AudioEnginePlayerNodeProtocol {
         
         required init?(with data: Data) {
             
