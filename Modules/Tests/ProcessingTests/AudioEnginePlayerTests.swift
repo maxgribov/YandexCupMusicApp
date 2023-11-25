@@ -33,6 +33,8 @@ final class AudioEnginePlayer<Engine, Node> where Engine: AVAudioEngineProtocol,
     
     func play(id: Layer.ID, data: Data, control: Layer.Control) {
         
+        try? engine.start()
+        
         guard let playerNode = makePlayerNode(data) else {
             return
         }
@@ -113,6 +115,7 @@ protocol AudioEnginePlayerNodeProtocol {
 protocol AVAudioEngineProtocol {
     
     func prepare()
+    func start() throws
 }
 
 final class AudioEnginePlayerTests: XCTestCase {
@@ -291,6 +294,15 @@ final class AudioEnginePlayerTests: XCTestCase {
         XCTAssertEqual(engine.messages, [.prepare])
     }
     
+    func test_play_invokesEngineStart() {
+        
+        let (sut, engine) = makeSUT()
+        
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        XCTAssertEqual(engine.messages, [.prepare, .start])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -402,11 +414,17 @@ final class AudioEnginePlayerTests: XCTestCase {
         enum Message: Equatable {
             
             case prepare
+            case start
         }
         
         func prepare() {
             
             messages.append(.prepare)
+        }
+        
+        func start() throws {
+             
+            messages.append(.start)
         }
     }
     
