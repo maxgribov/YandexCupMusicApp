@@ -45,9 +45,13 @@ final class AudioEnginePlayer {
         }
         
         playerNode.play()
-        activeNodes[id] = playerNode
         
-        event?(playerNode.duration)
+        if activeNodes.isEmpty {
+            
+            event?(playerNode.duration)
+        }
+        
+        activeNodes[id] = playerNode
     }
     
     func stop(id: Layer.ID) {
@@ -181,7 +185,7 @@ final class AudioEnginePlayerTests: XCTestCase {
         
         XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .play, .stop, .disconnectFromEngine])
     }
-
+    
     func test_start_invokesSetOffsetOnAnotherPlayerNode() {
         
         let sut = makeSUT()
@@ -232,6 +236,21 @@ final class AudioEnginePlayerTests: XCTestCase {
         sut.play(id: anyLayerID(), data: anyData(), control: .initial)
         
         XCTAssertEqual(eventValue, playerNodeSpy?.duration)
+    }
+    
+    func test_playingEvent_doesNotDeliverValueOnPlayerNodeStartIfAlreadyAnyNodePlaying() {
+        
+        let sut = makeSUT()
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        var eventValue: TimeInterval? = nil
+        sut.playing { value in
+            eventValue = value
+        }
+        
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        XCTAssertNil(eventValue)
     }
     
     //MARK: - Helpers
