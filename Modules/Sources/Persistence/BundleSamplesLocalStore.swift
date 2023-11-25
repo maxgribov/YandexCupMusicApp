@@ -15,7 +15,10 @@ public final class BundleSamplesLocalStore: SamplesLocalStore {
     private let queue = DispatchQueue(label: "BundleSamplesLocalStoreQueue", qos: .userInitiated, attributes: [.concurrent])
     private let mapper: (URL) -> Data?
     
-    public init(bundle: Bundle? = nil, mapper: @escaping (URL) -> Data? = BundleSamplesLocalStore.basicMapper(url:)) {
+    public init(
+        bundle: Bundle? = nil,
+        mapper: @escaping (URL) -> Data? = BundleSamplesLocalStore.basicMapper(url:)
+    ) {
         
         self.bundle = bundle ?? Self.moduleBundle
         self.mapper = mapper
@@ -41,10 +44,11 @@ public final class BundleSamplesLocalStore: SamplesLocalStore {
         do {
             
             let path = try path()
-            let filePath = path + "/" + sampleID
-            let url = URL(filePath: filePath)
             
             queue.async {
+                
+                let filePath = path + "/" + sampleID
+                let url = URL(filePath: filePath)
                 
                 guard let data = self.mapper(url) else {
                     return completion(.failure(Error.retrieveSampleFileFailed))
