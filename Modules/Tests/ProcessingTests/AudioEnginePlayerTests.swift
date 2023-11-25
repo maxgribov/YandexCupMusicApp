@@ -233,14 +233,10 @@ final class AudioEnginePlayerTests: XCTestCase {
         
         let sut = makeSUT()
         
-        var eventValue: TimeInterval? = nil
-        sut.playing { value in
-            eventValue = value
-        }
-        
-        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
-        
-        XCTAssertEqual(eventValue, playerNodeSpy?.duration)
+        expect(sut, playingEvents: [AudioEnginePlayerNodeSpy.durationStub], on: {
+            
+            sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        })
     }
     
     func test_playingEvent_doesNotDeliverValueOnPlayerNodeStartIfAlreadyAnyNodePlaying() {
@@ -248,14 +244,10 @@ final class AudioEnginePlayerTests: XCTestCase {
         let sut = makeSUT()
         sut.play(id: anyLayerID(), data: anyData(), control: .initial)
         
-        var eventValue: TimeInterval? = nil
-        sut.playing { value in
-            eventValue = value
-        }
-        
-        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
-        
-        XCTAssertNil(eventValue)
+        expect(sut, playingEvents: [], on: {
+            
+            sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        })
     }
     
     func test_playingEvent_deliverNilValueOnLastPlayerNodeStop() {
@@ -264,14 +256,10 @@ final class AudioEnginePlayerTests: XCTestCase {
         let layerID = anyLayerID()
         sut.play(id: layerID, data: anyData(), control: .initial)
         
-        var eventValue: TimeInterval? = 100
-        sut.playing { value in
-            eventValue = value
-        }
-        
-        sut.stop(id: layerID)
-        
-        XCTAssertNil(eventValue)
+        expect(sut, playingEvents: [nil], on: {
+            
+            sut.stop(id: layerID)
+        })
     }
     
     func test_playingEvent_doesNotDeliverAnyValueIfAnyPlayerNodeStillPlaying() {
@@ -281,14 +269,10 @@ final class AudioEnginePlayerTests: XCTestCase {
         sut.play(id: layerID, data: anyData(), control: .initial)
         sut.play(id: anyLayerID(), data: anyData(), control: .initial)
         
-        var eventValues = [TimeInterval?]()
-        sut.playing { value in
-            eventValues.append(value)
-        }
-        
-        sut.stop(id: layerID)
-        
-        XCTAssertEqual(eventValues, [])
+        expect(sut, playingEvents: [], on: {
+            
+            sut.stop(id: layerID)
+        })
     }
     
     //MARK: - Helpers
@@ -327,7 +311,8 @@ final class AudioEnginePlayerTests: XCTestCase {
         
         var offsetStub: AVAudioTime?
         var offset: AVAudioTime { offsetStub ?? .init() }
-        var duration: TimeInterval { 4.0 }
+        static let durationStub: TimeInterval = 4.0
+        var duration: TimeInterval { Self.durationStub }
         
         required init?(with data: Data) {
             
@@ -387,5 +372,23 @@ final class AudioEnginePlayerTests: XCTestCase {
         func set(volume: Float) {}
         func set(rate: Float) {}
         func set(offset: AVAudioTime) {}
+    }
+    
+    private func expect(
+        _ sut: AudioEnginePlayer,
+        playingEvents expectedPlayingEvents: [TimeInterval?],
+        on action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        var receivedEventValues = [TimeInterval?]()
+        sut.playing { value in
+            receivedEventValues.append(value)
+        }
+        
+        action()
+        
+        XCTAssertEqual(receivedEventValues, expectedPlayingEvents, file: file, line: line)
     }
 }
