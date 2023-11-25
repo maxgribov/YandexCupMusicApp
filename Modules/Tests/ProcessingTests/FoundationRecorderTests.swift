@@ -149,22 +149,38 @@ final class FoundationRecorderTests: XCTestCase {
             recorder?.delegate?.audioRecorderDidFinishRecording?(recorderStub, successfully: true)
         })
     }
+    
+    func test_stopRecording_deliversDataOnSuccessRecordingAndSuccessDataFetchingMappedWithBufferMapper() throws {
+        
+        let sut = makeSUT(mapper: FoundationRecorder<AVAudioRecorderSpy>.bufferMapper(url:))
+        
+        let (expectedData, url) = try XCTUnwrap(makeBundleFileDataStub())
+        let recorderStub = try makeAVAudioRecorderStub(url: url)
+        expect(sut, result: expectedData) {
+            
+            sut.stopRecording()
+            recorder?.delegate?.audioRecorderDidFinishRecording?(recorderStub, successfully: true)
+        }
+    }
 
     //MARK: - Helpers
     
     private func makeSUT(
+        mapper: @escaping (URL) -> Data? = FoundationRecorder<AVAudioRecorderSpy>.basicMapper(url:),
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> FoundationRecorder<AVAudioRecorderSpy> {
         
-        let sut = FoundationRecorder { url, settings in
-            
-            let recorder = try AVAudioRecorderSpy(url: url, settings: settings)
-            self.recorder = recorder
-            
-            return recorder
-        }
-        
+        let sut = FoundationRecorder(
+            makeRecorder: { url, settings in
+                
+                let recorder = try AVAudioRecorderSpy(url: url, settings: settings)
+                self.recorder = recorder
+                
+                return recorder
+            },
+            mapper: mapper)
+
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
@@ -314,6 +330,24 @@ final class FoundationRecorderTests: XCTestCase {
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("recording.m4a")
         let data = Data("recording stub data".utf8)
         try data.write(to: url)
+        
+        return (data, url)
+    }
+    
+    private func makeBundleFileDataStub() -> (data: Data, url: URL)? {
+        
+        let bundle = Bundle.module
+        
+        guard let path = bundle.resourcePath else {
+            return nil
+        }
+        
+        let filePath = path + "/guitar_01.m4a"
+        let url = URL(filePath: filePath)
+        
+        guard let data = FoundationRecorder<AVAudioRecorderSpy>.bufferMapper(url: url) else {
+            return nil
+        }
         
         return (data, url)
     }
