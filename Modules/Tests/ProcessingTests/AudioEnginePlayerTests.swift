@@ -15,12 +15,18 @@ final class AudioEnginePlayer {
     private let engine: AVAudioEngine
     private var activeNodes: [Layer.ID: AudioEnginePlayerNodeProtocol]
     private let makePlayerNode: (Data) -> AudioEnginePlayerNodeProtocol?
+    private var event: ((TimeInterval?) -> Void)?
     
     init(makePlayerNode: @escaping (Data) -> AudioEnginePlayerNodeProtocol?) {
         
         self.engine = AVAudioEngine()
         self.makePlayerNode = makePlayerNode
         self.activeNodes = [:]
+    }
+    
+    func playing(event: @escaping (TimeInterval?) -> Void) {
+        
+        self.event = event
     }
     
     func play(id: Layer.ID, data: Data, control: Layer.Control) {
@@ -40,6 +46,8 @@ final class AudioEnginePlayer {
         
         playerNode.play()
         activeNodes[id] = playerNode
+        
+        event?(playerNode.duration)
     }
     
     func stop(id: Layer.ID) {
@@ -77,6 +85,7 @@ extension AudioEnginePlayer {
 protocol AudioEnginePlayerNodeProtocol {
     
     var offset: AVAudioTime { get }
+    var duration: TimeInterval { get }
     
     init?(with data: Data)
     func connect(to engine: AVAudioEngine)
@@ -211,6 +220,20 @@ final class AudioEnginePlayerTests: XCTestCase {
         XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .play, .setVolume(1.0), .setRate(0.5)])
     }
     
+    func test_playingEvent_deliversPlayerNodeDurationOnFirstLayerPlaying() {
+        
+        let sut = makeSUT()
+        
+        var eventValue: TimeInterval? = nil
+        sut.playing { value in
+            eventValue = value
+        }
+        
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        XCTAssertEqual(eventValue, playerNodeSpy?.duration)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -247,6 +270,7 @@ final class AudioEnginePlayerTests: XCTestCase {
         
         var offsetStub: AVAudioTime?
         var offset: AVAudioTime { offsetStub ?? .init() }
+        var duration: TimeInterval { 4.0 }
         
         required init?(with data: Data) {
             
@@ -292,6 +316,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     private class AlwaysFailingAudioEnginePlayerNodeStub: AudioEnginePlayerNodeProtocol {
         
         var offset: AVAudioTime = .init()
+        var duration: TimeInterval { 0 }
         
         required init?(with data: Data) {
             
