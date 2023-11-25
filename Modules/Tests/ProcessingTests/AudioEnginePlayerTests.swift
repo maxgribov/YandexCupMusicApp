@@ -32,6 +32,12 @@ final class AudioEnginePlayer {
         playerNode.connect(to: engine)
         playerNode.set(volume: Float(control.volume))
         playerNode.set(rate: Self.rate(from: control.speed))
+        
+        if let firstPlayerNode = activeNodes.first?.value {
+            
+            playerNode.set(offset: firstPlayerNode.offset)
+        }
+        
         playerNode.play()
         activeNodes[id] = playerNode
     }
@@ -60,6 +66,8 @@ extension AudioEnginePlayer {
 
 protocol AudioEnginePlayerNodeProtocol {
     
+    var offset: AVAudioTime { get }
+    
     init?(with data: Data)
     func connect(to engine: AVAudioEngine)
     func disconnect(from engine: AVAudioEngine)
@@ -67,6 +75,7 @@ protocol AudioEnginePlayerNodeProtocol {
     func stop()
     func set(volume: Float)
     func set(rate: Float)
+    func set(offset: AVAudioTime)
 }
 
 final class AudioEnginePlayerTests: XCTestCase {
@@ -154,6 +163,20 @@ final class AudioEnginePlayerTests: XCTestCase {
         XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .play, .stop, .disconnectFromEngine])
     }
 
+    func test_start_invokesSetOffsetOnAnotherPlayerNode() {
+        
+        let sut = makeSUT()
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        let firstPlayerNode = playerNodeSpy
+        let offset = AVAudioTime(sampleTime: 100, atRate: 50)
+        firstPlayerNode?.offsetStub = offset
+        
+        let data = anyData()
+        sut.play(id: anyLayerID(), data: data, control: .init(volume: 0.5, speed: 1.0))
+        
+        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .setOffset(offset), .play])
+    }
     //MARK: - Helpers
     
     private func makeSUT(
@@ -183,9 +206,13 @@ final class AudioEnginePlayerTests: XCTestCase {
             case play
             case setVolume(Float)
             case setRate(Float)
+            case setOffset(AVAudioTime)
             case stop
             case disconnectFromEngine
         }
+        
+        var offsetStub: AVAudioTime?
+        var offset: AVAudioTime { offsetStub ?? .init() }
         
         required init?(with data: Data) {
             
@@ -221,9 +248,16 @@ final class AudioEnginePlayerTests: XCTestCase {
                 
             messages.append(.setRate(rate))
         }
+        
+        func set(offset: AVAudioTime) {
+            
+            messages.append(.setOffset(offset))
+        }
     }
     
     private class AlwaysFailingAudioEnginePlayerNodeStub: AudioEnginePlayerNodeProtocol {
+        
+        var offset: AVAudioTime = .init()
         
         required init?(with data: Data) {
             
@@ -236,5 +270,6 @@ final class AudioEnginePlayerTests: XCTestCase {
         func stop() {}
         func set(volume: Float) {}
         func set(rate: Float) {}
+        func set(offset: AVAudioTime) {}
     }
 }
