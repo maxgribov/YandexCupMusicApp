@@ -35,6 +35,11 @@ final class AudioEnginePlayer {
         playerNode.play()
         activeNodes[id] = playerNode
     }
+    
+    func stop(id: Layer.ID) {
+        
+        
+    }
 }
 
 extension AudioEnginePlayer {
@@ -102,6 +107,18 @@ final class AudioEnginePlayerTests: XCTestCase {
         sut.play(id: layerID, data: anyData(), control: .initial)
         
         XCTAssertTrue(sut.playing.contains(layerID))
+    }
+    
+    func test_stop_doesNotAffectPlayingOnIncorrectLayerID() {
+        
+        let sut = makeSUT()
+        let layerID = anyLayerID()
+        sut.play(id: layerID, data: anyData(), control: .initial)
+        XCTAssertTrue(sut.playing.contains(layerID))
+        
+        sut.stop(id: anyLayerID())
+        
+        XCTAssertFalse(sut.playing.isEmpty)
     }
 
     //MARK: - Helpers
