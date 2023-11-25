@@ -1,17 +1,17 @@
 import AVFoundation
 import PlaygroundSupport
+import Combine
 
 PlaygroundPage.current.needsIndefiniteExecution = true
 
-func url(aifFileName: String) throws -> URL {
+func url(fileName: String, ext: String = "aif") throws -> URL {
     
-    guard let fileURL = Bundle.main.url(forResource: aifFileName, withExtension: "aif") else {
+    guard let fileURL = Bundle.main.url(forResource: fileName, withExtension: ext) else {
         throw NSError(domain: "playground", code: 1)
     }
     
     return fileURL
 }
-
 
 func makeFile(fileName: String) throws -> AVAudioFile {
     
@@ -34,7 +34,7 @@ func makeFileBuffer(file: AVAudioFile) throws -> AVAudioPCMBuffer {
 
 extension Data {
     
-    init(buffer: AVAudioPCMBuffer, time: AVAudioTime) {
+    init(buffer: AVAudioPCMBuffer) {
         let audioBuffer = buffer.audioBufferList.pointee.mBuffers
         self.init(bytes: audioBuffer.mData!, count: Int(audioBuffer.mDataByteSize))
     }
@@ -86,18 +86,42 @@ extension NSData {
     }
 }
 
+extension AVAudioPlayerNode {
+
+    var current: TimeInterval {
+        
+        guard let nodeTime = lastRenderTime, let playerTime = playerTime(forNodeTime: nodeTime) else {
+            return 0
+        }
+        
+        return Double(playerTime.sampleTime) / playerTime.sampleRate
+    }
+}
+
+extension AVAudioPCMBuffer {
+    
+    var duration: TimeInterval {
+        
+        TimeInterval(Double(frameLength) / format.sampleRate)
+    }
+}
+
 let audioSession = AVAudioSession.sharedInstance()
 try audioSession.setCategory(.playAndRecord, mode: .default, options: .defaultToSpeaker)
 try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
 
 let player1 = AVAudioPlayerNode()
 let player2 = AVAudioPlayerNode()
+let speedControl = AVAudioUnitVarispeed()
 
 let engine = AVAudioEngine()
 engine.attach(player1)
 engine.attach(player2)
-engine.connect(player1, to: engine.mainMixerNode, format: engine.mainMixerNode.outputFormat(forBus: 0))
-engine.connect(player2, to: engine.mainMixerNode, format: engine.mainMixerNode.outputFormat(forBus: 0))
+engine.attach(speedControl)
+//engine.connect(player1, to: engine.mainMixerNode, format: engine.mainMixerNode.outputFormat(forBus: 0))
+engine.connect(player1, to: speedControl, format: nil)
+engine.connect(speedControl, to: engine.mainMixerNode, format: nil)
+//engine.connect(player2, to: engine.mainMixerNode, format: engine.mainMixerNode.outputFormat(forBus: 0))
 try engine.start()
 
 let guitarFile = try makeFile(fileName: "guitar_01")
@@ -107,29 +131,40 @@ let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 44100, c
 format == guitarFile.processingFormat
 //print(format)
 
-player1.scheduleBuffer(try makeFileBuffer(file: guitarFile), at: nil, options: .loops)
+let player1Buffer = try makeFileBuffer(file: drumsFile)
+player1.scheduleBuffer(player1Buffer, at: nil, options: .loops)
 //player2.scheduleBuffer(try makeFileBuffer(file: drumsFile), at: nil, options: .loops)
 
-let settings = ["AVLinearPCMIsBigEndianKey": 0, 
-                "AVSampleRateKey": 44100,
-                "AVNumberOfChannelsKey": 2,
-                "AVLinearPCMIsNonInterleaved": 1,
-                "AVFormatIDKey": 1819304813,
-                "AVLinearPCMIsFloatKey": 1,
-                "AVLinearPCMBitDepthKey": 32]
+//let settings = ["AVLinearPCMIsBigEndianKey": 0, 
+//                "AVSampleRateKey": 44100,
+//                "AVNumberOfChannelsKey": 2,
+//                "AVLinearPCMIsNonInterleaved": 1,
+//                "AVFormatIDKey": 1819304813,
+//                "AVLinearPCMIsFloatKey": 1,
+//                "AVLinearPCMBitDepthKey": 32]
+//
+//let format1 = AVAudioFormat(settings: settings)!
 
-let format1 = AVAudioFormat(settings: settings)!
+let fileUrl = url(fileName: "guitar_01", ext: "m4a")
+let guitarUncompressedData = try Data(contentsOf: fileUrl)
+let file = try AVAudioFile(forReading: fileUrl)
+let fileBuffer = try makeFileBuffer(file: file)
+let dataFromBuffer = Data(buffer: fileBuffer)
 
-let guitarUncompressedData = try Data(contentsOf: url(aifFileName: "guitar_01"))
-let file = try AVAudioFile(forReading: url(aifFileName: "guitar_01"))
+guitarUncompressedData == dataFromBuffer
+
 //print(file.processingFormat.settings["AVChannelLayoutKey"])
+print(guitarUncompressedData.count)
+print(dataFromBuffer.count)
 
 /// Terrible noise, no audio
 
-let bufferFromData = guitarUncompressedData.makeCompressedBuffer(format: file.processingFormat)
+let bufferFromData = dataFromBuffer.makePCMBuffer(format: format!)!
+//let bufferFromData = guitarUncompressedData.makePCMBuffer(format: file.fileFormat)!
+//let bufferFromData = guitarUncompressedData.makeCompressedBuffer(format: file.fileFormat)
 
 /// it does not schedule compressed buffer!!!
-//player2.scheduleBuffer(bufferFromData, at: nil, options: .loops)
+
 
 
 /// Terrible noise, no audio too :(
@@ -139,8 +174,45 @@ let bufferFromData = nsData.toPCMBuffer(format: format!)
 player2.scheduleBuffer(bufferFromData!, at: nil, options: .loops)
  */
 
-//player1.play()
-player2.play()
+player1.play()
+speedControl.rate = 1.0
+
+DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+    
+    engine.connect(player2, to: engine.mainMixerNode, format: nil)
+    let sampleRate = player1.outputFormat(forBus: 0).sampleRate
+    let delay: Double = 0
+    let startTime = AVAudioTime(sampleTime: player1.lastRenderTime!.sampleTime + Int64(delay * sampleRate), atRate: sampleRate)
+    
+    let player1NodeTime = player1.lastRenderTime
+    let player1Time = player1.playerTime(forNodeTime: player1NodeTime!)
+//    let offset = AVAudioTime(sampleTime: Int64(Double(player1Time!.sampleTime) / player1Time!.sampleRate), atRate: sampleRate)
+    
+    let offsetTime = player1.current.truncatingRemainder(dividingBy: player1Buffer.duration)
+    let offset = AVAudioTime(sampleTime: -Int64(offsetTime * sampleRate), atRate: sampleRate)
+
+    player2.scheduleBuffer(bufferFromData, at: offset, options: .loops)
+//    player2.prepare(withFrameCount: 500)
+    
+    print(player1.lastRenderTime!)
+    print(startTime)
+    print(player1.lastRenderTime!.sampleTime)
+    
+    player2.play()
+//    player2.play()
+    player2.volume = 1
+}
+
+
+var cancellables = Set<AnyCancellable>()
+
+Timer.publish(every: 0.1, on: .main, in: .common)
+    .autoconnect()
+    .sink { _ in
+    
+//        print("current: \(player1.current), duration: \(player1Buffer.duration), offset: \(player1.current.truncatingRemainder(dividingBy: player1Buffer.duration))")
+    }
+    .store(in: &cancellables)
 
 /// looks like it crashes if on mic available
 /*
