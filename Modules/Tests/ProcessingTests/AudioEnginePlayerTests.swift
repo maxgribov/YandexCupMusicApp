@@ -30,8 +30,20 @@ final class AudioEnginePlayer {
         }
         
         playerNode.connect(to: engine)
+        playerNode.set(volume: Float(control.volume))
+        playerNode.set(rate: Self.rate(from: control.speed))
         playerNode.play()
         activeNodes[id] = playerNode
+    }
+}
+
+extension AudioEnginePlayer {
+    
+    static func rate(from speed: Double) -> Float {
+        
+        let _speed = min(max(speed, 0), 1)
+        
+        return Float(((2.0 - 0.5) * _speed) + 0.5)
     }
 }
 
@@ -40,6 +52,8 @@ protocol AudioEnginePlayerNodeProtocol {
     init?(with data: Data)
     func connect(to engine: AVAudioEngine)
     func play()
+    func set(volume: Float)
+    func set(rate: Float)
 }
 
 final class AudioEnginePlayerTests: XCTestCase {
@@ -75,9 +89,9 @@ final class AudioEnginePlayerTests: XCTestCase {
         let sut = makeSUT()
         
         let data = anyData()
-        sut.play(id: anyLayerID(), data: data, control: .initial)
+        sut.play(id: anyLayerID(), data: data, control: .init(volume: 0.5, speed: 1.0))
         
-        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .play])
+        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .play])
     }
     
     func test_play_playingContainsLayerIDOnNodeCreationSuccess() {
@@ -117,6 +131,8 @@ final class AudioEnginePlayerTests: XCTestCase {
             case initWithData(Data)
             case connectToEngine
             case play
+            case setVolume(Float)
+            case setRate(Float)
         }
         
         required init?(with data: Data) {
@@ -134,6 +150,15 @@ final class AudioEnginePlayerTests: XCTestCase {
             messages.append(.play)
         }
         
+        func set(volume: Float) {
+            
+            messages.append(.setVolume(volume))
+        }
+        
+        func set(rate: Float) {
+                
+            messages.append(.setRate(rate))
+        }
     }
     
     private class AlwaysFailingAudioEnginePlayerNodeStub: AudioEnginePlayerNodeProtocol {
@@ -144,7 +169,8 @@ final class AudioEnginePlayerTests: XCTestCase {
         }
         
         func connect(to engine: AVAudioEngine) {}
-        
         func play() {}
+        func set(volume: Float) {}
+        func set(rate: Float) {}
     }
 }
