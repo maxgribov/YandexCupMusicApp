@@ -13,14 +13,17 @@ public final class FoundationRecorder<R>: NSObject, AVAudioRecorderDelegate, Rec
     private let recordingStatusSubject = CurrentValueSubject<RecordingStatus, Never>(.idle)
     private let makeRecorder: (URL, [String : Any]) throws -> R
     private let fileManager: FileManager
+    private let mapper: (URL) -> Data?
     
     public init(
         makeRecorder: @escaping (URL, [String : Any]) throws -> R,
-        fileManager: FileManager = .default
+        fileManager: FileManager = .default,
+        mapper: @escaping (URL) -> Data? = FoundationRecorder.basicMapper(url:)
     ) {
         
         self.makeRecorder = makeRecorder
         self.fileManager = fileManager
+        self.mapper = mapper
     }
     
     public func isRecording() -> AnyPublisher<Bool, Never> {
@@ -95,12 +98,11 @@ public final class FoundationRecorder<R>: NSObject, AVAudioRecorderDelegate, Rec
         
         switch flag {
         case true:
-            do {
+            if let data = mapper(recorder.url) {
                 
-                let data = try Data(contentsOf: recorder.url)
                 recordingStatusSubject.send(.complete(data))
                 
-            } catch {
+            } else {
                 
                 recordingStatusSubject.send(.failed)
             }
@@ -123,4 +125,12 @@ public enum FoundationRecorderError: Error {
     
     case recorderInitFailure
     case recordFailedError
+}
+
+public extension FoundationRecorder {
+    
+    static func basicMapper(url: URL) -> Data? {
+        
+        try? Data(contentsOf: url)
+    }
 }
