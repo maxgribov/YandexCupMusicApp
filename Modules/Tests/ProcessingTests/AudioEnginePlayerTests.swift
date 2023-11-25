@@ -55,7 +55,12 @@ final class AudioEnginePlayer {
     
     func update(id: Layer.ID, with control: Layer.Control) {
         
+        guard let playerNode = activeNodes[id] else {
+            return
+        }
         
+        playerNode.set(volume: Float(control.volume))
+        playerNode.set(rate: Self.rate(from: control.speed))
     }
 }
 
@@ -194,6 +199,17 @@ final class AudioEnginePlayerTests: XCTestCase {
         XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .play])
     }
     
+    func test_updateWithControl_invokesSetVolumeAndSetRateForCorrectLayerID() {
+        
+        let sut = makeSUT()
+        let layerID = anyLayerID()
+        let data = anyData()
+        sut.play(id: layerID, data: data, control: .init(volume: 0.5, speed: 1.0))
+        
+        sut.update(id: layerID, with: .init(volume: 1, speed: 0))
+        
+        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .play, .setVolume(1.0), .setRate(0.5)])
+    }
     
     //MARK: - Helpers
     
