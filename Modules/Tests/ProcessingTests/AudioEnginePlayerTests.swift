@@ -63,7 +63,11 @@ final class AudioEnginePlayer {
         activeNodes.removeValue(forKey: id)
         playerNode.stop()
         playerNode.disconnect(from: engine)
-        event?(nil)
+        
+        if activeNodes.isEmpty {
+            
+            event?(nil)
+        }
     }
     
     func update(id: Layer.ID, with control: Layer.Control) {
@@ -256,7 +260,6 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_playingEvent_deliverNilValueOnLastPlayerNodeStop() {
         
-        
         let sut = makeSUT()
         let layerID = anyLayerID()
         sut.play(id: layerID, data: anyData(), control: .initial)
@@ -269,6 +272,23 @@ final class AudioEnginePlayerTests: XCTestCase {
         sut.stop(id: layerID)
         
         XCTAssertNil(eventValue)
+    }
+    
+    func test_playingEvent_doesNotDeliverAnyValueIfAnyPlayerNodeStillPlaying() {
+        
+        let sut = makeSUT()
+        let layerID = anyLayerID()
+        sut.play(id: layerID, data: anyData(), control: .initial)
+        sut.play(id: anyLayerID(), data: anyData(), control: .initial)
+        
+        var eventValues = [TimeInterval?]()
+        sut.playing { value in
+            eventValues.append(value)
+        }
+        
+        sut.stop(id: layerID)
+        
+        XCTAssertEqual(eventValues, [])
     }
     
     //MARK: - Helpers
