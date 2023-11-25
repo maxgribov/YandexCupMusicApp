@@ -38,7 +38,13 @@ final class AudioEnginePlayer {
     
     func stop(id: Layer.ID) {
         
+        guard let playerNode = activeNodes[id] else {
+            return
+        }
+        
         activeNodes.removeValue(forKey: id)
+        playerNode.stop()
+        playerNode.disconnect(from: engine)
     }
 }
 
@@ -56,7 +62,9 @@ protocol AudioEnginePlayerNodeProtocol {
     
     init?(with data: Data)
     func connect(to engine: AVAudioEngine)
+    func disconnect(from engine: AVAudioEngine)
     func play()
+    func stop()
     func set(volume: Float)
     func set(rate: Float)
 }
@@ -132,6 +140,19 @@ final class AudioEnginePlayerTests: XCTestCase {
         
         XCTAssertTrue(sut.playing.isEmpty)
     }
+    
+    func test_stop_invokesPlayerNodeWithStopAnDisconnectFromEngine() {
+        
+        let sut = makeSUT()
+        let layerID = anyLayerID()
+        let data = anyData()
+        sut.play(id: layerID, data: data, control: .init(volume: 0.5, speed: 1.0))
+        XCTAssertTrue(sut.playing.contains(layerID))
+        
+        sut.stop(id: layerID)
+        
+        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .play, .stop, .disconnectFromEngine])
+    }
 
     //MARK: - Helpers
     
@@ -162,6 +183,8 @@ final class AudioEnginePlayerTests: XCTestCase {
             case play
             case setVolume(Float)
             case setRate(Float)
+            case stop
+            case disconnectFromEngine
         }
         
         required init?(with data: Data) {
@@ -174,9 +197,19 @@ final class AudioEnginePlayerTests: XCTestCase {
             messages.append(.connectToEngine)
         }
         
+        func disconnect(from engine: AVAudioEngine) {
+            
+            messages.append(.disconnectFromEngine)
+        }
+        
         func play() {
              
             messages.append(.play)
+        }
+        
+        func stop() {
+            
+            messages.append(.stop)
         }
         
         func set(volume: Float) {
@@ -198,7 +231,9 @@ final class AudioEnginePlayerTests: XCTestCase {
         }
         
         func connect(to engine: AVAudioEngine) {}
+        func disconnect(from engine: AVAudioEngine) {}
         func play() {}
+        func stop() {}
         func set(volume: Float) {}
         func set(rate: Float) {}
     }
