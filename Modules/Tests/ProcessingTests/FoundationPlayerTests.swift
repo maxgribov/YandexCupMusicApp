@@ -320,8 +320,7 @@ final class FoundationPlayerTests: XCTestCase {
         func stop() {}
     }
     
-    private func anyLayerID() -> Layer.ID { UUID() }
-    private func anyData() -> Data { Data(UUID().uuidString.utf8) }
+
     private func playForeverValue() -> Int { FoundationPlayer<AVAudioPlayerSpy>.playForever() }
 }
 
