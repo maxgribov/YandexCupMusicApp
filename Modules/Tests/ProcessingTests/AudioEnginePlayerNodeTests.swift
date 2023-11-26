@@ -12,11 +12,13 @@ final class AudioEnginePlayerNode {
     
     private let player: AVAudioPlayerNode
     private let speedControl: AVAudioUnitVarispeed
+    private let buffer: AVAudioPCMBuffer
     
-    init(player: AVAudioPlayerNode, speedControl: AVAudioUnitVarispeed) {
+    init(player: AVAudioPlayerNode, speedControl: AVAudioUnitVarispeed, buffer: AVAudioPCMBuffer) {
         
         self.player = player
         self.speedControl = speedControl
+        self.buffer = buffer
     }
     
     func connect(to engine: AVAudioEngine) {
@@ -34,13 +36,18 @@ final class AudioEnginePlayerNode {
         engine.detach(speedControl)
         engine.detach(player)
     }
+    
+    func schedule(offset: AVAudioTime?) {
+        
+        player.scheduleBuffer(buffer, at: offset, options: .loops)
+    }
 }
 
 final class AudioEnginePlayerNodeTests: XCTestCase {
     
     func test_init_doesNotMessagesPlayerAndSpeedControl() {
         
-        let (_, player, speedControl) = makeSUT()
+        let (_, player, speedControl, _) = makeSUT()
         
         XCTAssertTrue(player.messages.isEmpty)
         XCTAssertTrue(speedControl.messages.isEmpty)
@@ -48,7 +55,7 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
     
     func test_connectToEngine_messagesEngine() {
         
-        let (sut, player, speedControl) = makeSUT()
+        let (sut, player, speedControl, _) = makeSUT()
         
         let engineSpy = AVAudioEngineSpy()
         sut.connect(to: engineSpy)
@@ -58,12 +65,21 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
     
     func test_disconnectFromEngine_messagesEngine() {
         
-        let (sut, player, speedControl) = makeSUT()
+        let (sut, player, speedControl, _) = makeSUT()
         
         let engineSpy = AVAudioEngineSpy()
         sut.disconnect(from: engineSpy)
         
         XCTAssertEqual(engineSpy.messages, [.disconnect(speedControl), .disconnect(player), .detach(speedControl), .detach(player)])
+    }
+    
+    func test_schedule_messagesPlayerToScheduleBuffer() {
+        
+        let (sut, player, _, buffer) = makeSUT()
+        
+        sut.schedule(offset: nil)
+        
+        XCTAssertEqual(player.messages, [.schedule(buffer, nil, .loops)])
     }
     
     //MARK: - Helpers
@@ -74,23 +90,36 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
     ) -> (
         sut: AudioEnginePlayerNode,
         player: AVAudioPlayerNodeSpy,
-        speedControl: AVAudioUnitVarispeedSpy
+        speedControl: AVAudioUnitVarispeedSpy,
+        buffer: AVAudioPCMBuffer
     ) {
         
         let player = AVAudioPlayerNodeSpy()
         let speedControl = AVAudioUnitVarispeedSpy()
-        let sut = AudioEnginePlayerNode(player: player, speedControl: speedControl)
+        let buffer = AVAudioPCMBuffer()
+        let sut = AudioEnginePlayerNode(player: player, speedControl: speedControl, buffer: buffer)
         
         trackForMemoryLeaks(sut, file: file, line: line)
         trackForMemoryLeaks(player, file: file, line: line)
         trackForMemoryLeaks(speedControl, file: file, line: line)
+        trackForMemoryLeaks(buffer, file: file, line: line)
         
-        return (sut, player, speedControl)
+        return (sut, player, speedControl, buffer)
     }
     
     class AVAudioPlayerNodeSpy: AVAudioPlayerNode {
         
-        private(set) var messages = [Any]()
+        private(set) var messages = [Message]()
+        
+        enum Message: Equatable {
+            
+            case schedule(AVAudioPCMBuffer, AVAudioTime?, AVAudioPlayerNodeBufferOptions)
+        }
+        
+        override func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, options: AVAudioPlayerNodeBufferOptions = [], completionHandler: AVAudioNodeCompletionHandler? = nil) {
+            
+            messages.append(.schedule(buffer, when, options))
+        }
     }
     
     class AVAudioUnitVarispeedSpy: AVAudioUnitVarispeed {
