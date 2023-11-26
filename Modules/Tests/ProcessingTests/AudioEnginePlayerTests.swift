@@ -45,7 +45,7 @@ final class AudioEnginePlayerTests: XCTestCase {
         let data = anyData()
         sut.play(id: anyLayerID(), data: data, control: .init(volume: 0.5, speed: 1.0))
         
-        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .play])
+        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .schedule(nil), .play])
     }
     
     func test_play_playingContainsLayerIDOnNodeCreationSuccess() {
@@ -92,7 +92,7 @@ final class AudioEnginePlayerTests: XCTestCase {
         
         sut.stop(id: layerID)
         
-        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .play, .stop, .disconnectFromEngine])
+        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .schedule(nil), .play, .stop, .disconnectFromEngine])
     }
     
     func test_start_invokesSetOffsetOnAnotherPlayerNode() {
@@ -107,7 +107,7 @@ final class AudioEnginePlayerTests: XCTestCase {
         let data = anyData()
         sut.play(id: anyLayerID(), data: data, control: .init(volume: 0.5, speed: 1.0))
         
-        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .setOffset(offset), .play])
+        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .schedule(offset), .play])
     }
     
     func test_updateWithControl_doesNotAffectOnPlayerNodeForWrongLayerID() {
@@ -118,7 +118,7 @@ final class AudioEnginePlayerTests: XCTestCase {
         
         sut.update(id: anyLayerID(), with: .init(volume: 1, speed: 0))
         
-        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .play])
+        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .schedule(nil), .play])
     }
     
     func test_updateWithControl_invokesSetVolumeAndSetRateForCorrectLayerID() {
@@ -130,7 +130,7 @@ final class AudioEnginePlayerTests: XCTestCase {
         
         sut.update(id: layerID, with: .init(volume: 1, speed: 0))
         
-        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .play, .setVolume(1.0), .setRate(0.5)])
+        XCTAssertEqual(playerNodeSpy?.messages, [.initWithData(data), .connectToEngine, .setVolume(0.5), .setRate(2.0), .schedule(nil), .play, .setVolume(1.0), .setRate(0.5)])
     }
     
     func test_playingEvent_deliversPlayerNodeDurationOnFirstLayerPlaying() {
@@ -237,7 +237,7 @@ final class AudioEnginePlayerTests: XCTestCase {
             case play
             case setVolume(Float)
             case setRate(Float)
-            case setOffset(AVAudioTime)
+            case schedule(AVAudioTime?)
             case stop
             case disconnectFromEngine
         }
@@ -282,9 +282,9 @@ final class AudioEnginePlayerTests: XCTestCase {
             messages.append(.setRate(rate))
         }
         
-        func set(offset: AVAudioTime) {
+        func schedule(offset: AVAudioTime?) {
             
-            messages.append(.setOffset(offset))
+            messages.append(.schedule(offset))
         }
     }
     
@@ -304,7 +304,7 @@ final class AudioEnginePlayerTests: XCTestCase {
         func stop() {}
         func set(volume: Float) {}
         func set(rate: Float) {}
-        func set(offset: AVAudioTime) {}
+        func schedule(offset: AVAudioTime?) {}
     }
     
     private class AudioEngineSpy: AVAudioEngine {

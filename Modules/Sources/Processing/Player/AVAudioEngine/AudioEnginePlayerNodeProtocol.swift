@@ -16,9 +16,9 @@ public protocol AudioEnginePlayerNodeProtocol {
     init?(with data: Data)
     func connect(to engine: AVAudioEngine)
     func disconnect(from engine: AVAudioEngine)
+    func schedule(offset: AVAudioTime?)
     func play()
     func stop()
     func set(volume: Float)
     func set(rate: Float)
-    func set(offset: AVAudioTime)
 }

@@ -47,7 +47,11 @@ public final class AudioEnginePlayer<Node> where Node: AudioEnginePlayerNodeProt
         
         if let firstPlayerNode = activeNodes.first?.value {
             
-            playerNode.set(offset: firstPlayerNode.offset)
+            playerNode.schedule(offset: firstPlayerNode.offset)
+            
+        } else {
+            
+            playerNode.schedule(offset: nil)
         }
         
         playerNode.play()
