@@ -32,9 +32,7 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
     
     func test_init_doesNotMessagesPlayerAndSpeedControl() {
         
-        let player = AVAudioPlayerNodeSpy()
-        let speedControl = AVAudioUnitVarispeedSpy()
-        _ = AudioEnginePlayerNode(player: player, speedControl: speedControl)
+        let (_, player, speedControl) = makeSUT()
         
         XCTAssertTrue(player.messages.isEmpty)
         XCTAssertTrue(speedControl.messages.isEmpty)
@@ -42,9 +40,7 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
     
     func test_connectToEngine_messagesEngine() {
         
-        let player = AVAudioPlayerNodeSpy()
-        let speedControl = AVAudioUnitVarispeedSpy()
-        let sut = AudioEnginePlayerNode(player: player, speedControl: speedControl)
+        let (sut, player, speedControl) = makeSUT()
         
         let engineSpy = AVAudioEngineSpy()
         sut.connect(to: engineSpy)
@@ -53,6 +49,26 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
     }
     
     //MARK: - Helpers
+    
+    private func makeSUT(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (
+        sut: AudioEnginePlayerNode,
+        player: AVAudioPlayerNodeSpy,
+        speedControl: AVAudioUnitVarispeedSpy
+    ) {
+        
+        let player = AVAudioPlayerNodeSpy()
+        let speedControl = AVAudioUnitVarispeedSpy()
+        let sut = AudioEnginePlayerNode(player: player, speedControl: speedControl)
+        
+        trackForMemoryLeaks(sut, file: file, line: line)
+        trackForMemoryLeaks(player, file: file, line: line)
+        trackForMemoryLeaks(speedControl, file: file, line: line)
+        
+        return (sut, player, speedControl)
+    }
     
     class AVAudioPlayerNodeSpy: AVAudioPlayerNode {
         
