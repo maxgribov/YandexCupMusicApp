@@ -26,6 +26,14 @@ final class AudioEnginePlayerNode {
         engine.connect(player, to: speedControl, format: nil)
         engine.connect(speedControl, to: engine.mainMixerNode, format: nil)
     }
+    
+    func disconnect(from engine: AVAudioEngine) {
+        
+        engine.disconnectNodeInput(speedControl)
+        engine.disconnectNodeInput(player)
+        engine.detach(speedControl)
+        engine.detach(player)
+    }
 }
 
 final class AudioEnginePlayerNodeTests: XCTestCase {
@@ -46,6 +54,16 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         sut.connect(to: engineSpy)
         
         XCTAssertEqual(engineSpy.messages, [.attach(player), .attach(speedControl), .connect(player, speedControl), .connect(speedControl, engineSpy.mainMixerNode)])
+    }
+    
+    func test_disconnectFromEngine_messagesEngine() {
+        
+        let (sut, player, speedControl) = makeSUT()
+        
+        let engineSpy = AVAudioEngineSpy()
+        sut.disconnect(from: engineSpy)
+        
+        XCTAssertEqual(engineSpy.messages, [.disconnect(speedControl), .disconnect(player), .detach(speedControl), .detach(player)])
     }
     
     //MARK: - Helpers
@@ -88,6 +106,8 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
             
             case attach(AVAudioNode)
             case connect(AVAudioNode, AVAudioNode)
+            case disconnect(AVAudioNode)
+            case detach(AVAudioNode)
         }
         
         override func attach(_ node: AVAudioNode) {
@@ -98,6 +118,16 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         override func connect(_ node1: AVAudioNode, to node2: AVAudioNode, format: AVAudioFormat?) {
             
             messages.append(.connect(node1, node2))
+        }
+        
+        override func disconnectNodeInput(_ node: AVAudioNode) {
+            
+            messages.append(.disconnect(node))
+        }
+        
+        override func detach(_ node: AVAudioNode) {
+            
+            messages.append(.detach(node))
         }
     }
 }
