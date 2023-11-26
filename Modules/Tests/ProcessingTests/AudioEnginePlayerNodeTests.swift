@@ -14,6 +14,7 @@ final class AudioEnginePlayerNode {
     private let speedControl: AVAudioUnitVarispeed
     private let buffer: AVAudioPCMBuffer
     
+    var offset: AVAudioTime { Self.offset(current: player.current, duration: duration, sampleRate: player.outputFormat(forBus: 0).sampleRate) }
     var duration: TimeInterval { Self.duration(for: buffer.frameLength, and: buffer.format.sampleRate) }
     
     init(player: AVAudioPlayerNode, speedControl: AVAudioUnitVarispeed, buffer: AVAudioPCMBuffer) {
@@ -70,6 +71,25 @@ extension AudioEnginePlayerNode {
     static func duration(for frameLength: AVAudioFrameCount, and sampleRate: Double) -> TimeInterval {
         
         TimeInterval(Double(frameLength) / sampleRate)
+    }
+    
+    static func offset(current: TimeInterval, duration: TimeInterval, sampleRate: Double) -> AVAudioTime {
+        
+        let offsetTime = current.truncatingRemainder(dividingBy: duration)
+        
+        return AVAudioTime(sampleTime: -Int64(offsetTime * sampleRate), atRate: sampleRate)
+    }
+}
+
+extension AVAudioPlayerNode {
+
+    var current: TimeInterval {
+        
+        guard let nodeTime = lastRenderTime, let playerTime = playerTime(forNodeTime: nodeTime) else {
+            return 0
+        }
+        
+        return Double(playerTime.sampleTime) / playerTime.sampleRate
     }
 }
 
@@ -173,6 +193,37 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         XCTAssertEqual(sut.duration, expectedDuration)
     }
     
+    func test_current_deliversCurrentTimeForPlayer() {
+        
+        let (_, player, _, _) = makeSUT()
+        
+        let stubTime = AVAudioTime(sampleTime: 100, atRate: 50)
+        player.currentTimeStub = stubTime
+        
+        XCTAssertEqual(player.current, Double(stubTime.sampleTime) / stubTime.sampleRate, accuracy: .ulpOfOne)
+    }
+    
+    func test_offset_deliversOffsetTimeCalculatedWithPlayerAndBuffer() {
+        
+        let (sut, player, _, buffer) = makeSUT()
+        
+        let stubTime = AVAudioTime(sampleTime: 1125, atRate: 5)
+        let playerSampleRate: Double = 5
+        player.currentTimeStub = stubTime
+        player.sampleRateStub = playerSampleRate
+        
+        let bufferFrameLength: AVAudioFrameCount = 100
+        let bufferSampleRate: Double = 10
+        buffer.stub(frameLength: bufferFrameLength, sampleRate: bufferSampleRate)
+        
+        let expectedCurrent = Double(stubTime.sampleTime) / stubTime.sampleRate
+        let expectedDuration = AudioEnginePlayerNode.duration(for: bufferFrameLength, and: bufferSampleRate)
+        let expectedOffset = AudioEnginePlayerNode.offset(current: expectedCurrent, duration: expectedDuration, sampleRate: playerSampleRate)
+        
+        XCTAssertEqual(sut.offset.sampleTime, expectedOffset.sampleTime)
+        XCTAssertEqual(sut.offset.sampleRate, expectedOffset.sampleRate)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -236,6 +287,23 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         }
         
         private var _volume: Float = 0
+        
+        var currentTimeStub: AVAudioTime?
+        
+        override var lastRenderTime: AVAudioTime? {
+            currentTimeStub
+        }
+        
+        override func playerTime(forNodeTime nodeTime: AVAudioTime) -> AVAudioTime? {
+            
+            currentTimeStub
+        }
+        
+        var sampleRateStub: Double = 0
+        override func outputFormat(forBus bus: AVAudioNodeBus) -> AVAudioFormat {
+            
+            AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: sampleRateStub, channels: 1, interleaved: false)!
+        }
     }
     
     class AVAudioUnitVarispeedSpy: AVAudioUnitVarispeed {
