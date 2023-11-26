@@ -7,7 +7,7 @@
 
 import AVFoundation
 
-public final class AudioEnginePlayerNode {
+public final class AudioEnginePlayerNode: AudioEnginePlayerNodeProtocol {
     
     private let player: AVAudioPlayerNode
     private let speedControl: AVAudioUnitVarispeed
@@ -21,6 +21,15 @@ public final class AudioEnginePlayerNode {
         self.player = player
         self.speedControl = speedControl
         self.buffer = buffer
+    }
+    
+    public convenience init?(with data: Data) {
+        
+        guard let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 44100, channels: 2, interleaved: false), let buffer = AVAudioPCMBuffer(data: data, format: format) else {
+            return nil
+        }
+        
+        self.init(player: AVAudioPlayerNode(), speedControl: AVAudioUnitVarispeed(), buffer: buffer)
     }
     
     public func connect(to engine: AVAudioEngine) {
@@ -89,5 +98,23 @@ public extension AVAudioPlayerNode {
         }
         
         return Double(playerTime.sampleTime) / playerTime.sampleRate
+    }
+}
+
+extension AVAudioPCMBuffer {
+    
+    convenience init?(data: Data, format: AVAudioFormat) {
+        
+        let streamDesc = format.streamDescription.pointee
+        let frameCapacity = UInt32(data.count) / streamDesc.mBytesPerFrame
+        self.init(pcmFormat: format, frameCapacity: frameCapacity)
+        
+        frameLength = frameCapacity
+        let audioBuffer = audioBufferList.pointee.mBuffers
+
+        data.withUnsafeBytes { (bufferPointer) in
+            guard let addr = bufferPointer.baseAddress else { return }
+            audioBuffer.mData?.copyMemory(from: addr, byteCount: Int(audioBuffer.mDataByteSize))
+        }
     }
 }

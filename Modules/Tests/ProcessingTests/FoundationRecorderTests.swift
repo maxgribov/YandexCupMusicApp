@@ -334,23 +334,7 @@ final class FoundationRecorderTests: XCTestCase {
         return (data, url)
     }
     
-    private func makeBundleFileDataStub() -> (data: Data, url: URL)? {
-        
-        let bundle = Bundle.module
-        
-        guard let path = bundle.resourcePath else {
-            return nil
-        }
-        
-        let filePath = path + "/guitar_01.m4a"
-        let url = URL(filePath: filePath)
-        
-        guard let data = FoundationRecorder<AVAudioRecorderSpy>.bufferMapper(url: url) else {
-            return nil
-        }
-        
-        return (data, url)
-    }
+
     
     private func anyURL() -> URL {
     

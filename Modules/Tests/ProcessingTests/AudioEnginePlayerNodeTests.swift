@@ -19,6 +19,14 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         XCTAssertTrue(speedControl.messages.isEmpty)
     }
     
+    func test_initWithData_successfulWithValidData() throws {
+        
+        let (validData, _) = try XCTUnwrap(makeBundleFileDataStub())
+        let sut = AudioEnginePlayerNode(with: validData)
+        
+        XCTAssertNotNil(sut)
+    }
+    
     func test_connectToEngine_messagesEngine() {
         
         let (sut, player, speedControl, _) = makeSUT()
