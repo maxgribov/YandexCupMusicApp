@@ -82,6 +82,16 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         XCTAssertEqual(player.messages, [.schedule(buffer, nil, .loops)])
     }
     
+    func test_scheduleWithOffset_messagesPlayerToScheduleBufferAtSpecificTime() {
+        
+        let (sut, player, _, buffer) = makeSUT()
+        
+        let offset = AVAudioTime(sampleTime: 100, atRate: 100)
+        sut.schedule(offset: offset)
+        
+        XCTAssertEqual(player.messages, [.schedule(buffer, offset, .loops)])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
