@@ -8,15 +8,15 @@
 import AVFoundation
 import Domain
 
-public final class AudioEnginePlayer<Engine, Node> where Engine: AVAudioEngineProtocol, Node: AudioEnginePlayerNodeProtocol, Node.Engine == Engine {
+public final class AudioEnginePlayer<Node> where Node: AudioEnginePlayerNodeProtocol {
     
     public var playing: Set<Layer.ID> { Set(activeNodes.keys) }
-    private let engine: Engine
+    private let engine: AVAudioEngine
     private var activeNodes: [Layer.ID: Node]
     private let makePlayerNode: (Data) -> Node?
     private var event: ((TimeInterval?) -> Void)?
     
-    public init(engine: Engine, makePlayerNode: @escaping (Data) -> Node?) {
+    public init(engine: AVAudioEngine, makePlayerNode: @escaping (Data) -> Node?) {
         
         self.engine = engine
         self.makePlayerNode = makePlayerNode

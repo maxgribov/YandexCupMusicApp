@@ -211,7 +211,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     private func makeSUT(
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> (sut: AudioEnginePlayer<AudioEngineSpy, AudioEnginePlayerNodeSpy>, engine: AudioEngineSpy) {
+    ) -> (sut: AudioEnginePlayer<AudioEnginePlayerNodeSpy>, engine: AudioEngineSpy) {
         
         let engineSpy = AudioEngineSpy()
         let sut = AudioEnginePlayer(engine: engineSpy, makePlayerNode: { data in
@@ -228,7 +228,6 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     private class AudioEnginePlayerNodeSpy: AudioEnginePlayerNodeProtocol {
         
-        typealias Engine = AudioEngineSpy
         private(set) var messages = [Message]()
         
         enum Message: Equatable {
@@ -253,12 +252,12 @@ final class AudioEnginePlayerTests: XCTestCase {
             messages.append(.initWithData(data))
         }
         
-        func connect(to engine: Engine) {
+        func connect(to engine: AVAudioEngine) {
             
             messages.append(.connectToEngine)
         }
         
-        func disconnect(from engine: Engine) {
+        func disconnect(from engine: AVAudioEngine) {
             
             messages.append(.disconnectFromEngine)
         }
@@ -290,9 +289,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     }
     
     private class AlwaysFailingAudioEnginePlayerNodeStub: AudioEnginePlayerNodeProtocol {
-        
-        typealias Engine = AudioEngineSpy
-        
+
         var offset: AVAudioTime = .init()
         var duration: TimeInterval { 0 }
         
@@ -301,8 +298,8 @@ final class AudioEnginePlayerTests: XCTestCase {
             return nil
         }
         
-        func connect(to engine: Engine) {}
-        func disconnect(from engine: Engine) {}
+        func connect(to engine: AVAudioEngine) {}
+        func disconnect(from engine: AVAudioEngine) {}
         func play() {}
         func stop() {}
         func set(volume: Float) {}
@@ -310,7 +307,7 @@ final class AudioEnginePlayerTests: XCTestCase {
         func set(offset: AVAudioTime) {}
     }
     
-    private class AudioEngineSpy: AVAudioEngineProtocol {
+    private class AudioEngineSpy: AVAudioEngine {
         
         private(set) var messages = [Message]()
         
@@ -320,15 +317,15 @@ final class AudioEnginePlayerTests: XCTestCase {
             case start
         }
         
-        var isRunning: Bool { _isRunning }
+        override var isRunning: Bool { _isRunning }
         private var _isRunning: Bool = false
         
-        func prepare() {
+        override func prepare() {
             
             messages.append(.prepare)
         }
         
-        func start() throws {
+        override func start() throws {
              
             messages.append(.start)
         }
@@ -340,7 +337,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     }
     
     private func expect(
-        _ sut: AudioEnginePlayer<AudioEngineSpy, AudioEnginePlayerNodeSpy>,
+        _ sut: AudioEnginePlayer<AudioEnginePlayerNodeSpy>,
         playingEvents expectedPlayingEvents: [TimeInterval?],
         on action: () -> Void,
         file: StaticString = #filePath,
