@@ -51,6 +51,11 @@ final class AudioEnginePlayerNode {
         
         player.stop()
     }
+    
+    func set(volume: Float) {
+        
+        player.volume = volume
+    }
 }
 
 final class AudioEnginePlayerNodeTests: XCTestCase {
@@ -120,6 +125,16 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         XCTAssertEqual(player.messages, [.stop])
     }
     
+    func test_setVolume_messagesPlayerToSetVolume() {
+        
+        let (sut, player, _, _) = makeSUT()
+        
+        let volume: Float = 0.8
+        sut.set(volume: volume)
+        
+        XCTAssertEqual(player.messages, [.volume(volume)])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -154,6 +169,7 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
             case schedule(AVAudioPCMBuffer, AVAudioTime?, AVAudioPlayerNodeBufferOptions)
             case play
             case stop
+            case volume(Float)
         }
         
         override func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, options: AVAudioPlayerNodeBufferOptions = [], completionHandler: AVAudioNodeCompletionHandler? = nil) {
@@ -170,6 +186,18 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
             
             messages.append(.stop)
         }
+        
+        override var volume: Float {
+            set { 
+                messages.append(.volume(newValue))
+                _volume = newValue
+            }
+            get {
+                _volume
+            }
+        }
+        
+        private var _volume: Float = 0
     }
     
     class AVAudioUnitVarispeedSpy: AVAudioUnitVarispeed {
