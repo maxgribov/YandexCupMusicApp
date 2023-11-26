@@ -10,7 +10,20 @@ import AVFoundation
 
 final class AudioEnginePlayerNode {
     
-    init(player: AVAudioPlayerNode, speedControl: AVAudioUnitVarispeed) {}
+    private let player: AVAudioPlayerNode
+    private let speedControl: AVAudioUnitVarispeed
+    
+    init(player: AVAudioPlayerNode, speedControl: AVAudioUnitVarispeed) {
+        
+        self.player = player
+        self.speedControl = speedControl
+    }
+    
+    func connect(to engine: AVAudioEngine) {
+        
+        engine.attach(player)
+        engine.attach(speedControl)
+    }
 }
 
 final class AudioEnginePlayerNodeTests: XCTestCase {
@@ -25,6 +38,18 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         XCTAssertTrue(speedControl.messages.isEmpty)
     }
     
+    func test_connectToEngine_messagesEngine() {
+        
+        let player = AVAudioPlayerNodeSpy()
+        let speedControl = AVAudioUnitVarispeedSpy()
+        let sut = AudioEnginePlayerNode(player: player, speedControl: speedControl)
+        
+        let engineSpy = AVAudioEngineSpy()
+        sut.connect(to: engineSpy)
+        
+        XCTAssertEqual(engineSpy.messages, [.attach(player), .attach(speedControl)])
+    }
+    
     //MARK: - Helpers
     
     class AVAudioPlayerNodeSpy: AVAudioPlayerNode {
@@ -35,6 +60,20 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
     class AVAudioUnitVarispeedSpy: AVAudioUnitVarispeed {
         
         private(set) var messages = [Any]()
-
+    }
+    
+    class AVAudioEngineSpy: AVAudioEngine {
+        
+        private(set) var messages = [Message]()
+        
+        enum Message: Equatable {
+            
+            case attach(AVAudioNode)
+        }
+        
+        override func attach(_ node: AVAudioNode) {
+            
+            messages.append(.attach(node))
+        }
     }
 }
