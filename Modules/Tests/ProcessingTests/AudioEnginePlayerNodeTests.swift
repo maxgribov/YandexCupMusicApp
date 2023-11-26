@@ -10,17 +10,19 @@ import AVFoundation
 
 final class AudioEnginePlayerNode {
     
-    init(player: AVAudioPlayerNode) {}
+    init(player: AVAudioPlayerNode, speedControl: AVAudioUnitVarispeed) {}
 }
 
 final class AudioEnginePlayerNodeTests: XCTestCase {
     
-    func test_init_doesNotMessagesPlayer() {
+    func test_init_doesNotMessagesPlayerAndSpeedControl() {
         
         let player = AVAudioPlayerNodeSpy()
-        let sut = AudioEnginePlayerNode(player: player)
+        let speedControl = AVAudioUnitVarispeedSpy()
+        _ = AudioEnginePlayerNode(player: player, speedControl: speedControl)
         
         XCTAssertTrue(player.messages.isEmpty)
+        XCTAssertTrue(speedControl.messages.isEmpty)
     }
     
     //MARK: - Helpers
@@ -28,5 +30,11 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
     class AVAudioPlayerNodeSpy: AVAudioPlayerNode {
         
         private(set) var messages = [Any]()
+    }
+    
+    class AVAudioUnitVarispeedSpy: AVAudioUnitVarispeed {
+        
+        private(set) var messages = [Any]()
+
     }
 }
