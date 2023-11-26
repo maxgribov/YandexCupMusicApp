@@ -41,6 +41,11 @@ final class AudioEnginePlayerNode {
         
         player.scheduleBuffer(buffer, at: offset, options: .loops)
     }
+    
+    func play() {
+        
+        player.play()
+    }
 }
 
 final class AudioEnginePlayerNodeTests: XCTestCase {
@@ -92,6 +97,15 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         XCTAssertEqual(player.messages, [.schedule(buffer, offset, .loops)])
     }
     
+    func test_play_messagesPayerToPlay() {
+        
+        let (sut, player, _, _) = makeSUT()
+        
+        sut.play()
+        
+        XCTAssertEqual(player.messages, [.play])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -124,11 +138,17 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         enum Message: Equatable {
             
             case schedule(AVAudioPCMBuffer, AVAudioTime?, AVAudioPlayerNodeBufferOptions)
+            case play
         }
         
         override func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, options: AVAudioPlayerNodeBufferOptions = [], completionHandler: AVAudioNodeCompletionHandler? = nil) {
             
             messages.append(.schedule(buffer, when, options))
+        }
+        
+        override func play() {
+            
+            messages.append(.play)
         }
     }
     
