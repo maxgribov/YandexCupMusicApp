@@ -23,6 +23,8 @@ final class AudioEnginePlayerNode {
         
         engine.attach(player)
         engine.attach(speedControl)
+        engine.connect(player, to: speedControl, format: nil)
+        engine.connect(speedControl, to: engine.mainMixerNode, format: nil)
     }
 }
 
@@ -47,7 +49,7 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         let engineSpy = AVAudioEngineSpy()
         sut.connect(to: engineSpy)
         
-        XCTAssertEqual(engineSpy.messages, [.attach(player), .attach(speedControl)])
+        XCTAssertEqual(engineSpy.messages, [.attach(player), .attach(speedControl), .connect(player, speedControl), .connect(speedControl, engineSpy.mainMixerNode)])
     }
     
     //MARK: - Helpers
@@ -69,11 +71,17 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         enum Message: Equatable {
             
             case attach(AVAudioNode)
+            case connect(AVAudioNode, AVAudioNode)
         }
         
         override func attach(_ node: AVAudioNode) {
             
             messages.append(.attach(node))
+        }
+        
+        override func connect(_ node1: AVAudioNode, to node2: AVAudioNode, format: AVAudioFormat?) {
+            
+            messages.append(.connect(node1, node2))
         }
     }
 }
