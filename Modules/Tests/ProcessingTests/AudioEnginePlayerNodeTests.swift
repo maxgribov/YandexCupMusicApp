@@ -56,6 +56,11 @@ final class AudioEnginePlayerNode {
         
         player.volume = volume
     }
+    
+    func set(rate: Float) {
+        
+        speedControl.rate = rate
+    }
 }
 
 final class AudioEnginePlayerNodeTests: XCTestCase {
@@ -135,6 +140,16 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         XCTAssertEqual(player.messages, [.volume(volume)])
     }
     
+    func test_setRate_messagesSpeedControlToSetRate() {
+        
+        let (sut, _, speedControl, _) = makeSUT()
+        
+        let rate: Float = 0.3
+        sut.set(rate: rate)
+        
+        XCTAssertEqual(speedControl.messages, [.rate(rate)])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -202,7 +217,24 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
     
     class AVAudioUnitVarispeedSpy: AVAudioUnitVarispeed {
         
-        private(set) var messages = [Any]()
+        private(set) var messages = [Message]()
+        
+        enum Message: Equatable {
+            
+            case rate(Float)
+        }
+        
+        override var rate: Float {
+            set {
+                messages.append(.rate(newValue))
+                _rate = newValue
+            }
+            get {
+                _rate
+            }
+        }
+        
+        private var _rate: Float = 0
     }
     
     class AVAudioEngineSpy: AVAudioEngine {
