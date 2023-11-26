@@ -14,6 +14,8 @@ final class AudioEnginePlayerNode {
     private let speedControl: AVAudioUnitVarispeed
     private let buffer: AVAudioPCMBuffer
     
+    var duration: TimeInterval { Self.duration(for: buffer.frameLength, and: buffer.format.sampleRate) }
+    
     init(player: AVAudioPlayerNode, speedControl: AVAudioUnitVarispeed, buffer: AVAudioPCMBuffer) {
         
         self.player = player
@@ -60,6 +62,14 @@ final class AudioEnginePlayerNode {
     func set(rate: Float) {
         
         speedControl.rate = rate
+    }
+}
+
+extension AudioEnginePlayerNode {
+    
+    static func duration(for frameLength: AVAudioFrameCount, and sampleRate: Double) -> TimeInterval {
+        
+        TimeInterval(Double(frameLength) / sampleRate)
     }
 }
 
@@ -150,6 +160,19 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         XCTAssertEqual(speedControl.messages, [.rate(rate)])
     }
     
+    func test_duration_retrievesValuesFromBufferAndCalculatesDuration() {
+        
+        let (sut, _, _, buffer) = makeSUT()
+        
+        let frameLength: AVAudioFrameCount = 100
+        let sampleRate: Double = 50
+        let expectedDuration = AudioEnginePlayerNode.duration(for: frameLength, and: sampleRate)
+        
+        buffer.stub(frameLength: frameLength, sampleRate: sampleRate)
+        
+        XCTAssertEqual(sut.duration, expectedDuration)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -159,12 +182,12 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         sut: AudioEnginePlayerNode,
         player: AVAudioPlayerNodeSpy,
         speedControl: AVAudioUnitVarispeedSpy,
-        buffer: AVAudioPCMBuffer
+        buffer: AVAudioPCMBufferStub
     ) {
         
         let player = AVAudioPlayerNodeSpy()
         let speedControl = AVAudioUnitVarispeedSpy()
-        let buffer = AVAudioPCMBuffer()
+        let buffer = AVAudioPCMBufferStub()
         let sut = AudioEnginePlayerNode(player: player, speedControl: speedControl, buffer: buffer)
         
         trackForMemoryLeaks(sut, file: file, line: line)
@@ -267,6 +290,26 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         override func detach(_ node: AVAudioNode) {
             
             messages.append(.detach(node))
+        }
+    }
+    
+    class AVAudioPCMBufferStub: AVAudioPCMBuffer {
+        
+        override var frameLength: AVAudioFrameCount {
+            set { _frameLength = newValue }
+            get { _frameLength }
+        }
+        private var _frameLength: AVAudioFrameCount = 0
+        
+        override var format: AVAudioFormat {
+            formatStub!
+        }
+        private var formatStub: AVAudioFormat?
+        
+        func stub(frameLength: AVAudioFrameCount, sampleRate: Double) {
+            
+            self.frameLength = frameLength
+            formatStub = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: sampleRate, channels: 1, interleaved: true)
         }
     }
 }
