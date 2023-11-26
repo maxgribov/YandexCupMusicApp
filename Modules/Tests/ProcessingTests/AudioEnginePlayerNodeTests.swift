@@ -46,6 +46,11 @@ final class AudioEnginePlayerNode {
         
         player.play()
     }
+    
+    func stop() {
+        
+        player.stop()
+    }
 }
 
 final class AudioEnginePlayerNodeTests: XCTestCase {
@@ -106,6 +111,15 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         XCTAssertEqual(player.messages, [.play])
     }
     
+    func test_stop_messagesPayerToStop() {
+        
+        let (sut, player, _, _) = makeSUT()
+        
+        sut.stop()
+        
+        XCTAssertEqual(player.messages, [.stop])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -139,6 +153,7 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
             
             case schedule(AVAudioPCMBuffer, AVAudioTime?, AVAudioPlayerNodeBufferOptions)
             case play
+            case stop
         }
         
         override func scheduleBuffer(_ buffer: AVAudioPCMBuffer, at when: AVAudioTime?, options: AVAudioPlayerNodeBufferOptions = [], completionHandler: AVAudioNodeCompletionHandler? = nil) {
@@ -149,6 +164,11 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         override func play() {
             
             messages.append(.play)
+        }
+        
+        override func stop() {
+            
+            messages.append(.stop)
         }
     }
     
