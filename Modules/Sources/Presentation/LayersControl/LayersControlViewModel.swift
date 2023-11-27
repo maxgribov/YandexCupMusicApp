@@ -48,6 +48,11 @@ public final class LayersControlViewModel: ObservableObject {
         delegateActionSubject.send(.isMutedDidChanged(layer.id, !layer.isMuted))
     }
     
+    public func selectDidTapped(for layerID: Layer.ID) {
+        
+        delegateActionSubject.send(.selectLayer(layerID))
+    }
+    
     private func bind() {
         
         $layers

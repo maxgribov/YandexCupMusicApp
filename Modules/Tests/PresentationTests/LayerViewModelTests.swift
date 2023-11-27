@@ -34,16 +34,6 @@ final class LayerViewModelTests: XCTestCase {
         })
     }
     
-    func test_selectDidTapped_informDelegateToSelectLayerWithID() {
-        
-        let sut = makeSUT()
-        
-        expect(sut, delegateAction: .selectLayer, for: {
-            
-            sut.selectDidTapped()
-        })
-    }
-    
     //MARK: - Helpers
     
     private func makeSUT(id: Layer.ID = UUID(), name: String = "", isPlaying: Bool = false, isMuted: Bool = false, isActive: Bool = true) -> LayerViewModel {

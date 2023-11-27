@@ -78,9 +78,10 @@ final class LayersControlViewModelTests: XCTestCase {
                                     makeLayerViewModel(),
                                     makeLayerViewModel()])
         
-        expect(sut, delegateActions: [.selectLayer(sut.layers[2].id)], on: {
+        let layerId = sut.layers[2].id
+        expect(sut, delegateActions: [.selectLayer(layerId)], on: {
             
-            sut.layers[2].selectDidTapped()
+            sut.selectDidTapped(for: layerId)
         })
     }
     

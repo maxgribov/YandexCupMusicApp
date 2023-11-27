@@ -38,10 +38,7 @@ public struct LayerViewModel: Identifiable {
         delegateActionSubject.eraseToAnyPublisher()
     }
     
-    public func selectDidTapped() {
-        
-        delegateActionSubject.send(.selectLayer)
-    }
+
     
     public func deleteButtonDidTapped() {
         
