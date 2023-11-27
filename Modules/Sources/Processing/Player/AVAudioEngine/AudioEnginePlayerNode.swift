@@ -25,7 +25,7 @@ public final class AudioEnginePlayerNode: AudioEnginePlayerNodeProtocol {
     
     public convenience init?(with data: Data) {
         
-        guard let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 44100, channels: 2, interleaved: false), let buffer = AVAudioPCMBuffer(data: data, format: format) else {
+        guard let buffer = AVAudioPCMBuffer(data: data, format: .shared) else {
             return nil
         }
         
