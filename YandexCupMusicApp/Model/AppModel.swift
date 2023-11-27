@@ -114,15 +114,3 @@ final class AppModel<S, C> where S: SamplesLocalStore, C: AVAudioSessionProtocol
         }.store(in: &bindings)
     }
 }
-
-extension AppModel where S == BundleSamplesLocalStore, C == AVAudioSession {
-    
-    static let prod = AppModel(
-        producer: Producer(
-            player: AudioEnginePlayer(engine: AVAudioEngine(), makePlayerNode: { data in AudioEnginePlayerNode(with: data) }),
-            recorder: FoundationRecorder(makeRecorder: { url, settings in try AVAudioRecorder(url: url, settings: settings) }, mapper: BundleSamplesLocalStore.bufferMapper(url:))),
-        localStore: BundleSamplesLocalStore(mapper: BundleSamplesLocalStore.bufferMapper(url:)),
-        sessionConfigurator: .init(session: AVAudioSession.sharedInstance()))
-}
-
-extension AVAudioSession: AVAudioSessionProtocol {}

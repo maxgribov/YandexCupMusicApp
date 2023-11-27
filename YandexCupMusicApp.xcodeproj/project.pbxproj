@@ -31,6 +31,7 @@
 		7752DA3B2AF64EB3002EBD4D /* AVAudioPlayer+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7752DA3A2AF64EB3002EBD4D /* AVAudioPlayer+ext.swift */; };
 		7752DA3D2AF64F00002EBD4D /* AVAudioRecorder+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7752DA3C2AF64F00002EBD4D /* AVAudioRecorder+ext.swift */; };
 		7752DA3F2AF6651F002EBD4D /* LayersControlContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7752DA3E2AF6651F002EBD4D /* LayersControlContainerView.swift */; };
+		778C1C422B14C03800D19683 /* AVAudioSession+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 778C1C412B14C03800D19683 /* AVAudioSession+ext.swift */; };
 		77D105472AF67C6C000D0A9E /* ControlPanelViewModel+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D105462AF67C6C000D0A9E /* ControlPanelViewModel+ext.swift */; };
 /* End PBXBuildFile section */
 
@@ -69,6 +70,7 @@
 		7752DA3A2AF64EB3002EBD4D /* AVAudioPlayer+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioPlayer+ext.swift"; sourceTree = "<group>"; };
 		7752DA3C2AF64F00002EBD4D /* AVAudioRecorder+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioRecorder+ext.swift"; sourceTree = "<group>"; };
 		7752DA3E2AF6651F002EBD4D /* LayersControlContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayersControlContainerView.swift; sourceTree = "<group>"; };
+		778C1C412B14C03800D19683 /* AVAudioSession+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+ext.swift"; sourceTree = "<group>"; };
 		77D105452AF668E7000D0A9E /* YandexCupMusicApp.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = YandexCupMusicApp.xctestplan; sourceTree = "<group>"; };
 		77D105462AF67C6C000D0A9E /* ControlPanelViewModel+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ControlPanelViewModel+ext.swift"; sourceTree = "<group>"; };
 		77D105482AF7F5FC000D0A9E /* AVAudioEnginePlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = AVAudioEnginePlayground.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -184,6 +186,7 @@
 				7752DA312AF5A7CE002EBD4D /* SamplesLocalStore+ext.swift */,
 				7752DA3A2AF64EB3002EBD4D /* AVAudioPlayer+ext.swift */,
 				7752DA3C2AF64F00002EBD4D /* AVAudioRecorder+ext.swift */,
+				778C1C412B14C03800D19683 /* AVAudioSession+ext.swift */,
 				77D105462AF67C6C000D0A9E /* ControlPanelViewModel+ext.swift */,
 			);
 			path = Extensions;
@@ -337,6 +340,7 @@
 				7752DA3D2AF64F00002EBD4D /* AVAudioRecorder+ext.swift in Sources */,
 				7752DA302AF5A794002EBD4D /* Producer+ext.swift in Sources */,
 				7752DA232AF577B1002EBD4D /* MainViewModel.swift in Sources */,
+				778C1C422B14C03800D19683 /* AVAudioSession+ext.swift in Sources */,
 				7752DA322AF5A7CE002EBD4D /* SamplesLocalStore+ext.swift in Sources */,
 				7752DA282AF578AE002EBD4D /* InstrumentSelectorViewModel+ext.swift in Sources */,
 				7752DA3F2AF6651F002EBD4D /* LayersControlContainerView.swift in Sources */,
