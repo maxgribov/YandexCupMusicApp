@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import Domain
 
-public final class SampleSelectorViewModel: ObservableObject {
+public final class SampleSelectorViewModel {
     
     public let instrument: Instrument
     public let items: [SampleItemViewModel]

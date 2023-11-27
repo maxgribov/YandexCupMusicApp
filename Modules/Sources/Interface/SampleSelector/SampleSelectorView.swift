@@ -11,7 +11,7 @@ import Presentation
 
 public struct SampleSelectorView: View {
     
-    @ObservedObject var viewModel: SampleSelectorViewModel
+    let viewModel: SampleSelectorViewModel
     
     public init(viewModel: SampleSelectorViewModel) {
         
