@@ -8,7 +8,7 @@
 import AVFoundation
 import Domain
 
-public final class AudioEnginePlayer<Node> where Node: AudioEnginePlayerNodeProtocol {
+public final class AudioEnginePlayer<Node>: Player where Node: AudioEnginePlayerNodeProtocol {
     
     public var playing: Set<Layer.ID> { Set(activeNodes.keys) }
     private let engine: AVAudioEngine
@@ -21,8 +21,6 @@ public final class AudioEnginePlayer<Node> where Node: AudioEnginePlayerNodeProt
         self.engine = engine
         self.makePlayerNode = makePlayerNode
         self.activeNodes = [:]
-        
-        engine.prepare()
     }
     
     public func playing(event: @escaping (TimeInterval?) -> Void) {
@@ -31,12 +29,7 @@ public final class AudioEnginePlayer<Node> where Node: AudioEnginePlayerNodeProt
     }
     
     public func play(id: Layer.ID, data: Data, control: Layer.Control) {
-        
-        if engine.isRunning == false {
-            
-            try? engine.start()
-        }
-        
+
         guard let playerNode = makePlayerNode(data) else {
             return
         }
@@ -52,6 +45,11 @@ public final class AudioEnginePlayer<Node> where Node: AudioEnginePlayerNodeProt
         } else {
             
             playerNode.schedule(offset: nil)
+        }
+        
+        if engine.isRunning == false {
+            
+            try? engine.start()
         }
         
         playerNode.play()

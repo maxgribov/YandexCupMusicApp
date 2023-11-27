@@ -179,20 +179,13 @@ final class AudioEnginePlayerTests: XCTestCase {
         })
     }
     
-    func test_init_invokesEnginePrepareMethod() {
-        
-        let (_, engine) = makeSUT()
-        
-        XCTAssertEqual(engine.messages, [.prepare])
-    }
-    
     func test_play_invokesEngineStart() {
         
         let (sut, engine) = makeSUT()
         
         sut.play(id: anyLayerID(), data: anyData(), control: .initial)
         
-        XCTAssertEqual(engine.messages, [.prepare, .start])
+        XCTAssertEqual(engine.messages, [.start])
     }
     
     func test_play_doesNotInvokeEngineStartIfEngineAlreadyIsRunning() {
@@ -203,7 +196,7 @@ final class AudioEnginePlayerTests: XCTestCase {
         engine.simulateEngineStarted()
         sut.play(id: anyLayerID(), data: anyData(), control: .initial)
         
-        XCTAssertEqual(engine.messages, [.prepare, .start])
+        XCTAssertEqual(engine.messages, [.start])
     }
     
     //MARK: - Helpers
