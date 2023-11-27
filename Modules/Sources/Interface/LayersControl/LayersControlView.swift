@@ -26,8 +26,8 @@ public struct LayersControlView: View {
             
                 LayerView(
                     viewModel: layerViewModel,
-                    playButtonDidTapped: { layerId in viewModel.playButtonDidTaped(for: layerId) },
-                    muteButtonDidTapped: { layerId in viewModel.muteButtonDidTapped(for: layerId)},
+                    playButtonDidTapped: { viewModel.playButtonDidTaped(for: layerViewModel.id) },
+                    muteButtonDidTapped: { viewModel.muteButtonDidTapped(for: layerViewModel.id)},
                     selectDidTapped: { viewModel.selectDidTapped(for: layerViewModel.id) }
                 )
             }

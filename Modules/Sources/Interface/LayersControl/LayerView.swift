@@ -12,8 +12,8 @@ struct LayerView: View {
     
     let viewModel: LayerViewModel
     
-    let playButtonDidTapped: (LayerViewModel.ID) -> Void
-    let muteButtonDidTapped: (LayerViewModel.ID) -> Void
+    let playButtonDidTapped: () -> Void
+    let muteButtonDidTapped: () -> Void
     let selectDidTapped: () -> Void
     
     var body: some View {
@@ -26,13 +26,13 @@ struct LayerView: View {
             
             Spacer()
             
-            Button(action: { playButtonDidTapped(viewModel.id) }) {
+            Button(action: playButtonDidTapped) {
                 
                 Image(viewModel.isPlaying ? .iconPause : .iconPlay)
                 
             }.frame(width: 44, height: 44)
             
-            Button(action: { muteButtonDidTapped(viewModel.id) }) {
+            Button(action: muteButtonDidTapped) {
                 
                 Image(viewModel.isMuted ? .iconMuted : .iconNotMuted)
                 
@@ -68,22 +68,22 @@ struct LayerView: View {
             
             LayerView(
                 viewModel: .init(id: UUID(), name: "Drums 1", isPlaying: false, isMuted: false, isActive: false), 
-                playButtonDidTapped: { _ in },
-                muteButtonDidTapped: { _ in },
+                playButtonDidTapped: {},
+                muteButtonDidTapped: {},
                 selectDidTapped: {}
             )
             
             LayerView(
                 viewModel: .init(id: UUID(), name: "Guitar 1", isPlaying: false, isMuted: true, isActive: false),
-                playButtonDidTapped: { _ in },
-                muteButtonDidTapped: { _ in },
+                playButtonDidTapped: {},
+                muteButtonDidTapped: {},
                 selectDidTapped: {}
             )
             
             LayerView(
                 viewModel: .init(id: UUID(), name: "Drums 2", isPlaying: true, isMuted: false, isActive: true),
-                playButtonDidTapped: { _ in },
-                muteButtonDidTapped: { _ in },
+                playButtonDidTapped: {},
+                muteButtonDidTapped: {},
                 selectDidTapped: {}
             )
             
