@@ -32,8 +32,8 @@ final class FoundationRecorderTests: XCTestCase {
     
     func test_startRecording_deliversErrorOnRecorderInitFailure() throws {
         
-        let sut = FoundationRecorder() { url, settings in
-            try AlwaysFailsAVAudioRecorderStub(url: url, settings: settings)
+        let sut = FoundationRecorder() { url, format in
+            try AlwaysFailsAVAudioRecorderStub(url: url, format: format)
         }
         let startRecordingSpy = ValueSpy(sut.startRecording())
         
@@ -172,9 +172,9 @@ final class FoundationRecorderTests: XCTestCase {
     ) -> FoundationRecorder<AVAudioRecorderSpy> {
         
         let sut = FoundationRecorder(
-            makeRecorder: { url, settings in
+            makeRecorder: { url, format in
                 
-                let recorder = try AVAudioRecorderSpy(url: url, settings: settings)
+                let recorder = try AVAudioRecorderSpy(url: url, format: format)
                 self.recorder = recorder
                 
                 return recorder
@@ -199,7 +199,7 @@ final class FoundationRecorderTests: XCTestCase {
         
         weak var delegate: AVAudioRecorderDelegate?
         
-        required init(url: URL, settings: [String : Any]) throws {
+        required init(url: URL, format: AVAudioFormat) throws {
             
             messages.append(.initialisation)
         }
@@ -220,7 +220,7 @@ final class FoundationRecorderTests: XCTestCase {
         
         weak var delegate: AVAudioRecorderDelegate?
         
-        required init(url: URL, settings: [String : Any]) throws {
+        required init(url: URL, format: AVAudioFormat) throws {
             
             throw NSError(domain: "", code: 0)
         }

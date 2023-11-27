@@ -33,7 +33,7 @@ fileprivate extension AppModel where S == BundleSamplesLocalStore, C == AVAudioS
     static let prod = AppModel(
         producer: Producer(
             player: AudioEnginePlayer(engine: AVAudioEngine(), makePlayerNode: { data in AudioEnginePlayerNode(with: data) }),
-            recorder: FoundationRecorder(makeRecorder: { url, settings in try AVAudioRecorder(url: url, settings: settings) }, mapper: BundleSamplesLocalStore.bufferMapper(url:))),
+            recorder: FoundationRecorder(makeRecorder: { url, format in try AVAudioRecorder(url: url, format: format) }, mapper: BundleSamplesLocalStore.bufferMapper(url:))),
         localStore: BundleSamplesLocalStore(mapper: BundleSamplesLocalStore.bufferMapper(url:)),
         sessionConfigurator: .init(session: AVAudioSession.sharedInstance()))
 }

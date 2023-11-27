@@ -11,12 +11,12 @@ import Combine
 public final class FoundationRecorder<R>: NSObject, AVAudioRecorderDelegate, Recorder where R: AVAudioRecorderProtocol {
     
     private let recordingStatusSubject = CurrentValueSubject<RecordingStatus, Never>(.idle)
-    private let makeRecorder: (URL, [String : Any]) throws -> R
+    private let makeRecorder: (URL, AVAudioFormat) throws -> R
     private let fileManager: FileManager
     private let mapper: (URL) -> Data?
     
     public init(
-        makeRecorder: @escaping (URL, [String : Any]) throws -> R,
+        makeRecorder: @escaping (URL, AVAudioFormat) throws -> R,
         fileManager: FileManager = .default,
         mapper: @escaping (URL) -> Data? = FoundationRecorder.basicMapper(url:)
     ) {
@@ -43,7 +43,7 @@ public final class FoundationRecorder<R>: NSObject, AVAudioRecorderDelegate, Rec
         
         do {
             
-            let recorder = try makeRecorder(makeRecordingURL(), makeRecordingSettings())
+            let recorder = try makeRecorder(makeRecordingURL(), .shared)
             recorder.delegate = self
             recorder.record()
             recordingStatusSubject.send(.inProgress(recorder))
@@ -77,16 +77,6 @@ public final class FoundationRecorder<R>: NSObject, AVAudioRecorderDelegate, Rec
     private func makeRecordingURL() -> URL {
         
         getDocumentsDirectory().appendingPathComponent("recording.m4a")
-    }
-    
-    private func makeRecordingSettings() -> [String: Any] {
-        
-        [
-            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 12000,
-            AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
-        ]
     }
     
     private func getDocumentsDirectory() -> URL {
