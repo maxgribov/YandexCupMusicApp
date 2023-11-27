@@ -12,6 +12,8 @@ struct LayerView: View {
     
     let viewModel: LayerViewModel
     
+    let playButtonDidTapped: (LayerViewModel.ID) -> Void
+    
     var body: some View {
         
         HStack(spacing: 0) {
@@ -22,7 +24,7 @@ struct LayerView: View {
             
             Spacer()
             
-            Button(action: viewModel.playButtonDidTaped) {
+            Button(action: { playButtonDidTapped(viewModel.id) }) {
                 
                 Image(viewModel.isPlaying ? .iconPause : .iconPlay)
                 
@@ -59,11 +61,11 @@ struct LayerView: View {
         
         VStack {
             
-            LayerView(viewModel: .init(id: UUID(), name: "Drums 1", isPlaying: false, isMuted: false, isActive: false))
+            LayerView(viewModel: .init(id: UUID(), name: "Drums 1", isPlaying: false, isMuted: false, isActive: false), playButtonDidTapped: { _ in })
             
-            LayerView(viewModel: .init(id: UUID(), name: "Guitar 1", isPlaying: false, isMuted: true, isActive: false))
+            LayerView(viewModel: .init(id: UUID(), name: "Guitar 1", isPlaying: false, isMuted: true, isActive: false), playButtonDidTapped: { _ in })
             
-            LayerView(viewModel: .init(id: UUID(), name: "Drums 2", isPlaying: true, isMuted: false, isActive: true))
+            LayerView(viewModel: .init(id: UUID(), name: "Drums 2", isPlaying: true, isMuted: false, isActive: true), playButtonDidTapped: { _ in })
             
         }.padding()
     }

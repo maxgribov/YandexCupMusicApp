@@ -24,16 +24,6 @@ final class LayerViewModelTests: XCTestCase {
         XCTAssertEqual(sut.isActive, true)
     }
     
-    func test_playButtonDidTapped_informDelegateIsPlayingDidChanged() {
-        
-        let sut = makeSUT(isPlaying: false)
-        
-        expect(sut, delegateAction: .isPlayingDidChanged(true), for: {
-            
-            sut.playButtonDidTaped()
-        })
-    }
-    
     func test_muteButtonDidTapped_informsDelegateIsMutedDidChanged() {
         
         let sut = makeSUT(isMuted: false)

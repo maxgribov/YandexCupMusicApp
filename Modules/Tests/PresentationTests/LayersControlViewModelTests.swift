@@ -40,9 +40,10 @@ final class LayersControlViewModelTests: XCTestCase {
                                     makeLayerViewModel(isPlaying: true),
                                     makeLayerViewModel(isPlaying: false)])
         
-        expect(sut, delegateActions: [.isPlayingDidChanged(sut.layers[2].id, true)], on: {
+        let layerId = sut.layers[2].id
+        expect(sut, delegateActions: [.isPlayingDidChanged(layerId, true)], on: {
             
-            sut.layers[2].playButtonDidTaped()
+            sut.playButtonDidTaped(for: layerId)
         })
     }
     

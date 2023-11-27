@@ -30,6 +30,15 @@ public final class LayersControlViewModel: ObservableObject {
         delegateActionSubject.eraseToAnyPublisher()
     }
     
+    public func playButtonDidTaped(for layerID: Layer.ID) {
+        
+        guard let layer = layers.first(where: { $0.id == layerID }) else {
+            return
+        }
+        
+        delegateActionSubject.send(.isPlayingDidChanged(layer.id, !layer.isPlaying))
+    }
+    
     private func bind() {
         
         $layers
