@@ -39,6 +39,15 @@ public final class LayersControlViewModel: ObservableObject {
         delegateActionSubject.send(.isPlayingDidChanged(layer.id, !layer.isPlaying))
     }
     
+    public func muteButtonDidTapped(for layerID: Layer.ID) {
+        
+        guard let layer = layers.first(where: { $0.id == layerID }) else {
+            return
+        }
+        
+        delegateActionSubject.send(.isMutedDidChanged(layer.id, !layer.isMuted))
+    }
+    
     private func bind() {
         
         $layers

@@ -38,12 +38,6 @@ public struct LayerViewModel: Identifiable {
         delegateActionSubject.eraseToAnyPublisher()
     }
     
-    
-    public func muteButtonDidTapped() {
-        
-        delegateActionSubject.send(.isMutedDidChanged(!isMuted))
-    }
-    
     public func selectDidTapped() {
         
         delegateActionSubject.send(.selectLayer)

@@ -24,7 +24,11 @@ public struct LayersControlView: View {
             
             ForEach(viewModel.layers) { layerViewModel in
             
-                LayerView(viewModel: layerViewModel, playButtonDidTapped: { layerId in viewModel.playButtonDidTaped(for: layerId) })
+                LayerView(
+                    viewModel: layerViewModel,
+                    playButtonDidTapped: { layerId in viewModel.playButtonDidTaped(for: layerId) },
+                    muteButtonDidTapped: { layerId in viewModel.muteButtonDidTapped(for: layerId)}
+                )
             }
             
         }.padding(.horizontal)

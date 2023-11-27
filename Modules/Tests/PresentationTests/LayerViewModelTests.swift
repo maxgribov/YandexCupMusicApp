@@ -23,17 +23,7 @@ final class LayerViewModelTests: XCTestCase {
         XCTAssertEqual(sut.isMuted, layer.isMuted)
         XCTAssertEqual(sut.isActive, true)
     }
-    
-    func test_muteButtonDidTapped_informsDelegateIsMutedDidChanged() {
         
-        let sut = makeSUT(isMuted: false)
-        
-        expect(sut, delegateAction: .isMutedDidChanged(true), for: {
-            
-            sut.muteButtonDidTapped()
-        })
-    }
-    
     func test_deleteButtonDidTapped_informDelegateDeleteLayerWithID() {
         
         let sut = makeSUT()

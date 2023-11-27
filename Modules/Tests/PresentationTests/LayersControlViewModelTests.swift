@@ -53,9 +53,10 @@ final class LayersControlViewModelTests: XCTestCase {
                                     makeLayerViewModel(isMuted: true),
                                     makeLayerViewModel(isMuted: false)])
         
-        expect(sut, delegateActions: [.isMutedDidChanged(sut.layers[1].id, false)], on: {
+        let layerId = sut.layers[1].id
+        expect(sut, delegateActions: [.isMutedDidChanged(layerId, false)], on: {
             
-            sut.layers[1].muteButtonDidTapped()
+            sut.muteButtonDidTapped(for: layerId)
         })
     }
     
