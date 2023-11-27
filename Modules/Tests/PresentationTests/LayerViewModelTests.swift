@@ -23,17 +23,7 @@ final class LayerViewModelTests: XCTestCase {
         XCTAssertEqual(sut.isMuted, layer.isMuted)
         XCTAssertEqual(sut.isActive, true)
     }
-        
-    func test_deleteButtonDidTapped_informDelegateDeleteLayerWithID() {
-        
-        let sut = makeSUT()
-        
-        expect(sut, delegateAction: .deleteLayer, for: {
             
-            sut.deleteButtonDidTapped()
-        })
-    }
-    
     //MARK: - Helpers
     
     private func makeSUT(id: Layer.ID = UUID(), name: String = "", isPlaying: Bool = false, isMuted: Bool = false, isActive: Bool = true) -> LayerViewModel {
@@ -41,29 +31,5 @@ final class LayerViewModelTests: XCTestCase {
         let sut = LayerViewModel(id: id, name: name, isPlaying: isPlaying, isMuted: isMuted, isActive: isActive)
         
         return sut
-    }
-
-    private func expect(
-        _ sut: LayerViewModel,
-        delegateAction expectedDelegateAction: LayerViewModel.DelegateAction?,
-        for action: () -> Void,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        
-        let delegateSpy = ValueSpy(sut.delegateAction)
-        
-        action()
-        
-        XCTWaiter().wait(for: [], timeout: 0.01)
-        
-        if let expectedDelegateAction {
-            
-            XCTAssertEqual(delegateSpy.values, [expectedDelegateAction], "Expected action: \(expectedDelegateAction), got \(delegateSpy.values) instead", file: file, line: line)
-            
-        } else {
-            
-            XCTAssertTrue(delegateSpy.values.isEmpty, "Expected no actions, got \(delegateSpy.values) instead", file: file, line: line)
-        }
     }
 }

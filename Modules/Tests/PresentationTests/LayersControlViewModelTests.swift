@@ -66,9 +66,10 @@ final class LayersControlViewModelTests: XCTestCase {
                                     makeLayerViewModel(),
                                     makeLayerViewModel()])
         
-        expect(sut, delegateActions: [.deleteLayer(sut.layers[0].id)], on: {
+        let layerId = sut.layers[0].id
+        expect(sut, delegateActions: [.deleteLayer(layerId)], on: {
             
-            sut.layers[0].deleteButtonDidTapped()
+            sut.deleteButtonDidTapped(for: layerId)
         })
     }
     

@@ -15,6 +15,7 @@ struct LayerView: View {
     let playButtonDidTapped: () -> Void
     let muteButtonDidTapped: () -> Void
     let selectDidTapped: () -> Void
+    let deleteButtonDidTapped: () -> Void
     
     var body: some View {
         
@@ -38,7 +39,7 @@ struct LayerView: View {
                 
             }.frame(width: 44, height: 44)
             
-            Button(action: viewModel.deleteButtonDidTapped) {
+            Button(action: deleteButtonDidTapped) {
                 
                 RoundedRectangle(cornerRadius: 4)
                     .foregroundStyle(Color(.backMiddle))
@@ -70,21 +71,24 @@ struct LayerView: View {
                 viewModel: .init(id: UUID(), name: "Drums 1", isPlaying: false, isMuted: false, isActive: false), 
                 playButtonDidTapped: {},
                 muteButtonDidTapped: {},
-                selectDidTapped: {}
+                selectDidTapped: {},
+                deleteButtonDidTapped: {}
             )
             
             LayerView(
                 viewModel: .init(id: UUID(), name: "Guitar 1", isPlaying: false, isMuted: true, isActive: false),
                 playButtonDidTapped: {},
                 muteButtonDidTapped: {},
-                selectDidTapped: {}
+                selectDidTapped: {},
+                deleteButtonDidTapped: {}
             )
             
             LayerView(
                 viewModel: .init(id: UUID(), name: "Drums 2", isPlaying: true, isMuted: false, isActive: true),
                 playButtonDidTapped: {},
                 muteButtonDidTapped: {},
-                selectDidTapped: {}
+                selectDidTapped: {},
+                deleteButtonDidTapped: {}
             )
             
         }.padding()

@@ -43,14 +43,7 @@ extension Publisher where Output == LayersUpdate, Failure == Never {
         
         map { update in
             
-            var viewModels = [LayerViewModel]()
-            for layer in update.layers {
-                
-                let viewModel = LayerViewModel(id: layer.id, name: layer.name, isPlaying: layer.isPlaying, isMuted: layer.isMuted, isActive: layer.id == update.active)
-                viewModels.append(viewModel)
-            }
-            
-            return viewModels
+            update.layers.map { LayerViewModel(id: $0.id, name: $0.name, isPlaying: $0.isPlaying, isMuted: $0.isMuted, isActive: $0.id == update.active) }
             
         }.eraseToAnyPublisher()
     }

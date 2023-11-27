@@ -203,14 +203,14 @@ final class MainViewModelTests: XCTestCase {
         sut.controlPanel.layersButtonDidTapped()
         let delegateActionSpy = ValueSpy(sut.delegateAction)
         
-        sut.layersControl?.layers[0].playButtonDidTaped()
+        sut.layersControl?.playButtonDidTaped(for: layerID)
         XCTAssertEqual(delegateActionSpy.values, [.layersControl(.isPlayingDidChanged(layerID, true))])
         
-        sut.layersControl?.layers[0].muteButtonDidTapped()
+        sut.layersControl?.muteButtonDidTapped(for: layerID)
         XCTAssertEqual(delegateActionSpy.values, [.layersControl(.isPlayingDidChanged(layerID, true)),
                                                   .layersControl(.isMutedDidChanged(layerID, true))])
         
-        sut.layersControl?.layers[0].deleteButtonDidTapped()
+        sut.layersControl?.deleteButtonDidTapped(for: layerID)
         XCTAssertEqual(delegateActionSpy.values, [.layersControl(.isPlayingDidChanged(layerID, true)),
                                                   .layersControl(.isMutedDidChanged(layerID, true)),
                                                   .layersControl(.deleteLayer(layerID))])
