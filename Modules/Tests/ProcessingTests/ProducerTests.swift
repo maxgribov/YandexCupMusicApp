@@ -602,9 +602,4 @@ final class ProducerTests: XCTestCase {
         
         Data(UUID().uuidString.utf8)
     }
-    
-    private func anyNSError() -> NSError {
-        
-        NSError(domain: "", code: 0)
-    }
 }

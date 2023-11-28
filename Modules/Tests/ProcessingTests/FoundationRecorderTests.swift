@@ -333,16 +333,4 @@ final class FoundationRecorderTests: XCTestCase {
         
         return (data, url)
     }
-    
-
-    
-    private func anyURL() -> URL {
-    
-        URL(string: "www.any-url.com")!
-    }
-    
-    private func anyNSError() -> NSError {
-        
-        NSError(domain: "", code: 0)
-    }
 }

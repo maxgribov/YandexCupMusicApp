@@ -32,6 +32,16 @@ extension XCTestCase {
         
         return (data, url)
     }
+    
+    func anyURL() -> URL {
+    
+        URL(string: "www.any-url.com")!
+    }
+    
+    func anyNSError() -> NSError {
+        
+        NSError(domain: "", code: 0)
+    }
 }
 
 extension AVAudioRecorder: AVAudioRecorderProtocol {}
