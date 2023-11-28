@@ -80,7 +80,7 @@ enum AudioEngineComposerError: Error {
 final class AudioEngineComposerTests: XCTestCase {
     
     private var resultNodes = [AudioEnginePlayerNodeSpy?]()
-    private var outputFile: AVAudioFile?
+    private var outputFile: AVAudioFileSpy?
     
     override func setUp() async throws {
         try await super.setUp()
@@ -159,6 +159,17 @@ final class AudioEngineComposerTests: XCTestCase {
         XCTAssertEqual(mixer.messages, [.removeTap, .installTap])
     }
     
+    func test_composeTracks_messagesOutputFileToWriteBufferOnBufferArrive() {
+        
+        let (sut, _, mixer) = makeSUT()
+        
+        _ = sut.compose(tracks: [someTrack()])
+        let buffer = someAudioBuffer()
+        mixer.simulateSending(buffer: buffer)
+        
+        XCTAssertEqual(outputFile?.messages, [.write(buffer)])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -185,7 +196,7 @@ final class AudioEngineComposerTests: XCTestCase {
             },
             makeRecordingFile: { format in
                 
-                guard let file = try? AVAudioFile(forWriting: self.outputFileURLStub(), settings: format.settings) else {
+                guard let file = try? AVAudioFileSpy(forWriting: self.outputFileURLStub(), settings: format.settings) else {
                     throw self.anyNSError()
                 }
                 
@@ -230,6 +241,7 @@ final class AudioEngineComposerTests: XCTestCase {
     private class AVAudioMixerNodeSpy: AVAudioMixerNode {
         
         private(set) var messages = [Message]()
+        private var tapBlocks = [AVAudioNodeTapBlock]()
         
         enum Message: Equatable {
             
@@ -245,6 +257,27 @@ final class AudioEngineComposerTests: XCTestCase {
         override func installTap(onBus bus: AVAudioNodeBus, bufferSize: AVAudioFrameCount, format: AVAudioFormat?, block tapBlock: @escaping AVAudioNodeTapBlock) {
             
             messages.append(.installTap)
+            tapBlocks.append(tapBlock)
+        }
+        
+        func simulateSending(buffer: AVAudioPCMBuffer, at index: Int = 0) {
+            
+            tapBlocks[index](buffer, .init())
+        }
+    }
+    
+    private class AVAudioFileSpy: AVAudioFile {
+        
+        private(set) var messages = [Message]()
+        
+        enum Message: Equatable {
+            
+            case write(AVAudioPCMBuffer)
+        }
+        
+        override func write(from buffer: AVAudioPCMBuffer) throws {
+            
+            messages.append(.write(buffer))
         }
     }
     
@@ -271,5 +304,10 @@ final class AudioEngineComposerTests: XCTestCase {
     private func outputFileURLStub() -> URL {
         
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("composition.m4a")
+    }
+    
+    private func someAudioBuffer() -> AVAudioPCMBuffer {
+        
+        AVAudioPCMBuffer(pcmFormat: .shared, frameCapacity: .min)!
     }
 }
