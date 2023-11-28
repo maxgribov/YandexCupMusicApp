@@ -38,26 +38,25 @@ struct Track {
 }
 
 final class AudioEngineComposerTests: XCTestCase {
+    
+    var resultNodes = [AudioEnginePlayerNodeSpy?]()
+    
+    override func setUp() async throws {
+        try await super.setUp()
+        
+        resultNodes = []
+    }
 
     func test_init_doesNotMessagesEngine() {
         
-        let engine = AVAudioEngineSpy()
-        let _ = AudioEngineComposer(engine: engine, makeNode: { track in
-            AudioEnginePlayerNodeSpy(with: track.data)
-        })
+        let (_, engine) = makeSUT()
         
         XCTAssertEqual(engine.messages, [])
     }
     
     func test_composeTracks_createsPlayersForTracks() {
         
-        let engine = AVAudioEngineSpy()
-        var resultNodes = [AudioEnginePlayerNodeSpy?]()
-        let sut = AudioEngineComposer(engine: engine, makeNode: { track in
-            let node = AudioEnginePlayerNodeSpy(with: track.data)
-            resultNodes.append(node)
-            return node
-        })
+        let (sut, _) = makeSUT()
         
         _ = sut.compose(tracks: [.init(id: anyLayerID(), data: anyData(), volume: anyVolume(), rate: anyRate()),
                                  .init(id: anyLayerID(), data: anyData(), volume: anyVolume(), rate: anyRate())])
@@ -66,6 +65,27 @@ final class AudioEngineComposerTests: XCTestCase {
     }
     
     //MARK: - Helpers
+    
+    private func makeSUT(
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (
+        sut: AudioEngineComposer,
+        engine: AVAudioEngineSpy
+    ) {
+        
+        let engine = AVAudioEngineSpy()
+        let sut = AudioEngineComposer(engine: engine, makeNode: { [weak self] track in
+            let node = AudioEnginePlayerNodeSpy(with: track.data)
+            self?.resultNodes.append(node)
+            return node
+        })
+        
+        trackForMemoryLeaks(sut, file: file, line: line)
+        trackForMemoryLeaks(engine, file: file, line: line)
+        
+        return (sut, engine)
+    }
     
     private func anyVolume() -> Float {
         
