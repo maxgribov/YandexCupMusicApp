@@ -29,13 +29,7 @@ final class AudioEngineComposer {
     }
 }
 
-struct Track {
-    
-    let id: UUID
-    let data: Data
-    let volume: Float
-    let rate: Float
-}
+
 
 final class AudioEngineComposerTests: XCTestCase {
     
