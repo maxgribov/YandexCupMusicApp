@@ -10,12 +10,12 @@ import AVFoundation
 import Combine
 import Processing
 
-final class AudioEngineComposer {
+final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol {
      
     private let engine: AVAudioEngine
-    private let makeNode: (Track) -> AudioEnginePlayerNodeProtocol?
+    private let makeNode: (Track) -> Node?
     
-    init(engine: AVAudioEngine, makeNode: @escaping (Track) -> AudioEnginePlayerNodeProtocol?) {
+    init(engine: AVAudioEngine, makeNode: @escaping (Track) -> Node?) {
         
         self.engine = engine
         self.makeNode = makeNode
@@ -23,13 +23,18 @@ final class AudioEngineComposer {
     
     func compose(tracks: [Track]) -> AnyPublisher<URL, Error> {
         
-        _ = tracks.map { makeNode($0) }
+        _ = tracks.map { track in
+        
+            let node = makeNode(track)
+            node?.set(volume: track.volume)
+            node?.set(rate: track.rate)
+            
+            return node
+        }
         
         return Fail(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
     }
 }
-
-
 
 final class AudioEngineComposerTests: XCTestCase {
     
@@ -48,14 +53,23 @@ final class AudioEngineComposerTests: XCTestCase {
         XCTAssertEqual(engine.messages, [])
     }
     
-    func test_composeTracks_createsPlayersForTracks() {
+    func test_composeTracks_createsNodesForTracks() {
         
         let (sut, _) = makeSUT()
         
-        _ = sut.compose(tracks: [.init(id: anyLayerID(), data: anyData(), volume: anyVolume(), rate: anyRate()),
-                                 .init(id: anyLayerID(), data: anyData(), volume: anyVolume(), rate: anyRate())])
+        _ = sut.compose(tracks: [someTrack(), someTrack()])
         
         XCTAssertEqual(resultNodes.compactMap{ $0 }.count, 2)
+    }
+    
+    func test_composeTracks_messagesNodeWithInitSetVolumeAndSetRateMessages() {
+        
+        let (sut, _) = makeSUT()
+        
+        let track = someTrack()
+        _ = sut.compose(tracks: [track])
+        
+        XCTAssertEqual(resultNodes[0]?.messages, [.initWithData(track.data), .setVolume(track.volume), .setRate(track.rate)])
     }
     
     //MARK: - Helpers
@@ -64,7 +78,7 @@ final class AudioEngineComposerTests: XCTestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> (
-        sut: AudioEngineComposer,
+        sut: AudioEngineComposer<AudioEnginePlayerNodeSpy>,
         engine: AVAudioEngineSpy
     ) {
         
@@ -81,6 +95,11 @@ final class AudioEngineComposerTests: XCTestCase {
         return (sut, engine)
     }
     
+    private func anyTrackID() -> UUID {
+        
+        UUID()
+    }
+    
     private func anyVolume() -> Float {
         
         Float.random(in: 0...1)
@@ -89,5 +108,10 @@ final class AudioEngineComposerTests: XCTestCase {
     private func anyRate() -> Float {
         
         Float.random(in: 0...1)
+    }
+    
+    private func someTrack() -> Track {
+        
+        .init(id: anyTrackID(), data: anyData(), volume: anyVolume(), rate: anyRate())
     }
 }
