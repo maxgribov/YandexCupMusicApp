@@ -111,6 +111,18 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
             return Fail(error: .engineStartFailure).eraseToAnyPublisher()
         }
     }
+    
+    func stop() {
+        
+        if let url = outputRecordingFile?.url {
+            
+            stateSubject.send(.complete(url))
+            
+        } else {
+            
+            stateSubject.send(.failure(AudioEngineComposerError.compositingFailure))
+        }
+    }
 }
 
 enum AudioEngineComposerError: Error {
@@ -122,12 +134,14 @@ enum AudioEngineComposerError: Error {
 
 final class AudioEngineComposerTests: XCTestCase {
     
+    private var cancellables = Set<AnyCancellable>()
     private var resultNodes = [AudioEnginePlayerNodeSpy?]()
     private var outputFile: AVAudioFileSpy?
     
     override func setUp() async throws {
         try await super.setUp()
         
+        cancellables = []
         resultNodes = []
         outputFile = nil
     }
@@ -222,6 +236,28 @@ final class AudioEngineComposerTests: XCTestCase {
             self.outputFile?.writeErrorStub = self.anyNSError()
             mixer.simulateSending(buffer: self.someAudioBuffer())
         })
+    }
+    
+    func test_stop_deliversOutputFileURL() {
+        
+        let (sut, _, _) = makeSUT()
+        
+        let expValue = expectation(description: "Wait for value")
+        sut.compose(tracks: [someTrack()])
+            .sink(receiveCompletion: { completion in
+                
+                XCTFail("Expected finish, got \(completion) instead")
+                
+            }, receiveValue: { receivedURL in
+                
+                XCTAssertEqual(receivedURL, self.outputFileURLStub())
+                expValue.fulfill()
+            })
+            .store(in: &cancellables)
+        
+        sut.stop()
+        
+        wait(for: [expValue], timeout: 1.0)
     }
     
     //MARK: - Helpers
