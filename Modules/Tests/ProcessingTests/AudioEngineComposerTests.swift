@@ -36,6 +36,8 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
     
     func compose(tracks: [Track]) -> AnyPublisher<URL, AudioEngineComposerError> {
         
+        stateSubject.send(.idle)
+        
         let nodes = tracks.map { track in
         
             let node = makeNode(track)
@@ -47,6 +49,8 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
         }.compactMap { $0 }
         
         guard nodes.isEmpty == false else {
+            
+            stateSubject.send(.failure(AudioEngineComposerError.nodesMappingFailure))
             return Fail(error: .nodesMappingFailure).eraseToAnyPublisher()
         }
         
@@ -79,8 +83,18 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
                 node.play()
             }
             
+            stateSubject.send(.compositing)
+            
             return stateSubject
-                .dropFirst()
+                .drop(while: { state in
+                    switch state {
+                    case .idle, .compositing:
+                        return true
+                        
+                    default:
+                        return false
+                    }
+                })
                 .tryMap { state in
                     
                     switch state {
@@ -93,6 +107,7 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
             
         } catch {
             
+            stateSubject.send(.failure(error))
             return Fail(error: .engineStartFailure).eraseToAnyPublisher()
         }
     }
