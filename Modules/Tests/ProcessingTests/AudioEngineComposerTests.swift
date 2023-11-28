@@ -17,6 +17,16 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
     private let makeRecordingFile: (AVAudioFormat) throws -> AVAudioFile
     private var outputRecordingFile: AVAudioFile?
     
+    private var stateSubject = CurrentValueSubject<State, Never>(.idle)
+    
+    private enum State {
+        
+        case idle
+        case compositing
+        case complete(URL)
+        case failure(Error)
+    }
+    
     init(engine: AVAudioEngine, makeNode: @escaping (Track) -> Node?, makeRecordingFile: @escaping (AVAudioFormat) throws -> AVAudioFile) {
         
         self.engine = engine
@@ -52,7 +62,14 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
             engine.mainMixerNode.removeTap(onBus: 0)
             engine.mainMixerNode.installTap(onBus: 0, bufferSize: 1023, format: outputFormat) { [weak self] buffer, _ in
                 
-                try? self?.outputRecordingFile?.write(from: buffer)
+                do {
+                    
+                    try self?.outputRecordingFile?.write(from: buffer)
+                    
+                } catch {
+                    
+                    self?.stateSubject.send(.failure(error))
+                }
             }
             
             try engine.start()
@@ -62,12 +79,22 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
                 node.play()
             }
             
+            return stateSubject
+                .dropFirst()
+                .tryMap { state in
+                    
+                    switch state {
+                    case let .complete(url): return url
+                    default: throw AudioEngineComposerError.compositingFailure
+                    }
+                }
+                .mapError{ $0 as! AudioEngineComposerError }
+                .eraseToAnyPublisher()
+            
         } catch {
             
             return Fail(error: .engineStartFailure).eraseToAnyPublisher()
         }
-        
-        return Fail(error: .engineStartFailure).eraseToAnyPublisher()
     }
 }
 
@@ -75,6 +102,7 @@ enum AudioEngineComposerError: Error {
     
     case nodesMappingFailure
     case engineStartFailure
+    case compositingFailure
 }
 
 final class AudioEngineComposerTests: XCTestCase {
@@ -170,6 +198,17 @@ final class AudioEngineComposerTests: XCTestCase {
         XCTAssertEqual(outputFile?.messages, [.write(buffer)])
     }
     
+    func test_composeTracks_deliversErrorOnOutputFileWriteFailure() {
+        
+        let (sut, _, mixer) = makeSUT()
+        
+        composeTracksExpect(sut, error: .compositingFailure, for: [someTrack()], on: {
+            
+            self.outputFile?.writeErrorStub = self.anyNSError()
+            mixer.simulateSending(buffer: self.someAudioBuffer())
+        })
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -217,6 +256,7 @@ final class AudioEngineComposerTests: XCTestCase {
         _ sut: AudioEngineComposer<AudioEnginePlayerNodeSpy>,
         error expectedError: AudioEngineComposerError,
         for tracks: [Track],
+        on action: (() -> Void)? = nil,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -236,6 +276,8 @@ final class AudioEngineComposerTests: XCTestCase {
                 
                 XCTFail("Expected error", file: file, line: line)
             })
+        
+        action?()
     }
     
     private class AVAudioMixerNodeSpy: AVAudioMixerNode {
@@ -270,6 +312,8 @@ final class AudioEngineComposerTests: XCTestCase {
         
         private(set) var messages = [Message]()
         
+        var writeErrorStub: Error?
+        
         enum Message: Equatable {
             
             case write(AVAudioPCMBuffer)
@@ -278,6 +322,10 @@ final class AudioEngineComposerTests: XCTestCase {
         override func write(from buffer: AVAudioPCMBuffer) throws {
             
             messages.append(.write(buffer))
+            
+            if let writeErrorStub {
+                throw writeErrorStub
+            }
         }
     }
     
