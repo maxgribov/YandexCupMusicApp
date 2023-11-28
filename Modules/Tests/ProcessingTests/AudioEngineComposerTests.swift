@@ -70,6 +70,14 @@ final class AudioEngineComposerTests: XCTestCase {
         XCTAssertEqual(resultNodes[1]?.messages, [.initWithData(tracks[1].data), .setVolume(tracks[1].volume), .setRate(tracks[1].rate), .connectToEngine])
     }
     
+    func test_composeTracks_doesNotMessagesEngineOnEmptyNodesList() {
+        
+        let (sut, engine) = makeSUT()
+        
+        _ = sut.compose(tracks: [])
+        
+        XCTAssertEqual(engine.messages, [])
+    }
     
     //MARK: - Helpers
     
