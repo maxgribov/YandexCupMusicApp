@@ -214,19 +214,27 @@ Timer.publish(every: 0.1, on: .main, in: .common)
     }
     .store(in: &cancellables)
 
-/// looks like it crashes if on mic available
+
 /*
- 
-print("Recording started")
- 
-engine.inputNode.installTap(onBus: 0, bufferSize: 1024, format: engine.inputNode.outputFormat(forBus: 0)) { buffer, time in
+let outputRecordingFile = try AVAudioFile(forWriting: outputNodeFileURL,
+                                          settings: audioEngine.mainMixerNode.outputFormat(forBus: 0).settings)
+ */
+
+engine.mainMixerNode.installTap(onBus: 0, bufferSize: 1024, format: engine.mainMixerNode.outputFormat(forBus: 0)) { buffer, time in
     
     print("buffer: \(buffer)")
+    
+    /*
+     do {
+         try self.outputRecordingFile?.write(from: buffer)
+     } catch {
+         fatalError("Couldn't write audio file")
+     }
+     */
 }
 
 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
     
-    engine.inputNode.removeTap(onBus: 0)
+    engine.mainMixerNode.removeTap(onBus: 0)
     print("Recording stopped")
 }
-*/
