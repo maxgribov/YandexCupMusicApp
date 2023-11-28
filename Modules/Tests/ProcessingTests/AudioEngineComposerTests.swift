@@ -33,9 +33,22 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
             
         }.compactMap { $0 }
         
+        guard nodes.isEmpty == false else {
+            return Fail(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
+        }
+        
         nodes.forEach { node in
             
             node.connect(to: engine)
+        }
+        
+        do {
+            
+            try engine.start()
+            
+        } catch {
+            
+            return Fail(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
         }
         
         return Fail(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
@@ -77,6 +90,15 @@ final class AudioEngineComposerTests: XCTestCase {
         _ = sut.compose(tracks: [])
         
         XCTAssertEqual(engine.messages, [])
+    }
+    
+    func test_composeTracks_messagesEngineWithStartOnNotEmptyNodesList() {
+        
+        let (sut, engine) = makeSUT()
+        
+        _ = sut.compose(tracks: [someTrack()])
+        
+        XCTAssertEqual(engine.messages, [.start])
     }
     
     //MARK: - Helpers
