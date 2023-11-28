@@ -53,23 +53,15 @@ final class AudioEngineComposerTests: XCTestCase {
         XCTAssertEqual(engine.messages, [])
     }
     
-    func test_composeTracks_createsNodesForTracks() {
-        
-        let (sut, _) = makeSUT()
-        
-        _ = sut.compose(tracks: [someTrack(), someTrack()])
-        
-        XCTAssertEqual(resultNodes.compactMap{ $0 }.count, 2)
-    }
-    
     func test_composeTracks_messagesNodeWithInitSetVolumeAndSetRateMessages() {
         
         let (sut, _) = makeSUT()
         
-        let track = someTrack()
-        _ = sut.compose(tracks: [track])
+        let tracks = [someTrack(), someTrack()]
+        _ = sut.compose(tracks: tracks)
         
-        XCTAssertEqual(resultNodes[0]?.messages, [.initWithData(track.data), .setVolume(track.volume), .setRate(track.rate)])
+        XCTAssertEqual(resultNodes[0]?.messages, [.initWithData(tracks[0].data), .setVolume(tracks[0].volume), .setRate(tracks[0].rate)])
+        XCTAssertEqual(resultNodes[1]?.messages, [.initWithData(tracks[1].data), .setVolume(tracks[1].volume), .setRate(tracks[1].rate)])
     }
     
     //MARK: - Helpers
