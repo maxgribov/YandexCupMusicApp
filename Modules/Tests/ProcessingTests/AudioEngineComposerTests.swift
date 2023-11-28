@@ -45,6 +45,11 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
         do {
             
             try engine.start()
+            nodes.forEach { node in
+                
+                node.schedule(offset: nil)
+                node.play()
+            }
             
         } catch {
             
@@ -78,15 +83,15 @@ final class AudioEngineComposerTests: XCTestCase {
         XCTAssertEqual(engine.messages, [])
     }
     
-    func test_composeTracks_messagesNodeWithInitSetVolumeAndSetRateMessagesAndConnectToEngine() {
+    func test_composeTracks_messagesNodeWithInitSetVolumeAndSetRateMessagesAndConnectToEngineAndScheduleAndPlay() {
         
         let (sut, _) = makeSUT()
         
         let tracks = [someTrack(), someTrack()]
         _ = sut.compose(tracks: tracks)
         
-        XCTAssertEqual(resultNodes[0]?.messages, [.initWithData(tracks[0].data), .setVolume(tracks[0].volume), .setRate(tracks[0].rate), .connectToEngine])
-        XCTAssertEqual(resultNodes[1]?.messages, [.initWithData(tracks[1].data), .setVolume(tracks[1].volume), .setRate(tracks[1].rate), .connectToEngine])
+        XCTAssertEqual(resultNodes[0]?.messages, [.initWithData(tracks[0].data), .setVolume(tracks[0].volume), .setRate(tracks[0].rate), .connectToEngine, .schedule(nil), .play])
+        XCTAssertEqual(resultNodes[1]?.messages, [.initWithData(tracks[1].data), .setVolume(tracks[1].volume), .setRate(tracks[1].rate), .connectToEngine, .schedule(nil), .play])
     }
     
     func test_composeTracks_doesNotMessagesEngineOnEmptyNodesList() {
