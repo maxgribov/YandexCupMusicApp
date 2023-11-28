@@ -218,7 +218,7 @@ final class AppModelTests: XCTestCase {
     ) -> (sut: AppModel<SamplesLocalStoreSpyStub, SessionSpy>, session: SessionSpy, recorder: FoundationRecorder<AudioRecorderDummy>) {
         
         let sessionSpy = SessionSpy()
-        let recorder = FoundationRecorder(makeRecorder: { url, settings in try AudioRecorderDummy(url: url, settings: settings) })
+        let recorder = FoundationRecorder(makeRecorder: { url, format in try AudioRecorderDummy(url: url, format: format) })
         let sut = AppModel(
             producer: Producer(
                 player: FoundationPlayer(makePlayer: { data in try AudioPlayerDummy(data: data) }),
@@ -260,7 +260,7 @@ final class AppModelTests: XCTestCase {
         
         var delegate: AVAudioRecorderDelegate?
 
-        required init(url: URL, settings: [String : Any]) throws { }
+        required init(url: URL, format: AVAudioFormat) throws {}
         
         func record() -> Bool { false }
         func stop() {}
