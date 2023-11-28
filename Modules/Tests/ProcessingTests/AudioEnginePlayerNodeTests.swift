@@ -252,39 +252,6 @@ final class AudioEnginePlayerNodeTests: XCTestCase {
         private var _rate: Float = 0
     }
     
-    class AVAudioEngineSpy: AVAudioEngine {
-        
-        private(set) var messages = [Message]()
-        
-        enum Message: Equatable {
-            
-            case attach(AVAudioNode)
-            case connect(AVAudioNode, AVAudioNode)
-            case disconnect(AVAudioNode)
-            case detach(AVAudioNode)
-        }
-        
-        override func attach(_ node: AVAudioNode) {
-            
-            messages.append(.attach(node))
-        }
-        
-        override func connect(_ node1: AVAudioNode, to node2: AVAudioNode, format: AVAudioFormat?) {
-            
-            messages.append(.connect(node1, node2))
-        }
-        
-        override func disconnectNodeInput(_ node: AVAudioNode) {
-            
-            messages.append(.disconnect(node))
-        }
-        
-        override func detach(_ node: AVAudioNode) {
-            
-            messages.append(.detach(node))
-        }
-    }
-    
     class AVAudioPCMBufferStub: AVAudioPCMBuffer {
         
         override var frameLength: AVAudioFrameCount {

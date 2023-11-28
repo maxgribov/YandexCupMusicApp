@@ -29,7 +29,7 @@ final class AudioEnginePlayerTests: XCTestCase {
     
     func test_play_nothingPlayingOnNodeCreationFailure() {
         
-        let sut = AudioEnginePlayer(engine: AudioEngineSpy(), makePlayerNode: { data in
+        let sut = AudioEnginePlayer(engine: AVAudioEngineSpy(), makePlayerNode: { data in
             AlwaysFailingAudioEnginePlayerNodeStub(with: data)
         })
         
@@ -204,9 +204,9 @@ final class AudioEnginePlayerTests: XCTestCase {
     private func makeSUT(
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> (sut: AudioEnginePlayer<AudioEnginePlayerNodeSpy>, engine: AudioEngineSpy) {
+    ) -> (sut: AudioEnginePlayer<AudioEnginePlayerNodeSpy>, engine: AVAudioEngineSpy) {
         
-        let engineSpy = AudioEngineSpy()
+        let engineSpy = AVAudioEngineSpy()
         let sut = AudioEnginePlayer(engine: engineSpy, makePlayerNode: { data in
             
             self.playerNodeSpy = AudioEnginePlayerNodeSpy(with: data)
@@ -298,35 +298,6 @@ final class AudioEnginePlayerTests: XCTestCase {
         func set(volume: Float) {}
         func set(rate: Float) {}
         func schedule(offset: AVAudioTime?) {}
-    }
-    
-    private class AudioEngineSpy: AVAudioEngine {
-        
-        private(set) var messages = [Message]()
-        
-        enum Message: Equatable {
-            
-            case prepare
-            case start
-        }
-        
-        override var isRunning: Bool { _isRunning }
-        private var _isRunning: Bool = false
-        
-        override func prepare() {
-            
-            messages.append(.prepare)
-        }
-        
-        override func start() throws {
-             
-            messages.append(.start)
-        }
-        
-        func simulateEngineStarted() {
-            
-            _isRunning = true
-        }
     }
     
     private func expect(
