@@ -47,7 +47,14 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
         
         do {
             
-            outputRecordingFile = try makeRecordingFile(engine.mainMixerNode.outputFormat(forBus: 0))
+            let outputFormat = engine.mainMixerNode.outputFormat(forBus: 0)
+            outputRecordingFile = try makeRecordingFile(outputFormat)
+            engine.mainMixerNode.removeTap(onBus: 0)
+            engine.mainMixerNode.installTap(onBus: 0, bufferSize: 1023, format: outputFormat) { [weak self] buffer, _ in
+                
+                try? self?.outputRecordingFile?.write(from: buffer)
+            }
+            
             try engine.start()
             nodes.forEach { node in
                 
@@ -84,14 +91,14 @@ final class AudioEngineComposerTests: XCTestCase {
 
     func test_init_doesNotMessagesEngine() {
         
-        let (_, engine) = makeSUT()
+        let (_, engine, _) = makeSUT()
         
         XCTAssertEqual(engine.messages, [])
     }
     
     func test_composeTracks_messagesNodeWithInitSetVolumeAndSetRateMessagesAndConnectToEngineAndScheduleAndPlay() {
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         
         let tracks = [someTrack(), someTrack()]
         _ = sut.compose(tracks: tracks)
@@ -102,7 +109,7 @@ final class AudioEngineComposerTests: XCTestCase {
     
     func test_composeTracks_doesNotMessagesEngineOnEmptyNodesList() {
         
-        let (sut, engine) = makeSUT()
+        let (sut, engine, _) = makeSUT()
         
         _ = sut.compose(tracks: [])
         
@@ -111,7 +118,7 @@ final class AudioEngineComposerTests: XCTestCase {
     
     func test_composeTracks_messagesEngineWithStartOnNotEmptyNodesList() {
         
-        let (sut, engine) = makeSUT()
+        let (sut, engine, _) = makeSUT()
         
         _ = sut.compose(tracks: [someTrack()])
         
@@ -120,14 +127,14 @@ final class AudioEngineComposerTests: XCTestCase {
     
     func test_composeTracks_deliversErrorOnNodesFromTracksMappingFailure() {
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         
         composeTracksExpect(sut, error: .nodesMappingFailure, for: [])
     }
     
     func test_composeTracks_deliversErrorOnEngineStartFailure() {
         
-        let (sut, engine) = makeSUT()
+        let (sut, engine, _) = makeSUT()
         
         engine.startErrorStub = anyNSError()
         composeTracksExpect(sut, error: .engineStartFailure, for: [someTrack()])
@@ -135,12 +142,21 @@ final class AudioEngineComposerTests: XCTestCase {
     
     func test_composeTracks_createsOutputAudioFile() {
         
-        let (sut, _) = makeSUT()
+        let (sut, _, _) = makeSUT()
         
         _ = sut.compose(tracks: [someTrack()])
         
         XCTAssertNotNil(outputFile)
         XCTAssertEqual(outputFile?.url, outputFileURLStub())
+    }
+    
+    func test_composeTracks_messagesEngineMainMixerNodeToRemoveTapAndThenInstallTap() {
+        
+        let (sut, _, mixer) = makeSUT()
+        
+        _ = sut.compose(tracks: [someTrack()])
+        
+        XCTAssertEqual(mixer.messages, [.removeTap, .installTap])
     }
     
     //MARK: - Helpers
@@ -150,10 +166,13 @@ final class AudioEngineComposerTests: XCTestCase {
         line: UInt = #line
     ) -> (
         sut: AudioEngineComposer<AudioEnginePlayerNodeSpy>,
-        engine: AVAudioEngineSpy
+        engine: AVAudioEngineSpy,
+        mixer: AVAudioMixerNodeSpy
     ) {
         
         let engine = AVAudioEngineSpy()
+        let mixer = AVAudioMixerNodeSpy()
+        engine.mainMixerNodeStub = mixer
         let sut = AudioEngineComposer(
             engine: engine,
             makeNode: { track in
@@ -178,8 +197,9 @@ final class AudioEngineComposerTests: XCTestCase {
         
         trackForMemoryLeaks(sut, file: file, line: line)
         trackForMemoryLeaks(engine, file: file, line: line)
+        trackForMemoryLeaks(mixer, file: file, line: line)
         
-        return (sut, engine)
+        return (sut, engine, mixer)
     }
     
     private func composeTracksExpect(
@@ -205,6 +225,27 @@ final class AudioEngineComposerTests: XCTestCase {
                 
                 XCTFail("Expected error", file: file, line: line)
             })
+    }
+    
+    private class AVAudioMixerNodeSpy: AVAudioMixerNode {
+        
+        private(set) var messages = [Message]()
+        
+        enum Message: Equatable {
+            
+            case removeTap
+            case installTap
+        }
+        
+        override func removeTap(onBus bus: AVAudioNodeBus) {
+            
+            messages.append(.removeTap)
+        }
+        
+        override func installTap(onBus bus: AVAudioNodeBus, bufferSize: AVAudioFrameCount, format: AVAudioFormat?, block tapBlock: @escaping AVAudioNodeTapBlock) {
+            
+            messages.append(.installTap)
+        }
     }
     
     private func anyTrackID() -> UUID {

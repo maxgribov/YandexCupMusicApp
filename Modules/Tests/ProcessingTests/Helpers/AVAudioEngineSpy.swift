@@ -25,6 +25,7 @@ class AVAudioEngineSpy: AVAudioEngine {
     private var _isRunning: Bool = false
     
     var startErrorStub: Error?
+    var mainMixerNodeStub: AVAudioMixerNode?
     
     override func prepare() {
         
@@ -63,5 +64,17 @@ class AVAudioEngineSpy: AVAudioEngine {
     override func detach(_ node: AVAudioNode) {
         
         messages.append(.detach(node))
+    }
+    
+    override var mainMixerNode: AVAudioMixerNode {
+        
+        if let stub = mainMixerNodeStub {
+            
+            return stub
+            
+        } else {
+            
+            return super.mainMixerNode
+        }
     }
 }
