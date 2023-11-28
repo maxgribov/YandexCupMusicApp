@@ -21,7 +21,7 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
         self.makeNode = makeNode
     }
     
-    func compose(tracks: [Track]) -> AnyPublisher<URL, Error> {
+    func compose(tracks: [Track]) -> AnyPublisher<URL, AudioEngineComposerError> {
         
         let nodes = tracks.map { track in
         
@@ -34,7 +34,7 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
         }.compactMap { $0 }
         
         guard nodes.isEmpty == false else {
-            return Fail(error: AudioEngineComposerError.nodesMappingFailure).eraseToAnyPublisher()
+            return Fail(error: .nodesMappingFailure).eraseToAnyPublisher()
         }
         
         nodes.forEach { node in
@@ -48,10 +48,10 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
             
         } catch {
             
-            return Fail(error: AudioEngineComposerError.engineStartFailure).eraseToAnyPublisher()
+            return Fail(error: .engineStartFailure).eraseToAnyPublisher()
         }
         
-        return Fail(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
+        return Fail(error: .engineStartFailure).eraseToAnyPublisher()
     }
 }
 
@@ -161,7 +161,7 @@ final class AudioEngineComposerTests: XCTestCase {
                     XCTFail("Expected error", file: file, line: line)
                     
                 case .failure(let receivedError):
-                    XCTAssertEqual(receivedError as NSError, expectedError as NSError, file: file, line: line)
+                    XCTAssertEqual(receivedError, expectedError, file: file, line: line)
                 }
                 
             }, receiveValue: { _ in
