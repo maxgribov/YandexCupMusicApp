@@ -14,11 +14,14 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
      
     private let engine: AVAudioEngine
     private let makeNode: (Track) -> Node?
+    private let makeRecordingFile: (AVAudioFormat) throws -> AVAudioFile
+    private var outputRecordingFile: AVAudioFile?
     
-    init(engine: AVAudioEngine, makeNode: @escaping (Track) -> Node?) {
+    init(engine: AVAudioEngine, makeNode: @escaping (Track) -> Node?, makeRecordingFile: @escaping (AVAudioFormat) throws -> AVAudioFile) {
         
         self.engine = engine
         self.makeNode = makeNode
+        self.makeRecordingFile = makeRecordingFile
     }
     
     func compose(tracks: [Track]) -> AnyPublisher<URL, AudioEngineComposerError> {
@@ -44,6 +47,7 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
         
         do {
             
+            outputRecordingFile = try makeRecordingFile(engine.mainMixerNode.outputFormat(forBus: 0))
             try engine.start()
             nodes.forEach { node in
                 
@@ -68,12 +72,14 @@ enum AudioEngineComposerError: Error {
 
 final class AudioEngineComposerTests: XCTestCase {
     
-    var resultNodes = [AudioEnginePlayerNodeSpy?]()
+    private var resultNodes = [AudioEnginePlayerNodeSpy?]()
+    private var outputFile: AVAudioFile?
     
     override func setUp() async throws {
         try await super.setUp()
         
         resultNodes = []
+        outputFile = nil
     }
 
     func test_init_doesNotMessagesEngine() {
@@ -127,6 +133,16 @@ final class AudioEngineComposerTests: XCTestCase {
         composeTracksExpect(sut, error: .engineStartFailure, for: [someTrack()])
     }
     
+    func test_composeTracks_createsOutputAudioFile() {
+        
+        let (sut, _) = makeSUT()
+        
+        _ = sut.compose(tracks: [someTrack()])
+        
+        XCTAssertNotNil(outputFile)
+        XCTAssertEqual(outputFile?.url, outputFileURLStub())
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -138,11 +154,27 @@ final class AudioEngineComposerTests: XCTestCase {
     ) {
         
         let engine = AVAudioEngineSpy()
-        let sut = AudioEngineComposer(engine: engine, makeNode: { [weak self] track in
-            let node = AudioEnginePlayerNodeSpy(with: track.data)
-            self?.resultNodes.append(node)
-            return node
-        })
+        let sut = AudioEngineComposer(
+            engine: engine,
+            makeNode: { track in
+                
+                let node = AudioEnginePlayerNodeSpy(with: track.data)
+                self.resultNodes.append(node)
+                
+                return node
+                
+            },
+            makeRecordingFile: { format in
+                
+                guard let file = try? AVAudioFile(forWriting: self.outputFileURLStub(), settings: format.settings) else {
+                    throw self.anyNSError()
+                }
+                
+                self.outputFile = file
+                
+                return file
+            }
+        )
         
         trackForMemoryLeaks(sut, file: file, line: line)
         trackForMemoryLeaks(engine, file: file, line: line)
@@ -193,5 +225,10 @@ final class AudioEngineComposerTests: XCTestCase {
     private func someTrack() -> Track {
         
         .init(id: anyTrackID(), data: anyData(), volume: anyVolume(), rate: anyRate())
+    }
+    
+    private func outputFileURLStub() -> URL {
+        
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("composition.m4a")
     }
 }
