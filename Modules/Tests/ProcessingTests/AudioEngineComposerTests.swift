@@ -34,7 +34,7 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
         }.compactMap { $0 }
         
         guard nodes.isEmpty == false else {
-            return Fail(error: AudioEngineComposerError.playerNodesListEmptyForReceivedTracks).eraseToAnyPublisher()
+            return Fail(error: AudioEngineComposerError.nodesMappingFailure).eraseToAnyPublisher()
         }
         
         nodes.forEach { node in
@@ -48,7 +48,7 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
             
         } catch {
             
-            return Fail(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
+            return Fail(error: AudioEngineComposerError.engineStartFailure).eraseToAnyPublisher()
         }
         
         return Fail(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
@@ -57,7 +57,8 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
 
 enum AudioEngineComposerError: Error {
     
-    case playerNodesListEmptyForReceivedTracks
+    case nodesMappingFailure
+    case engineStartFailure
 }
 
 final class AudioEngineComposerTests: XCTestCase {
@@ -110,7 +111,15 @@ final class AudioEngineComposerTests: XCTestCase {
         
         let (sut, _) = makeSUT()
         
-        composeTracksExpect(sut, error: .playerNodesListEmptyForReceivedTracks)
+        composeTracksExpect(sut, error: .nodesMappingFailure, for: [])
+    }
+    
+    func test_composeTracks_deliversErrorOnEngineStartFailure() {
+        
+        let (sut, engine) = makeSUT()
+        
+        engine.startErrorStub = anyNSError()
+        composeTracksExpect(sut, error: .engineStartFailure, for: [someTrack()])
     }
     
     //MARK: - Helpers
@@ -136,22 +145,28 @@ final class AudioEngineComposerTests: XCTestCase {
         return (sut, engine)
     }
     
-    private func composeTracksExpect(_ sut: AudioEngineComposer<AudioEnginePlayerNodeSpy>, error expectedError: AudioEngineComposerError) {
+    private func composeTracksExpect(
+        _ sut: AudioEngineComposer<AudioEnginePlayerNodeSpy>,
+        error expectedError: AudioEngineComposerError,
+        for tracks: [Track],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         
-        _ = sut.compose(tracks: [])
+        _ = sut.compose(tracks: tracks)
             .sink(receiveCompletion: { completion in
                 
                 switch completion {
                 case .finished:
-                    XCTFail("Expected error")
+                    XCTFail("Expected error", file: file, line: line)
                     
                 case .failure(let receivedError):
-                    XCTAssertEqual(receivedError as NSError, expectedError as NSError)
+                    XCTAssertEqual(receivedError as NSError, expectedError as NSError, file: file, line: line)
                 }
                 
             }, receiveValue: { _ in
                 
-                XCTFail("Expected error")
+                XCTFail("Expected error", file: file, line: line)
             })
     }
     

@@ -24,6 +24,8 @@ class AVAudioEngineSpy: AVAudioEngine {
     override var isRunning: Bool { _isRunning }
     private var _isRunning: Bool = false
     
+    var startErrorStub: Error?
+    
     override func prepare() {
         
         messages.append(.prepare)
@@ -32,6 +34,10 @@ class AVAudioEngineSpy: AVAudioEngine {
     override func start() throws {
          
         messages.append(.start)
+        
+        if let startErrorStub {
+            throw startErrorStub
+        }
     }
     
     func simulateEngineStarted() {
