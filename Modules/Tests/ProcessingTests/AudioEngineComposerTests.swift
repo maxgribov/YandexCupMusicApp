@@ -23,13 +23,19 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
     
     func compose(tracks: [Track]) -> AnyPublisher<URL, Error> {
         
-        _ = tracks.map { track in
+        let nodes = tracks.map { track in
         
             let node = makeNode(track)
             node?.set(volume: track.volume)
             node?.set(rate: track.rate)
             
             return node
+            
+        }.compactMap { $0 }
+        
+        nodes.forEach { node in
+            
+            node.connect(to: engine)
         }
         
         return Fail(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
@@ -53,16 +59,17 @@ final class AudioEngineComposerTests: XCTestCase {
         XCTAssertEqual(engine.messages, [])
     }
     
-    func test_composeTracks_messagesNodeWithInitSetVolumeAndSetRateMessages() {
+    func test_composeTracks_messagesNodeWithInitSetVolumeAndSetRateMessagesAndConnectToEngine() {
         
         let (sut, _) = makeSUT()
         
         let tracks = [someTrack(), someTrack()]
         _ = sut.compose(tracks: tracks)
         
-        XCTAssertEqual(resultNodes[0]?.messages, [.initWithData(tracks[0].data), .setVolume(tracks[0].volume), .setRate(tracks[0].rate)])
-        XCTAssertEqual(resultNodes[1]?.messages, [.initWithData(tracks[1].data), .setVolume(tracks[1].volume), .setRate(tracks[1].rate)])
+        XCTAssertEqual(resultNodes[0]?.messages, [.initWithData(tracks[0].data), .setVolume(tracks[0].volume), .setRate(tracks[0].rate), .connectToEngine])
+        XCTAssertEqual(resultNodes[1]?.messages, [.initWithData(tracks[1].data), .setVolume(tracks[1].volume), .setRate(tracks[1].rate), .connectToEngine])
     }
+    
     
     //MARK: - Helpers
     
