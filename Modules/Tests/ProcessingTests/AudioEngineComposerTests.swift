@@ -34,7 +34,7 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
         }.compactMap { $0 }
         
         guard nodes.isEmpty == false else {
-            return Fail(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
+            return Fail(error: AudioEngineComposerError.playerNodesListEmptyForReceivedTracks).eraseToAnyPublisher()
         }
         
         nodes.forEach { node in
@@ -53,6 +53,11 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
         
         return Fail(error: NSError(domain: "", code: 0)).eraseToAnyPublisher()
     }
+}
+
+enum AudioEngineComposerError: Error {
+    
+    case playerNodesListEmptyForReceivedTracks
 }
 
 final class AudioEngineComposerTests: XCTestCase {
@@ -101,6 +106,13 @@ final class AudioEngineComposerTests: XCTestCase {
         XCTAssertEqual(engine.messages, [.start])
     }
     
+    func test_composeTracks_deliversErrorOnNodesFromTracksMappingFailure() {
+        
+        let (sut, _) = makeSUT()
+        
+        composeTracksExpect(sut, error: .playerNodesListEmptyForReceivedTracks)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -122,6 +134,25 @@ final class AudioEngineComposerTests: XCTestCase {
         trackForMemoryLeaks(engine, file: file, line: line)
         
         return (sut, engine)
+    }
+    
+    private func composeTracksExpect(_ sut: AudioEngineComposer<AudioEnginePlayerNodeSpy>, error expectedError: AudioEngineComposerError) {
+        
+        _ = sut.compose(tracks: [])
+            .sink(receiveCompletion: { completion in
+                
+                switch completion {
+                case .finished:
+                    XCTFail("Expected error")
+                    
+                case .failure(let receivedError):
+                    XCTAssertEqual(receivedError as NSError, expectedError as NSError)
+                }
+                
+            }, receiveValue: { _ in
+                
+                XCTFail("Expected error")
+            })
     }
     
     private func anyTrackID() -> UUID {
