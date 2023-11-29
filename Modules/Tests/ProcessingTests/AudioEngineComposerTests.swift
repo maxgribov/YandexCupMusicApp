@@ -16,6 +16,7 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
     private let makeNode: (Track) -> Node?
     private let makeRecordingFile: (AVAudioFormat) throws -> AVAudioFile
     private var outputRecordingFile: AVAudioFile?
+    private var nodes = [Node]()
     
     private var stateSubject = CurrentValueSubject<State, Never>(.idle)
     
@@ -38,7 +39,7 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
         
         stateSubject.send(.idle)
         
-        let nodes = tracks.map { track in
+        nodes = tracks.map { track in
         
             let node = makeNode(track)
             node?.set(volume: track.volume)
@@ -113,6 +114,12 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
     }
     
     func stop() {
+        
+        nodes.forEach { node in
+            
+            node.stop()
+            node.disconnect(from: engine)
+        }
         
         if let url = outputRecordingFile?.url {
             
@@ -258,6 +265,18 @@ final class AudioEngineComposerTests: XCTestCase {
         sut.stop()
         
         wait(for: [expValue], timeout: 1.0)
+    }
+    
+    func test_stop_messagesNodesToStopAndDisconnect() {
+        
+        let (sut, _, _) = makeSUT()
+        let tracks = [someTrack(), someTrack()]
+        _ = sut.compose(tracks: tracks)
+        
+        sut.stop()
+        
+        XCTAssertEqual(resultNodes[0]?.messages, [.initWithData(tracks[0].data), .setVolume(tracks[0].volume), .setRate(tracks[0].rate), .connectToEngine, .schedule(nil), .play, .stop, .disconnectFromEngine])
+        XCTAssertEqual(resultNodes[1]?.messages, [.initWithData(tracks[1].data), .setVolume(tracks[1].volume), .setRate(tracks[1].rate), .connectToEngine, .schedule(nil), .play, .stop, .disconnectFromEngine])
     }
     
     //MARK: - Helpers
