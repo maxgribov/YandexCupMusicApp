@@ -476,17 +476,18 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(sut.layers[1].isPlaying, false)
     }
     
-    func test_isCompositing_deliversTrueOnCompose() {
+    func test_isCompositing_deliversStateUpdates() {
         
         let (sut, _, _, composer) = makeSUT()
         
-        expect(sut, composer, isCompositing: [false, true], on: {
+        expect(sut, composer, isCompositing: [false, true, false], on: {
             
-            sut.compose()
+            composer.simulateIsCompositingUpdate(value: false)
             composer.simulateIsCompositingUpdate(value: true)
+            composer.simulateIsCompositingUpdate(value: false)
         })
     }
-    
+
     //MARK: - Helpers
     
     private func makeSUT
@@ -613,7 +614,7 @@ final class ProducerTests: XCTestCase {
     private class ComposerSpy: Composer {
         
         private(set) var messages = [Message]()
-        private let isCompositingStubSubject = CurrentValueSubject<Bool, Never>.init(false)
+        private let isCompositingStubSubject = PassthroughSubject<Bool, Never>()
         
         enum Message: Equatable {
             
@@ -652,8 +653,6 @@ final class ProducerTests: XCTestCase {
         line: UInt = #line
     ) {
         
-        sut.addLayer(for: .brass, with: someSample())
-        
         var receivedValues = [Bool]()
         sut.isCompositing()
             .sink(receiveValue: { value in
@@ -664,7 +663,7 @@ final class ProducerTests: XCTestCase {
         
         action()
         
-        XCTAssertEqual(receivedValues, [false, true], file: file, line: line)
+        XCTAssertEqual(receivedValues, expectedValues, file: file, line: line)
     }
     
     private func expectPlayingProgressStartIncreasing(

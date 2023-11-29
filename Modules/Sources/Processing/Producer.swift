@@ -333,6 +333,7 @@ public extension Producer {
     enum DelegateAction: Equatable {
         
         case recordingFailed
+        case compositingReady(URL)
     }
 }
 
