@@ -207,6 +207,16 @@ public extension Producer {
     }
 }
 
+//MARK: - Compositing
+
+public extension Producer {
+    
+    func compose() {
+        
+        
+    }
+}
+
 //MARK: - Playing All
 
 public extension Producer {

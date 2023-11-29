@@ -439,6 +439,15 @@ final class ProducerTests: XCTestCase {
         })
     }
     
+    func test_compose_doesNotMessagedComposerOnNoAnyLayers() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        
+        sut.compose()
+        
+        XCTAssertEqual(composer.messages, [])
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT
