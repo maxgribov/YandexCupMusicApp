@@ -230,6 +230,7 @@ public extension Producer {
             return
         }
         
+        set(isPlayingAll: false)
         _ = composer.compose(tracks: tracks)
     }
 }

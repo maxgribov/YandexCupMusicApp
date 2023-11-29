@@ -463,6 +463,19 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(composer.messages, [.compose([.init(id: notMutedLayerID, data: sample.data, volume: 0.5, rate: 1.01)])])
     }
     
+    func test_compose_stopsAllPlayingLayers() {
+        
+        let (sut, _, _, _) = makeSUT()
+        sut.addLayer(for: .guitar, with: someSample())
+        sut.addLayer(forRecording: anyData())
+        sut.set(isPlayingAll: true)
+        
+        sut.compose()
+        
+        XCTAssertEqual(sut.layers[0].isPlaying, false)
+        XCTAssertEqual(sut.layers[1].isPlaying, false)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT
