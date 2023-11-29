@@ -33,6 +33,21 @@ public final class AudioEngineComposer<Node>: Composer where Node: AudioEnginePl
         self.makeRecordingFile = makeRecordingFile
     }
     
+    public func isCompositing() -> AnyPublisher<Bool, Never> {
+        
+        stateSubject
+            .map { state in
+            
+                switch state {
+                case .compositing: return true
+                default: return false
+                }
+                
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+    
     public func compose(tracks: [Track]) -> AnyPublisher<URL, ComposerError> {
         
         stateSubject.send(.idle)

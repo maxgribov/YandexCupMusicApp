@@ -161,6 +161,34 @@ final class AudioEngineComposerTests: XCTestCase {
         XCTAssertEqual(engine.messages, [.start, .stop])
     }
     
+    func test_isCompositing_deliversFalseOnIdleState() {
+        
+        let (sut, _, _) = makeSUT()
+        
+        expect(sut, isCompositing: [false], on: {})
+    }
+    
+    func test_isCompositing_deliversTrueOnCompositingState() {
+        
+        let (sut, _, _) = makeSUT()
+        
+        expect(sut, isCompositing: [false, true], on: {
+            
+            _ = sut.compose(tracks: [someTrack()])
+        })
+    }
+    
+    func test_isCompositing_deliversFalseOnFinishedState() {
+        
+        let (sut, _, _) = makeSUT()
+        
+        expect(sut, isCompositing: [false, true, false], on: {
+            
+            _ = sut.compose(tracks: [someTrack()])
+            sut.stop()
+        })
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -230,6 +258,27 @@ final class AudioEngineComposerTests: XCTestCase {
             })
         
         action?()
+    }
+    
+    private func expect(
+        _ sut: AudioEngineComposer<AudioEnginePlayerNodeSpy>,
+        isCompositing expectedValues: [Bool],
+        on action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        var receivedValues = [Bool]()
+        sut.isCompositing()
+            .sink(receiveValue: { value in
+                
+                receivedValues.append(value)
+            })
+            .store(in: &cancellables)
+        
+        action()
+        
+        XCTAssertEqual(receivedValues, expectedValues, file: file, line: line)
     }
     
     private class AVAudioMixerNodeSpy: AVAudioMixerNode {

@@ -609,6 +609,11 @@ final class ProducerTests: XCTestCase {
             case stop
         }
         
+        func isCompositing() -> AnyPublisher<Bool, Never> {
+            
+            Just(false).eraseToAnyPublisher()
+        }
+        
         func compose(tracks: [Track]) -> AnyPublisher<URL, ComposerError> {
             
             messages.append(.compose(tracks))

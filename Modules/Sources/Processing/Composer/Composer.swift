@@ -10,6 +10,7 @@ import Combine
 
 public protocol Composer {
     
+    func isCompositing() -> AnyPublisher<Bool, Never>
     func compose(tracks: [Track]) -> AnyPublisher<URL, ComposerError>
     func stop()
 }
