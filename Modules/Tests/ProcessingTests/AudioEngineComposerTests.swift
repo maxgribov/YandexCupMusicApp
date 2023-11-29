@@ -115,11 +115,13 @@ final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol 
     
     func stop() {
         
+        engine.stop()
         nodes.forEach { node in
             
             node.stop()
             node.disconnect(from: engine)
         }
+        nodes = []
         
         if let url = outputRecordingFile?.url {
             
@@ -277,6 +279,17 @@ final class AudioEngineComposerTests: XCTestCase {
         
         XCTAssertEqual(resultNodes[0]?.messages, [.initWithData(tracks[0].data), .setVolume(tracks[0].volume), .setRate(tracks[0].rate), .connectToEngine, .schedule(nil), .play, .stop, .disconnectFromEngine])
         XCTAssertEqual(resultNodes[1]?.messages, [.initWithData(tracks[1].data), .setVolume(tracks[1].volume), .setRate(tracks[1].rate), .connectToEngine, .schedule(nil), .play, .stop, .disconnectFromEngine])
+    }
+    
+    func test_stop_messagesEngineStop() {
+        
+        let (sut, engine, _) = makeSUT()
+        let track = someTrack()
+        _ = sut.compose(tracks: [track])
+        
+        sut.stop()
+        
+        XCTAssertEqual(engine.messages, [.start, .stop])
     }
     
     //MARK: - Helpers

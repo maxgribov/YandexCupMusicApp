@@ -19,6 +19,7 @@ class AVAudioEngineSpy: AVAudioEngine {
         case connect(AVAudioNode, AVAudioNode)
         case disconnect(AVAudioNode)
         case detach(AVAudioNode)
+        case stop
     }
     
     override var isRunning: Bool { _isRunning }
@@ -64,6 +65,11 @@ class AVAudioEngineSpy: AVAudioEngine {
     override func detach(_ node: AVAudioNode) {
         
         messages.append(.detach(node))
+    }
+    
+    override func stop() {
+        
+        messages.append(.stop)
     }
     
     override var mainMixerNode: AVAudioMixerNode {
