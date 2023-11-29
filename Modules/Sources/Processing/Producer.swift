@@ -223,7 +223,7 @@ public extension Producer {
         composer.isCompositing()
     }
     
-    func compose() {
+    func startCompositing() {
         
         let notMutedLayers = layers.filter({ $0.isMuted == false })
         let tracks = notMutedLayers.map { (layer) -> Track? in
@@ -242,6 +242,11 @@ public extension Producer {
         
         set(isPlayingAll: false)
         _ = composer.compose(tracks: tracks)
+    }
+    
+    func stopCompositing() {
+        
+        composer.stop()
     }
 }
 

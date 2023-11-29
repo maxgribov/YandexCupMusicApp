@@ -439,16 +439,16 @@ final class ProducerTests: XCTestCase {
         })
     }
     
-    func test_compose_doesNotMessagedComposerOnEmptyLayers() {
+    func test_startCompositing_doesNotMessagedComposerOnEmptyLayers() {
         
         let (sut, _, _, composer) = makeSUT()
         
-        sut.compose()
+        sut.startCompositing()
         
         XCTAssertEqual(composer.messages, [])
     }
     
-    func test_compose_messagesComposerToComposeWithTracksForNotMutedLayers() {
+    func test_startCompositing_messagesComposerToComposeWithTracksForNotMutedLayers() {
         
         let (sut, _, _, composer) = makeSUT()
         let notMutedLayerID = anyLayerID()
@@ -458,7 +458,7 @@ final class ProducerTests: XCTestCase {
         sut.addLayer(id: mutedLayerID, for: .drums, with: someSample())
         sut.set(isMuted: true, for: mutedLayerID)
         
-        sut.compose()
+        sut.startCompositing()
         
         XCTAssertEqual(composer.messages, [.compose([.init(id: notMutedLayerID, data: sample.data, volume: 0.5, rate: 1.01)])])
     }
@@ -470,7 +470,7 @@ final class ProducerTests: XCTestCase {
         sut.addLayer(forRecording: anyData())
         sut.set(isPlayingAll: true)
         
-        sut.compose()
+        sut.startCompositing()
         
         XCTAssertEqual(sut.layers[0].isPlaying, false)
         XCTAssertEqual(sut.layers[1].isPlaying, false)
@@ -486,6 +486,19 @@ final class ProducerTests: XCTestCase {
             composer.simulateIsCompositingUpdate(value: true)
             composer.simulateIsCompositingUpdate(value: false)
         })
+    }
+    
+    func test_stopCompositing_messagesComposerWithStop() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        let layerID = anyLayerID()
+        let sample = someSample()
+        sut.addLayer(id: layerID, for: .guitar, with: sample)
+        
+        sut.startCompositing()
+        sut.stopCompositing()
+        
+        XCTAssertEqual(composer.messages, [.compose([.init(id: layerID, data: sample.data, volume: 0.5, rate: 1.01)]), .stop])
     }
 
     //MARK: - Helpers
