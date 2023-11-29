@@ -30,7 +30,7 @@ public final class Producer {
         playerEventsSubject.progressEvents()
     }
     
-    public init(player: any Player, recorder: any Recorder) {
+    public init(player: any Player, recorder: any Recorder, composer: any Composer) {
         
         self.layers = []
         self.active = nil

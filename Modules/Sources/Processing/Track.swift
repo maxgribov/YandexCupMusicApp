@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Track {
+public struct Track: Equatable {
     
     public let id: UUID
     public let data: Data
