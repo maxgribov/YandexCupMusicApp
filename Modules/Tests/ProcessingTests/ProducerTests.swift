@@ -500,6 +500,18 @@ final class ProducerTests: XCTestCase {
         
         XCTAssertEqual(composer.messages, [.compose([.init(id: layerID, data: sample.data, volume: 0.5, rate: 1.01)]), .stop])
     }
+    
+    func test_delegateAction_deliversCompositingReadyOnStopAndSuccessCompositing() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        
+        let url = anyURL()
+        expect(sut, composer, delegateActions: [.compositingReady(url)], on: {
+            
+            sut.stopCompositing()
+            composer.simulateCompositingCompleteSuccesful(url: url)
+        })
+    }
 
     //MARK: - Helpers
     
@@ -627,6 +639,7 @@ final class ProducerTests: XCTestCase {
     private class ComposerSpy: Composer {
         
         private(set) var messages = [Message]()
+        private let composeSubject = PassthroughSubject<URL, ComposerError>()
         private let isCompositingStubSubject = PassthroughSubject<Bool, Never>()
         
         enum Message: Equatable {
@@ -643,7 +656,8 @@ final class ProducerTests: XCTestCase {
         func compose(tracks: [Track]) -> AnyPublisher<URL, ComposerError> {
             
             messages.append(.compose(tracks))
-            return Fail(error: ComposerError.compositingFailure).eraseToAnyPublisher()
+            
+            return composeSubject.eraseToAnyPublisher()
         }
         
         func stop() {
@@ -655,6 +669,29 @@ final class ProducerTests: XCTestCase {
             
             isCompositingStubSubject.send(value)
         }
+        
+        func simulateCompositingCompleteSuccesful(url: URL) {
+            
+            composeSubject.send(url)
+        }
+    }
+    
+    private func expect(
+        _ sut: Producer,
+        _ composer: ComposerSpy,
+        delegateActions expectedDelegateActions: [Producer.DelegateAction],
+        on action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        let delegateSpy = ValueSpy(sut.delegateAction)
+        sut.addLayer(for: .guitar, with: someSample())
+        sut.startCompositing()
+        
+        action()
+        
+        XCTAssertEqual(delegateSpy.values, expectedDelegateActions, file: file, line: line)
     }
     
     private func expect(

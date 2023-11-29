@@ -25,6 +25,7 @@ public final class Producer {
     private var cancellable: AnyCancellable?
     private var recording: AnyCancellable?
     private var playingTimer: AnyCancellable?
+    private var compositing: AnyCancellable?
     
     public var delegateAction: AnyPublisher<DelegateAction, Never> {
         
@@ -241,7 +242,12 @@ public extension Producer {
         }
         
         set(isPlayingAll: false)
-        _ = composer.compose(tracks: tracks)
+
+        compositing = composer.compose(tracks: tracks)
+            .print("COMP")
+            .map { DelegateAction.compositingReady($0) }
+            .replaceError(with: DelegateAction.compositingFailed)
+            .subscribe(delegateActionSubject)
     }
     
     func stopCompositing() {
@@ -339,6 +345,7 @@ public extension Producer {
         
         case recordingFailed
         case compositingReady(URL)
+        case compositingFailed
     }
 }
 
