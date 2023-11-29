@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Domain
 
 public struct Track: Equatable {
     
@@ -20,5 +21,10 @@ public struct Track: Equatable {
         self.data = data
         self.volume = volume
         self.rate = rate
+    }
+    
+    public init(with layer: Layer, data: Data) {
+        
+        self.init(id: layer.id, data: data, volume: Float(layer.control.volume), rate: layer.control.rate)
     }
 }
