@@ -501,15 +501,27 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(composer.messages, [.compose([.init(id: layerID, data: sample.data, volume: 0.5, rate: 1.01)]), .stop])
     }
     
-    func test_delegateAction_deliversCompositingReadyOnStopAndSuccessCompositing() {
+    func test_delegateAction_deliversCompositingReadyOnStopAndCompositingSuccess() {
         
         let (sut, _, _, composer) = makeSUT()
         
         let url = anyURL()
-        expect(sut, composer, delegateActions: [.compositingReady(url)], on: {
+        expectCompositing(sut, composer, delegateActions: [.compositingReady(url)], on: {
             
             sut.stopCompositing()
             composer.simulateCompositingCompleteSuccesful(url: url)
+        })
+    }
+    
+    func test_delegateAction_deliversCompositingFailureOnStopAndCompositingFailure() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        
+        let url = anyURL()
+        expectCompositing(sut, composer, delegateActions: [.compositingFailed], on: {
+            
+            sut.stopCompositing()
+            composer.simulateCompositingCompletionFailure(error: .compositingFailure)
         })
     }
 
@@ -674,9 +686,14 @@ final class ProducerTests: XCTestCase {
             
             composeSubject.send(url)
         }
+        
+        func simulateCompositingCompletionFailure(error: ComposerError) {
+            
+            composeSubject.send(completion: .failure(error))
+        }
     }
     
-    private func expect(
+    private func expectCompositing(
         _ sut: Producer,
         _ composer: ComposerSpy,
         delegateActions expectedDelegateActions: [Producer.DelegateAction],

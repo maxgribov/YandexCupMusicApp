@@ -244,7 +244,6 @@ public extension Producer {
         set(isPlayingAll: false)
 
         compositing = composer.compose(tracks: tracks)
-            .print("COMP")
             .map { DelegateAction.compositingReady($0) }
             .replaceError(with: DelegateAction.compositingFailed)
             .subscribe(delegateActionSubject)
