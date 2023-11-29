@@ -206,7 +206,7 @@ final class AudioEngineComposerTests: XCTestCase {
     
     private func composeTracksExpect(
         _ sut: AudioEngineComposer<AudioEnginePlayerNodeSpy>,
-        error expectedError: AudioEngineComposerError,
+        error expectedError: ComposerError,
         for tracks: [Track],
         on action: (() -> Void)? = nil,
         file: StaticString = #filePath,

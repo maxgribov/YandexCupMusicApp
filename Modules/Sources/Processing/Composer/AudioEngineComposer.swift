@@ -8,7 +8,7 @@
 import AVFoundation
 import Combine
 
-public final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodeProtocol {
+public final class AudioEngineComposer<Node>: Composer where Node: AudioEnginePlayerNodeProtocol {
      
     private let engine: AVAudioEngine
     private let makeNode: (Track) -> Node?
@@ -33,7 +33,7 @@ public final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodePr
         self.makeRecordingFile = makeRecordingFile
     }
     
-    public func compose(tracks: [Track]) -> AnyPublisher<URL, AudioEngineComposerError> {
+    public func compose(tracks: [Track]) -> AnyPublisher<URL, ComposerError> {
         
         stateSubject.send(.idle)
         
@@ -49,7 +49,7 @@ public final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodePr
         
         guard nodes.isEmpty == false else {
             
-            stateSubject.send(.failure(AudioEngineComposerError.nodesMappingFailure))
+            stateSubject.send(.failure(ComposerError.nodesMappingFailure))
             return Fail(error: .nodesMappingFailure).eraseToAnyPublisher()
         }
         
@@ -98,10 +98,10 @@ public final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodePr
                     
                     switch state {
                     case let .complete(url): return url
-                    default: throw AudioEngineComposerError.compositingFailure
+                    default: throw ComposerError.compositingFailure
                     }
                 }
-                .mapError{ $0 as! AudioEngineComposerError }
+                .mapError{ $0 as! ComposerError }
                 .eraseToAnyPublisher()
             
         } catch {
@@ -127,14 +127,7 @@ public final class AudioEngineComposer<Node> where Node: AudioEnginePlayerNodePr
             
         } else {
             
-            stateSubject.send(.failure(AudioEngineComposerError.compositingFailure))
+            stateSubject.send(.failure(ComposerError.compositingFailure))
         }
     }
-}
-
-public enum AudioEngineComposerError: Error {
-    
-    case nodesMappingFailure
-    case engineStartFailure
-    case compositingFailure
 }
