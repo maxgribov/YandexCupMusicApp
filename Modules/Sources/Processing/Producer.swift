@@ -13,7 +13,7 @@ public final class Producer {
     
     @Published public private(set) var layers: [Layer]
     @Published public private(set) var active: Layer.ID?
-    public let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
+    private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
     private var payloads: [Layer.ID: Payload]
     
@@ -25,6 +25,11 @@ public final class Producer {
     private var cancellable: AnyCancellable?
     private var recording: AnyCancellable?
     private var playingTimer: AnyCancellable?
+    
+    public var delegateAction: AnyPublisher<DelegateAction, Never> {
+        
+        delegateActionSubject.eraseToAnyPublisher()
+    }
     
     public var playingProgress: AnyPublisher<Double, Never> {
 

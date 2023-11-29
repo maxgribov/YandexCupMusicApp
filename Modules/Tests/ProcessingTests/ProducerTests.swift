@@ -309,7 +309,7 @@ final class ProducerTests: XCTestCase {
         
         let sut = Producer(player: PlayerSpy(), recorder: AlwaysFailingRecorderStub(), composer: ComposerSpy())
         let isRecordingSpy = ValueSpy(sut.isRecording())
-        let delegateSpy = ValueSpy(sut.delegateActionSubject)
+        let delegateSpy = ValueSpy(sut.delegateAction)
         
         sut.startRecording()
         
@@ -340,7 +340,7 @@ final class ProducerTests: XCTestCase {
         
         let (sut, _, recorder, _) = makeSUT()
         let isRecordingSpy = ValueSpy(sut.isRecording())
-        let delegateSpy = ValueSpy(sut.delegateActionSubject)
+        let delegateSpy = ValueSpy(sut.delegateAction)
         sut.startRecording()
         
         sut.stopRecording()
