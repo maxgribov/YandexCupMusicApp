@@ -532,7 +532,7 @@ final class ProducerTests: XCTestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> (
-        sut: Producer,
+        sut: Producer<PlayerSpy, RecorderSpy, ComposerSpy>,
         player: PlayerSpy,
         recorder: RecorderSpy,
         composer: ComposerSpy
@@ -694,9 +694,9 @@ final class ProducerTests: XCTestCase {
     }
     
     private func expectCompositing(
-        _ sut: Producer,
+        _ sut: Producer<PlayerSpy, RecorderSpy, ComposerSpy>,
         _ composer: ComposerSpy,
-        delegateActions expectedDelegateActions: [Producer.DelegateAction],
+        delegateActions expectedDelegateActions: [Producer<PlayerSpy, RecorderSpy, ComposerSpy>.DelegateAction],
         on action: () -> Void,
         file: StaticString = #filePath,
         line: UInt = #line
@@ -712,7 +712,7 @@ final class ProducerTests: XCTestCase {
     }
     
     private func expect(
-        _ sut: Producer,
+        _ sut: Producer<PlayerSpy, RecorderSpy, ComposerSpy>,
         _ composer: ComposerSpy,
         isCompositing expectedValues: [Bool],
         on action: () -> Void,
@@ -734,7 +734,7 @@ final class ProducerTests: XCTestCase {
     }
     
     private func expectPlayingProgressStartIncreasing(
-        _ sut: Producer,
+        _ sut: Producer<PlayerSpy, RecorderSpy, ComposerSpy>,
         on action: () -> Void
     ) {
         
@@ -755,7 +755,7 @@ final class ProducerTests: XCTestCase {
     }
     
     private func expectPlayingProgressDropsToZero(
-        _ sut: Producer,
+        _ sut: Producer<PlayerSpy, RecorderSpy, ComposerSpy>,
         on action: () -> Void
     ) {
         

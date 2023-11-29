@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import Domain
 
-public final class Producer {
+public final class Producer<P, R, C> where P: Player, R: Recorder, C: Composer {
     
     @Published public private(set) var layers: [Layer]
     @Published public private(set) var active: Layer.ID?
@@ -37,7 +37,7 @@ public final class Producer {
         playerEventsSubject.progressEvents()
     }
     
-    public init(player: any Player, recorder: any Recorder, composer: any Composer) {
+    public init(player: P, recorder: R, composer: C) {
         
         self.layers = []
         self.active = nil
