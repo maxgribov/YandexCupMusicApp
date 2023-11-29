@@ -12,17 +12,17 @@ import Domain
 import Processing
 import Persistence
 
-final class AppModel<S, C> where S: SamplesLocalStore, C: AVAudioSessionProtocol {
+final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessionProtocol, P: Player, R: Recorder, C: Composer {
     
-    let producer: Producer
+    let producer: Producer<P, R, C>
     let localStore: S
-    private let sessionConfigurator: FoundationRecordingSessionConfigurator<C>
+    private let sessionConfigurator: FoundationRecordingSessionConfigurator<A>
     
     private var bindings = Set<AnyCancellable>()
     private var defaultSampleRequest: AnyCancellable?
     private var loadSampleBinding: AnyCancellable?
     
-    init(producer: Producer, localStore: S, sessionConfigurator: FoundationRecordingSessionConfigurator<C>) {
+    init(producer: Producer<P, R, C>, localStore: S, sessionConfigurator: FoundationRecordingSessionConfigurator<A>) {
         
         self.producer = producer
         self.localStore = localStore
