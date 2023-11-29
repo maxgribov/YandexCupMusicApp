@@ -439,13 +439,28 @@ final class ProducerTests: XCTestCase {
         })
     }
     
-    func test_compose_doesNotMessagedComposerOnNoAnyLayers() {
+    func test_compose_doesNotMessagedComposerOnEmptyLayers() {
         
         let (sut, _, _, composer) = makeSUT()
         
         sut.compose()
         
         XCTAssertEqual(composer.messages, [])
+    }
+    
+    func test_compose_messagesComposerToComposeWithTracksForNotMutedLayers() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        let notMutedLayerID = anyLayerID()
+        let sample = someSample()
+        sut.addLayer(id: notMutedLayerID, for: .guitar, with: sample)
+        let mutedLayerID = anyLayerID()
+        sut.addLayer(id: mutedLayerID, for: .drums, with: someSample())
+        sut.set(isMuted: true, for: mutedLayerID)
+        
+        sut.compose()
+        
+        XCTAssertEqual(composer.messages, [.compose([.init(id: notMutedLayerID, data: sample.data, volume: 0.5, rate: 1.01)])])
     }
     
     //MARK: - Helpers

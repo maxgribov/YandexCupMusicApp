@@ -19,6 +19,7 @@ public final class Producer {
     
     private let player: any Player
     private let recorder: any Recorder
+    private let composer: any Composer
     private let playerEventsSubject = PassthroughSubject<TimeInterval?, Never>()
     
     private var cancellable: AnyCancellable?
@@ -37,6 +38,7 @@ public final class Producer {
         self.payloads = [:]
         self.player = player
         self.recorder = recorder
+        self.composer = composer
         
         cancellable = $layers
             .sink { [unowned self] layers in handleUpdate(layers: layers) }
@@ -213,7 +215,22 @@ public extension Producer {
     
     func compose() {
         
+        let notMutedLayers = layers.filter({ $0.isMuted == false })
+        let tracks = notMutedLayers.map { (layer) -> Track? in
+            
+            guard let data = payloads[layer.id]?.soundData else {
+                return nil
+            }
+            
+            return Track(with: layer, data: data)
+        }
+        .compactMap { $0 }
         
+        guard tracks.isEmpty == false else {
+            return
+        }
+        
+        _ = composer.compose(tracks: tracks)
     }
 }
 
