@@ -215,14 +215,19 @@ final class AppModelTests: XCTestCase {
     private func makeSUT(
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> (sut: AppModel<SamplesLocalStoreSpyStub, SessionSpy>, session: SessionSpy, recorder: FoundationRecorder<AudioRecorderDummy>) {
+    ) -> (sut: AppModel<SamplesLocalStoreSpyStub, SessionSpy, FoundationPlayer<AudioPlayerDummy>, FoundationRecorder<AudioRecorderDummy>, AudioEngineComposer<AudioEnginePlayerNode>>, session: SessionSpy, recorder: FoundationRecorder<AudioRecorderDummy>) {
         
         let sessionSpy = SessionSpy()
         let recorder = FoundationRecorder(makeRecorder: { url, format in try AudioRecorderDummy(url: url, format: format) })
         let sut = AppModel(
             producer: Producer(
                 player: FoundationPlayer(makePlayer: { data in try AudioPlayerDummy(data: data) }),
-                recorder: recorder),
+                recorder: recorder,
+                composer: AudioEngineComposer(
+                    engine: AVAudioEngine(),
+                    makeNode: { track in AudioEnginePlayerNode(with: track.data) },
+                    makeRecordingFile: { format in try AVAudioFile(forWriting: .compositionFileURL(), settings: format.settings)})
+            ),
             localStore: SamplesLocalStoreSpyStub(),
             sessionConfigurator: FoundationRecordingSessionConfigurator(session: sessionSpy)
         )
