@@ -213,6 +213,11 @@ public extension Producer {
 
 public extension Producer {
     
+    func isCompositing() -> AnyPublisher<Bool, Never> {
+        
+        composer.isCompositing()
+    }
+    
     func compose() {
         
         let notMutedLayers = layers.filter({ $0.isMuted == false })

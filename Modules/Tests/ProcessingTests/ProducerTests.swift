@@ -476,6 +476,17 @@ final class ProducerTests: XCTestCase {
         XCTAssertEqual(sut.layers[1].isPlaying, false)
     }
     
+    func test_isCompositing_deliversTrueOnCompose() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        
+        expect(sut, composer, isCompositing: [false, true], on: {
+            
+            sut.compose()
+            composer.simulateIsCompositingUpdate(value: true)
+        })
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT
@@ -602,6 +613,7 @@ final class ProducerTests: XCTestCase {
     private class ComposerSpy: Composer {
         
         private(set) var messages = [Message]()
+        private let isCompositingStubSubject = CurrentValueSubject<Bool, Never>.init(false)
         
         enum Message: Equatable {
             
@@ -611,7 +623,7 @@ final class ProducerTests: XCTestCase {
         
         func isCompositing() -> AnyPublisher<Bool, Never> {
             
-            Just(false).eraseToAnyPublisher()
+            isCompositingStubSubject.eraseToAnyPublisher()
         }
         
         func compose(tracks: [Track]) -> AnyPublisher<URL, ComposerError> {
@@ -624,6 +636,35 @@ final class ProducerTests: XCTestCase {
             
             messages.append(.stop)
         }
+        
+        func simulateIsCompositingUpdate(value: Bool) {
+            
+            isCompositingStubSubject.send(value)
+        }
+    }
+    
+    private func expect(
+        _ sut: Producer,
+        _ composer: ComposerSpy,
+        isCompositing expectedValues: [Bool],
+        on action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        sut.addLayer(for: .brass, with: someSample())
+        
+        var receivedValues = [Bool]()
+        sut.isCompositing()
+            .sink(receiveValue: { value in
+                
+                receivedValues.append(value)
+                
+            }).store(in: &cancellables)
+        
+        action()
+        
+        XCTAssertEqual(receivedValues, [false, true], file: file, line: line)
     }
     
     private func expectPlayingProgressStartIncreasing(
