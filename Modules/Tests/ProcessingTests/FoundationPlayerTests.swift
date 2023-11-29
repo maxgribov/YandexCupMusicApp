@@ -75,18 +75,7 @@ final class FoundationPlayerTests: XCTestCase {
         
         XCTAssertEqual(player?.enableRate, true)
     }
-    
-    func test_rateFromSpeed_correctCalculations() {
         
-        XCTAssertEqual(FoundationPlayer<AVAudioPlayerSpy>.rate(from: 0), 0.5, accuracy: .ulpOfOne)
-        XCTAssertEqual(FoundationPlayer<AVAudioPlayerSpy>.rate(from: 1), 2, accuracy: .ulpOfOne)
-        XCTAssertEqual(FoundationPlayer<AVAudioPlayerSpy>.rate(from: 0.5), 1.25, accuracy: .ulpOfOne)
-        XCTAssertEqual(FoundationPlayer<AVAudioPlayerSpy>.rate(from: 0.34), 1.01, accuracy: .ulpOfOne)
-        
-        XCTAssertEqual(FoundationPlayer<AVAudioPlayerSpy>.rate(from: -1), 0.5, accuracy: .ulpOfOne)
-        XCTAssertEqual(FoundationPlayer<AVAudioPlayerSpy>.rate(from: 10), 2, accuracy: .ulpOfOne)
-    }
-    
     func test_play_setRateToValueCalculatedFromSpeed() {
         
         let sut = makeSUT()

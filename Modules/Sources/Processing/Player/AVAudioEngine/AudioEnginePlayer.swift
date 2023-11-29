@@ -36,7 +36,7 @@ public final class AudioEnginePlayer<Node>: Player where Node: AudioEnginePlayer
         
         playerNode.connect(to: engine)
         playerNode.set(volume: Float(control.volume))
-        playerNode.set(rate: Self.rate(from: control.speed))
+        playerNode.set(rate: control.rate)
         
         if let firstPlayerNode = activeNodes.first?.value {
             
@@ -85,16 +85,6 @@ public final class AudioEnginePlayer<Node>: Player where Node: AudioEnginePlayer
         }
         
         playerNode.set(volume: Float(control.volume))
-        playerNode.set(rate: Self.rate(from: control.speed))
-    }
-}
-
-extension AudioEnginePlayer {
-    
-    static func rate(from speed: Double) -> Float {
-        
-        let _speed = min(max(speed, 0), 1)
-        
-        return Float(((2.0 - 0.5) * _speed) + 0.5)
+        playerNode.set(rate: control.rate)
     }
 }

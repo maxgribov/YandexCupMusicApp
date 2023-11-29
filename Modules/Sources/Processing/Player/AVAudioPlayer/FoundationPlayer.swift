@@ -35,7 +35,7 @@ public final class FoundationPlayer<P>: Player where P: AVAudioPlayerProtocol {
         
         player.volume = Float(control.volume)
         player.enableRate = true
-        player.rate = Self.rate(from: control.speed)
+        player.rate = control.rate
         player.numberOfLoops = Self.playForever()
         
         if let firstActivePlayer = activePlayers.first?.value {
@@ -67,18 +67,11 @@ public final class FoundationPlayer<P>: Player where P: AVAudioPlayerProtocol {
     public func update(id: Layer.ID, with control: Layer.Control) {
         
         activePlayers[id]?.volume = Float(control.volume)
-        activePlayers[id]?.rate = Self.rate(from: control.speed)
+        activePlayers[id]?.rate = control.rate
     }
 }
 
 public extension FoundationPlayer {
-    
-    static func rate(from speed: Double) -> Float {
-        
-        let _speed = min(max(speed, 0), 1)
-        
-        return Float(((2.0 - 0.5) * _speed) + 0.5)
-    }
     
     static func playForever() -> Int { -1 }
 }
