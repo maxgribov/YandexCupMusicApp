@@ -43,4 +43,12 @@ extension ControlPanelViewModel {
             playButton.isActive = isActive
         }
     }
+    
+    func bind(isCompositing: AnyPublisher<Bool, Never>) -> AnyCancellable {
+        
+        isCompositing.sink { [unowned self] isCompositing in
+            
+            composeButton.isActive = isCompositing
+        }
+    }
 }

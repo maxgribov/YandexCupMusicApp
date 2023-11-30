@@ -35,7 +35,9 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
             activeLayerUpdates: producer.activeLayerMain(),
             layersUpdated: producer.layersMain,
             samplesIDs: localStore.sampleIDsMain(for:),
-            playingProgressUpdates: producer.playingProgress)
+            playingProgressUpdates: producer.playingProgress,
+            isCompositing: producer.isCompositing()
+        )
         bindMainViewModel(delegate: viewModel.delegateAction)
         
         return viewModel
