@@ -347,6 +347,7 @@ final class MainViewModelTests: XCTestCase {
                     recordButton: .init(type: .record, isActive: false, isEnabled: true),
                     composeButton: .init(type: .compose, isActive: false, isEnabled: true),
                     playButton: .init(type: .play, isActive: false, isEnabled: true)),
+            playingProgress: 0,
             activeLayerUpdates: activeLayerUpdatedStub.updates,
             layersUpdated: layersUpdateStub.update,
             samplesIDs: samplesIDsStub.sampleIdsFor(_:),

@@ -34,6 +34,7 @@ final class MainViewModel: ObservableObject {
         instrumentSelector: InstrumentSelectorViewModel,
         sampleControl: SampleControlViewModel,
         controlPanel: ControlPanelViewModel,
+        playingProgress: Double,
         activeLayerUpdates: AnyPublisher<Layer?, Never>,
         layersUpdated: @escaping () -> AnyPublisher<LayersUpdate, Never>,
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
@@ -45,9 +46,9 @@ final class MainViewModel: ObservableObject {
         self.instrumentSelector = instrumentSelector
         self.sampleControl = sampleControl
         self.controlPanel = controlPanel
+        self.playingProgress = playingProgress
         self.layersUpdates = layersUpdated
         self.samplesIDs = samplesIDs
-        self.playingProgress = 0
         
         bind()
         bind(layersUpdated())
