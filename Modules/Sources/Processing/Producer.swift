@@ -251,6 +251,7 @@ public extension Producer {
     func stopCompositing() {
         
         composer.stop()
+        compositing = nil
     }
 }
 

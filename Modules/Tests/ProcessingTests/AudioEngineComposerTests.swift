@@ -352,7 +352,7 @@ final class AudioEngineComposerTests: XCTestCase {
     
     private func outputFileURLStub() -> URL {
         
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("composition.m4a")
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("composition.caf")
     }
     
     private func someAudioBuffer() -> AVAudioPCMBuffer {

@@ -11,6 +11,6 @@ extension URL {
     
     static func compositionFileURL() -> URL {
         
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("composition.m4a")
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("composition.caf")
     }
 }
