@@ -22,7 +22,7 @@ final class MainViewModel: ObservableObject {
     @Published var sheet: Sheet?
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
-    private let samplesIDs: (Instrument) -> AnyPublisher<[Sample.ID], Error>
+    private let makeSampleSelector: (Instrument) -> AnyPublisher<SampleSelectorViewModel, Error>
     private let makeLayersControl: () -> LayersControlViewModel
     
     private var bindings = Set<AnyCancellable>()
@@ -35,8 +35,8 @@ final class MainViewModel: ObservableObject {
         sampleControl: SampleControlViewModel,
         controlPanel: ControlPanelViewModel,
         playingProgress: Double,
+        makeSampleSelector: @escaping (Instrument) -> AnyPublisher<SampleSelectorViewModel, Error>,
         makeLayersControl: @escaping () -> LayersControlViewModel,
-        samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
         playingProgressUpdate: AnyPublisher<Double, Never>,
         sheetUpdate: AnyPublisher<Sheet?, Never>
     ) {
@@ -44,9 +44,9 @@ final class MainViewModel: ObservableObject {
         self.instrumentSelector = instrumentSelector
         self.sampleControl = sampleControl
         self.controlPanel = controlPanel
+        self.makeSampleSelector = makeSampleSelector
         self.makeLayersControl = makeLayersControl
         self.playingProgress = playingProgress
-        self.samplesIDs = samplesIDs
         
         bind()
         playingProgressUpdate.assign(to: &$playingProgress)
@@ -126,13 +126,10 @@ private extension MainViewModel {
             delegateActionSubject.send(.defaultSampleSelected(instrument))
             
         case let .showSampleSelector(instrument):
-            sampleSelectorBinding = samplesIDs(instrument)
-                .makeSampleItemViewModels()
-                .sink(receiveCompletion: { _ in }) { [unowned self] items in
+            sampleSelectorBinding = makeSampleSelector(instrument)
+                .sink(receiveCompletion: { _ in }) { [unowned self] sampleSelector in
                     
-                    let sampleSelector = SampleSelectorViewModel(instrument: instrument, items: items)
                     self.sampleSelector = sampleSelector
-                    
                     sampleSelectorDelegate = sampleSelector.delegateAction
                         .handleEvents(receiveOutput: {[unowned self] action in
                             switch action {

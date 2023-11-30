@@ -45,10 +45,10 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
                 playButtonStatusUpdates: producer.playButtonStatusUpdates()
             ),
             playingProgress: 0,
+            makeSampleSelector: { instrument in self.localStore.sampleIDsMain(for: instrument).makeSampleItemViewModels().map { SampleSelectorViewModel(instrument: instrument, items: $0) }.eraseToAnyPublisher() },
             makeLayersControl: { LayersControlViewModel(
                 initial: self.producer.layersViewModels(),
                 updates: self.producer.layersViewModelsUpdates()) },
-            samplesIDs: localStore.sampleIDsMain(for:),
             playingProgressUpdate: producer.playingProgress,
             sheetUpdate: producer.sheetUpdates()
         )

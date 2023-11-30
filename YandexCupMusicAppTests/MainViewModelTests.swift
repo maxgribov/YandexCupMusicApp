@@ -356,8 +356,8 @@ final class MainViewModelTests: XCTestCase {
                 composeButtonStatusUpdates: compositingStub.updates,
                 playButtonStatusUpdates: layersUpdateStub.update().isPlayingAll()),
             playingProgress: 0,
+            makeSampleSelector: { instrument in samplesIDsStub.sampleIdsFor(instrument).makeSampleItemViewModels().map { SampleSelectorViewModel(instrument: instrument, items: $0)}.eraseToAnyPublisher() },
             makeLayersControl: { LayersControlViewModel(initial: layersUpdateStub.current.makeLayerViewModels(), updates: layersUpdateStub.update().makeLayerViewModels())},
-            samplesIDs: samplesIDsStub.sampleIdsFor(_:),
             playingProgressUpdate: playingProgressUpdatesStub.updates,
             sheetUpdate: sheetUpdateStub.updates
         )
