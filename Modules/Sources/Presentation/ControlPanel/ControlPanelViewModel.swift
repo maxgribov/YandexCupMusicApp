@@ -32,7 +32,7 @@ public final class ControlPanelViewModel {
         self.playButton = playButton
         
         layersButtonNameUpdates
-            .map { $0 ?? Self.layersButtonDefaultName }
+            .map { $0 ?? String.layersButtonDefaultName }
             .assign(to: &self.layersButton.$name)
         
         layersButtonNameUpdates
@@ -68,7 +68,7 @@ public final class ControlPanelViewModel {
         
         recordButton.isActive.toggle()
         delegateActionSubject.send(recordButton.isActive ? .startRecording : .stopRecording)
-        if layersButton.name == Self.layersButtonDefaultName {
+        if layersButton.name == .layersButtonDefaultName {
             
             set(all: [composeButton, playButton], to: !recordButton.isActive)
             
@@ -82,7 +82,7 @@ public final class ControlPanelViewModel {
         
         composeButton.isActive.toggle()
         delegateActionSubject.send(composeButton.isActive ? .startComposing : .stopComposing)
-        if layersButton.name == Self.layersButtonDefaultName {
+        if layersButton.name == .layersButtonDefaultName {
             
             set(all: [recordButton, playButton], to: !composeButton.isActive)
             
@@ -113,8 +113,6 @@ public final class ControlPanelViewModel {
             .map(\.isActive)
             .reduce(false, { partialResult, value in partialResult || value }) == false
     }
-    
-    public static let layersButtonDefaultName = "Слои"
 }
 
 public extension ControlPanelViewModel {
@@ -130,4 +128,9 @@ public extension ControlPanelViewModel {
         case startPlaying
         case stopPlaying
     }
+}
+
+public extension String {
+    
+    static let layersButtonDefaultName = "Слои"
 }

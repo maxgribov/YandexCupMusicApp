@@ -34,31 +34,23 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
         
         let viewModel = MainViewModel(
             instrumentSelector: .initial,
-            sampleControl: .init(initial: nil, update: producer.activeLayerMain().control()),
+            sampleControl: .init(update: producer.activeLayerControlUpdates()),
             controlPanel: .init(
-                layersButton: .init(
-                    name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),
+                layersButton: .init(name: .layersButtonDefaultName, isActive: false, isEnabled: true),
                 recordButton: .init(type: .record, isActive: false, isEnabled: true),
                 composeButton: .init(type: .compose, isActive: false, isEnabled: true),
                 playButton: .init(type: .play, isActive: false, isEnabled: true),
-                layersButtonNameUpdates: producer.activeLayerMain().map { $0?.name }.eraseToAnyPublisher(),
-                composeButtonStatusUpdates: producer.isCompositing(),
-                playButtonStatusUpdates: producer.layersMain().isPlayingAll()
+                layersButtonNameUpdates: producer.layersButtonNameUpdates(),
+                composeButtonStatusUpdates: producer.composeButtonStatusUpdates(),
+                playButtonStatusUpdates: producer.playButtonStatusUpdates()
             ),
             playingProgress: 0,
-            makeLayersControl: { LayersControlViewModel(initial: self.producer.layers.map { LayerViewModel(id: $0.id, name: $0.name, isPlaying: $0.isPlaying, isMuted: $0.isMuted, isActive: $0.id == self.producer.active )}, updates: self.producer.layersMain().makeLayerViewModels() )},
+            makeLayersControl: { LayersControlViewModel(
+                initial: self.producer.layersViewModels(),
+                updates: self.producer.layersViewModelsUpdates()) },
             samplesIDs: localStore.sampleIDsMain(for:),
             playingProgressUpdate: producer.playingProgress,
-            sheetUpdate: producer.delegateAction
-                .map { action in
-                    
-                    switch action {
-                    case let .compositingReady(url): return url
-                    default: return nil
-                    }
-                    
-                }.mapToSheet()
-                .eraseToAnyPublisher()
+            sheetUpdate: producer.sheetUpdates()
         )
         bindMainViewModel(delegate: viewModel.delegateAction)
         

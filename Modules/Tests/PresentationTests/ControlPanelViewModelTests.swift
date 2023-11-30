@@ -230,7 +230,7 @@ final class ControlPanelViewModelTests: XCTestCase {
     //MARK: - Helpers
     
     private func makeSUT(
-        layersButton: LayersButtonViewModel = LayersButtonViewModel(name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),
+        layersButton: LayersButtonViewModel = LayersButtonViewModel(name: .layersButtonDefaultName, isActive: false, isEnabled: true),
         recordButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .record, isActive: false, isEnabled: true),
         composeButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .compose, isActive: false, isEnabled: true),
         playButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .play, isActive: false, isEnabled: true),

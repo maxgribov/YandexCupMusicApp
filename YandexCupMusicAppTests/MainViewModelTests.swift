@@ -348,7 +348,7 @@ final class MainViewModelTests: XCTestCase {
             sampleControl: .init(initial: nil, update: activeLayerUpdatedStub.updates.control()),
             controlPanel: .init(
                 layersButton: .init(
-                    name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),
+                    name: .layersButtonDefaultName, isActive: false, isEnabled: true),
                     recordButton: .init(type: .record, isActive: false, isEnabled: true),
                     composeButton: .init(type: .compose, isActive: false, isEnabled: true),
                     playButton: .init(type: .play, isActive: false, isEnabled: true),

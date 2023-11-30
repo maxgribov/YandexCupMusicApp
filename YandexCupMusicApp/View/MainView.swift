@@ -43,7 +43,7 @@ struct MainView: View {
             
             switch sheet {
             case let .activity(url):
-                ActivityView(activityItems: [url], applicationActivities: [])
+                ActivityView(activityItems: [url], applicationActivities: nil)
             }
         }
     }
