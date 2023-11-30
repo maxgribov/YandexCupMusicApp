@@ -57,13 +57,7 @@ final class MainViewModel: ObservableObject {
         bindings.insert(controlPanel.bind(isCompositing: isCompositing))
         playingProgressUpdates.assign(to: &$playingProgress)
         compositingReady
-            .map{ (url) -> Sheet? in
-            
-                switch url {
-                case let .some(url): return .activity(url)
-                case .none: return nil
-                }
-            }
+            .mapToSheet()
             .assign(to: &$sheet)
     }
     

@@ -93,3 +93,18 @@ extension Publisher where Output == LayersUpdate, Failure == Never {
     }
 }
 
+extension Publisher where Output == URL?, Failure == Never {
+    
+    func mapToSheet() -> AnyPublisher<MainViewModel.Sheet?, Never> {
+        
+        map{ (url) -> MainViewModel.Sheet? in
+        
+            switch url {
+            case let .some(url): return .activity(url)
+            case .none: return nil
+            }
+            
+        }.eraseToAnyPublisher()
+    }
+}
+
