@@ -347,13 +347,13 @@ final class MainViewModelTests: XCTestCase {
                     recordButton: .init(type: .record, isActive: false, isEnabled: true),
                     composeButton: .init(type: .compose, isActive: false, isEnabled: true),
                     playButton: .init(type: .play, isActive: false, isEnabled: true),
+                composeButtonStatusUpdates: compositingStub.updates,
                 playButtonStatusUpdates: layersUpdateStub.update().isPlayingAll()),
             playingProgress: 0,
             activeLayerUpdates: activeLayerUpdatedStub.updates,
             layersUpdated: layersUpdateStub.update,
             samplesIDs: samplesIDsStub.sampleIdsFor(_:),
             playingProgressUpdate: playingProgressUpdatesStub.updates,
-            isCompositing: compositingStub.updates,
             sheetUpdate: sheetUpdateStub.updates
         )
         

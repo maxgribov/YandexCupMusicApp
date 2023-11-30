@@ -39,7 +39,6 @@ final class MainViewModel: ObservableObject {
         layersUpdated: @escaping () -> AnyPublisher<LayersUpdate, Never>,
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
         playingProgressUpdate: AnyPublisher<Double, Never>,
-        isCompositing: AnyPublisher<Bool, Never>,
         sheetUpdate: AnyPublisher<Sheet?, Never>
     ) {
         
@@ -53,7 +52,6 @@ final class MainViewModel: ObservableObject {
         bind()
         bind(layersUpdated())
         bindings.insert(controlPanel.bind(activeLayer: activeLayerUpdates))
-        bindings.insert(controlPanel.bind(isCompositing: isCompositing))
         playingProgressUpdate.assign(to: &$playingProgress)
         sheetUpdate.assign(to: &$sheet)
     }

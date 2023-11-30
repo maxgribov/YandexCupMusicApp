@@ -38,9 +38,10 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
             controlPanel: .init(
                 layersButton: .init(
                     name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),
-                    recordButton: .init(type: .record, isActive: false, isEnabled: true),
-                    composeButton: .init(type: .compose, isActive: false, isEnabled: true),
-                    playButton: .init(type: .play, isActive: false, isEnabled: true),
+                recordButton: .init(type: .record, isActive: false, isEnabled: true),
+                composeButton: .init(type: .compose, isActive: false, isEnabled: true),
+                playButton: .init(type: .play, isActive: false, isEnabled: true),
+                composeButtonStatusUpdates: producer.isCompositing(),
                 playButtonStatusUpdates: producer.layersMain().isPlayingAll()
             ),
             playingProgress: 0,
@@ -48,7 +49,6 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
             layersUpdated: producer.layersMain,
             samplesIDs: localStore.sampleIDsMain(for:),
             playingProgressUpdate: producer.playingProgress,
-            isCompositing: producer.isCompositing(),
             sheetUpdate: producer.delegateAction
                 .map { action in
                     

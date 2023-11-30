@@ -64,6 +64,7 @@ struct MainView: View {
                 recordButton: .init(type: .record, isActive: false, isEnabled: true),
                 composeButton: .init(type: .compose, isActive: false, isEnabled: true),
                 playButton: .init(type: .play, isActive: false, isEnabled: true),
+                composeButtonStatusUpdates: Empty().eraseToAnyPublisher(),
                 playButtonStatusUpdates: Empty().eraseToAnyPublisher()
             ),
             playingProgress: 0,
@@ -71,7 +72,6 @@ struct MainView: View {
             layersUpdated: { Empty().eraseToAnyPublisher() },
             samplesIDs: { _ in Empty().eraseToAnyPublisher() },
             playingProgressUpdate: Empty().eraseToAnyPublisher(),
-            isCompositing: Empty().eraseToAnyPublisher(),
             sheetUpdate: Empty().eraseToAnyPublisher()
         ))
     }

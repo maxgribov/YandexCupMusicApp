@@ -22,6 +22,7 @@ public final class ControlPanelViewModel {
         recordButton: ToggleButtonViewModel,
         composeButton: ToggleButtonViewModel,
         playButton: ToggleButtonViewModel,
+        composeButtonStatusUpdates: AnyPublisher<Bool, Never>,
         playButtonStatusUpdates: AnyPublisher<Bool, Never>
     ) {
         self.layersButton = layersButton
@@ -29,6 +30,7 @@ public final class ControlPanelViewModel {
         self.composeButton = composeButton
         self.playButton = playButton
         
+        composeButtonStatusUpdates.assign(to: &self.composeButton.$isActive)
         playButtonStatusUpdates.assign(to: &self.playButton.$isActive)
     }
     

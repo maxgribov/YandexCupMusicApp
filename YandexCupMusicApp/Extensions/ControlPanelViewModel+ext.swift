@@ -35,20 +35,4 @@ extension ControlPanelViewModel {
                 }
             }
     }
-    
-    func bind(isPlayingAll: AnyPublisher<Bool, Never>) -> AnyCancellable {
-        
-        isPlayingAll.sink { [unowned self] isActive in
-            
-            playButton.isActive = isActive
-        }
-    }
-    
-    func bind(isCompositing: AnyPublisher<Bool, Never>) -> AnyCancellable {
-        
-        isCompositing.sink { [unowned self] isCompositing in
-            
-            composeButton.isActive = isCompositing
-        }
-    }
 }

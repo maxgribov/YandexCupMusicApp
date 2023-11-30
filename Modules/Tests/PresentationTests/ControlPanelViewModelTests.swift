@@ -201,6 +201,19 @@ final class ControlPanelViewModelTests: XCTestCase {
         XCTAssertEqual(sut.playButton.isEnabled, true)
     }
     
+    func test_composeButtonStatusUpdates_updatesPlayButtonStatus() {
+        
+        let composeButtonStatusUpdateStub = PassthroughSubject<Bool, Never>()
+        let sut = makeSUT(composeButtonStatusUpdatesStub: composeButtonStatusUpdateStub.eraseToAnyPublisher())
+        XCTAssertFalse(sut.composeButton.isActive)
+        
+        composeButtonStatusUpdateStub.send(true)
+        XCTAssertTrue(sut.composeButton.isActive)
+        
+        composeButtonStatusUpdateStub.send(false)
+        XCTAssertFalse(sut.composeButton.isActive)
+    }
+    
     func test_playButtonStatusUpdates_updatesPlayButtonStatus() {
         
         let playButtonStatusUpdateStub = PassthroughSubject<Bool, Never>()
@@ -221,6 +234,7 @@ final class ControlPanelViewModelTests: XCTestCase {
         recordButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .record, isActive: false, isEnabled: true),
         composeButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .compose, isActive: false, isEnabled: true),
         playButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .play, isActive: false, isEnabled: true),
+        composeButtonStatusUpdatesStub: AnyPublisher<Bool, Never> = Empty().eraseToAnyPublisher(),
         playButtonStatusUpdatesStub: AnyPublisher<Bool, Never> = Empty().eraseToAnyPublisher(),
         file: StaticString = #filePath,
         line: UInt = #line
@@ -231,6 +245,7 @@ final class ControlPanelViewModelTests: XCTestCase {
             recordButton: recordButton,
             composeButton: composeButton,
             playButton: playButton,
+            composeButtonStatusUpdates: composeButtonStatusUpdatesStub,
             playButtonStatusUpdates: playButtonStatusUpdatesStub
         )
         
