@@ -107,6 +107,9 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
             case .stopRecording:
                 producer.stopRecording()
                 
+            case .startComposing:
+                producer.startCompositing()
+                
             default:
                 break
             }

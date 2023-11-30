@@ -17,7 +17,7 @@ final class AppModelTests: XCTestCase {
     
     func test_init_activeLayerNil() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let activeLayerSpy = ValueSpy(sut.producer.activeLayer())
         
         XCTAssertEqual(activeLayerSpy.values, [nil])
@@ -25,7 +25,7 @@ final class AppModelTests: XCTestCase {
     
     func test_producerAddLayer_makeActiveLayerPublishUpdates() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let activeLayerSpy = ValueSpy(sut.producer.activeLayer())
         
         sut.producer.addLayer(forRecording: someAudioData())
@@ -45,7 +45,7 @@ final class AppModelTests: XCTestCase {
     
     func test_sampleIDs_retrievesSampleIDsFromLocalStore() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
 
         let sampleIDsSpy = ValueSpy(sut.localStore.sampleIDs(for: .brass))
         
@@ -54,7 +54,7 @@ final class AppModelTests: XCTestCase {
     
     func test_loadSample_retrievesSampleFromLocalStore() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
 
         let loadSampleSpy = ValueSpy(sut.localStore.loadSample(sampleID: anySampleID()))
         
@@ -63,7 +63,7 @@ final class AppModelTests: XCTestCase {
     
     func test_producerAddLayer_makeLayersPublishUpdates() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let layersSpy = ValueSpy(sut.producer.layers())
         
         XCTAssertEqual(layersSpy.values, [.init(layers: [], active: nil)])
@@ -77,7 +77,7 @@ final class AppModelTests: XCTestCase {
     
     func test_bindMainViewModelDelegate_requestSampleFromLocalStoreAndAddLayerToProducerOnActionAddLayerWithDefaultSampleForInstrument() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
         sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
         
@@ -89,7 +89,7 @@ final class AppModelTests: XCTestCase {
     
     func test_layerDelegateActions_affectsProducerLayersState() {
 
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
         sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
         sut.producer.addLayer(forRecording: someAudioData())
@@ -122,7 +122,7 @@ final class AppModelTests: XCTestCase {
     
     func test_startStopPlayMainViewModelDelegateActions_togglesAllLayersIsPlayingState() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
         sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
         sut.producer.addLayer(forRecording: someAudioData())
@@ -138,7 +138,7 @@ final class AppModelTests: XCTestCase {
     
     func test_activeLayerControlUpdateDelegateAction_updatesControlForActiveLayer() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
         sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
         sut.producer.addLayer(forRecording: someAudioData())
@@ -151,7 +151,7 @@ final class AppModelTests: XCTestCase {
     
     func test_sampleSelectedInstrumentAction_retrievesSampleFromLocalStore() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
         sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
         
@@ -163,7 +163,7 @@ final class AppModelTests: XCTestCase {
     
     func test_sampleSelectedInstrumentAction_addLayerOnSuccessSampleLoading() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
         sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
         
@@ -175,7 +175,7 @@ final class AppModelTests: XCTestCase {
     
     func test_startRecording_requestsRecordPermissionOnFirstAttempt() {
         
-        let (sut, session, _) = makeSUT()
+        let (sut, session, _, _) = makeSUT()
         let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
         sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
         
@@ -186,7 +186,7 @@ final class AppModelTests: XCTestCase {
     
     func test_startRecording_startsRecordingOnPermissionsGranted() {
         
-        let (sut, session, _) = makeSUT()
+        let (sut, session, _, _) = makeSUT()
         let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
         sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
         let isRecordingSpy = ValueSpy(sut.producer.isRecording())
@@ -199,7 +199,7 @@ final class AppModelTests: XCTestCase {
     
     func test_stopRecording_stopsPreviouslyStartedRecording() throws{
         
-        let (sut, session, recorder) = makeSUT()
+        let (sut, session, recorder, _) = makeSUT()
         let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
         sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
         let isRecordingSpy = ValueSpy(sut.producer.isRecording())
@@ -211,22 +211,33 @@ final class AppModelTests: XCTestCase {
         
         XCTAssertEqual(isRecordingSpy.values, [false, true, false])
     }
+    
+    func test_startCompositingDelegateAction_messagesComposerToCompose() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
+        sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
+        sut.producer.addLayer(forRecording: someAudioData())
+        sut.producer.addLayer(forRecording: someOtherAudioData())
+        
+        mainViewModelDelegateStub.send(.startComposing)
+        
+        XCTAssertEqual(composer.messages, [.compose])
+    }
 
     private func makeSUT(
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> (sut: AppModel<SamplesLocalStoreSpyStub, SessionSpy, FoundationPlayer<AudioPlayerDummy>, FoundationRecorder<AudioRecorderDummy>, AudioEngineComposer<AudioEnginePlayerNode>>, session: SessionSpy, recorder: FoundationRecorder<AudioRecorderDummy>) {
+    ) -> (sut: AppModel<SamplesLocalStoreSpyStub, SessionSpy, FoundationPlayer<AudioPlayerDummy>, FoundationRecorder<AudioRecorderDummy>, ComposerSpy>, session: SessionSpy, recorder: FoundationRecorder<AudioRecorderDummy>, composer: ComposerSpy) {
         
         let sessionSpy = SessionSpy()
         let recorder = FoundationRecorder(makeRecorder: { url, format in try AudioRecorderDummy(url: url, format: format) })
+        let composer = ComposerSpy()
         let sut = AppModel(
             producer: Producer(
                 player: FoundationPlayer(makePlayer: { data in try AudioPlayerDummy(data: data) }),
                 recorder: recorder,
-                composer: AudioEngineComposer(
-                    engine: AVAudioEngine(),
-                    makeNode: { track in AudioEnginePlayerNode(with: track.data) },
-                    makeRecordingFile: { format in try AVAudioFile(forWriting: .compositionFileURL(), settings: format.settings)})
+                composer: composer
             ),
             localStore: SamplesLocalStoreSpyStub(),
             sessionConfigurator: FoundationRecordingSessionConfigurator(session: sessionSpy)
@@ -235,7 +246,33 @@ final class AppModelTests: XCTestCase {
         trackForMemoryLeaks(sut, file: file, line: line)
         trackForMemoryLeaks(sessionSpy, file: file, line: line)
         
-        return (sut, sessionSpy, recorder)
+        return (sut, sessionSpy, recorder, composer)
+    }
+    
+    private class ComposerSpy: Composer {
+        
+        private(set) var messages = [Message]()
+        
+        enum Message: Equatable {
+            
+            case compose
+            case stop
+        }
+        
+        func isCompositing() -> AnyPublisher<Bool, Never> {
+            
+            Just(false).eraseToAnyPublisher()
+        }
+        
+        func compose(tracks: [Processing.Track]) -> AnyPublisher<URL, Processing.ComposerError> {
+            
+            messages.append(.compose)
+            return Fail(error: Processing.ComposerError.compositingFailure).eraseToAnyPublisher()
+        }
+        
+        func stop() {
+            messages.append(.stop)
+        }
     }
     
     private class AudioPlayerDummy: AVAudioPlayerProtocol {
