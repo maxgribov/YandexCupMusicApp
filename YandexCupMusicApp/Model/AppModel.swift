@@ -47,12 +47,16 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
             samplesIDs: localStore.sampleIDsMain(for:),
             playingProgressUpdates: producer.playingProgress,
             isCompositing: producer.isCompositing(),
-            compositingReady: producer.delegateAction.map { action in
-                switch action {
-                case let .compositingReady(url): return url
-                default: return nil
-                }
-            }.eraseToAnyPublisher()
+            sheetUpdate: producer.delegateAction
+                .map { action in
+                    
+                    switch action {
+                    case let .compositingReady(url): return url
+                    default: return nil
+                    }
+                    
+                }.mapToSheet()
+                .eraseToAnyPublisher()
         )
         bindMainViewModel(delegate: viewModel.delegateAction)
         

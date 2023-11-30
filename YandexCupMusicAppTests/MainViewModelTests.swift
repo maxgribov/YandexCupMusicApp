@@ -306,14 +306,14 @@ final class MainViewModelTests: XCTestCase {
     
     func test_compositingReady_updatesSheetState() {
         
-        let (sut, _, _, _, _, _, compositingReady) = makeSUT()
+        let (sut, _, _, _, _, _, sheetUpdate) = makeSUT()
         XCTAssertNil(sut.sheet)
         
         let url = URL(string: "http://any-url.com")!
-        compositingReady.publish(url)
+        sheetUpdate.publish(.activity(url))
         XCTAssertEqual(sut.sheet, .activity(url))
         
-        compositingReady.publish(nil)
+        sheetUpdate.publish(nil)
         XCTAssertNil(sut.sheet)
     }
     
@@ -329,7 +329,7 @@ final class MainViewModelTests: XCTestCase {
         sampleIds: SamplesIDsStub,
         playingProgressUpdates: PlayingProgressUpdatesStub,
         isCompositing: CompositingStub,
-        compositingReady: CompositingReadyStub
+        compositingReady: SheetUpdateStub
     ) {
         
         let activeLayerUpdatedStub = ActiveLayerUpdatesSub()
@@ -337,7 +337,7 @@ final class MainViewModelTests: XCTestCase {
         let samplesIDsStub = SamplesIDsStub()
         let playingProgressUpdatesStub = PlayingProgressUpdatesStub()
         let compositingStub = CompositingStub()
-        let compositingReadyStub = CompositingReadyStub()
+        let sheetUpdateStub = SheetUpdateStub()
         let sut = MainViewModel(
             instrumentSelector: .initial,
             sampleControl: .init(initial: nil, update: activeLayerUpdatedStub.updates.control()),
@@ -353,7 +353,7 @@ final class MainViewModelTests: XCTestCase {
             samplesIDs: samplesIDsStub.sampleIdsFor(_:),
             playingProgressUpdates: playingProgressUpdatesStub.updates,
             isCompositing: compositingStub.updates,
-            compositingReady: compositingReadyStub.updates
+            sheetUpdate: sheetUpdateStub.updates
         )
         
         trackForMemoryLeaks(sut, file: file, line: line)
@@ -362,9 +362,9 @@ final class MainViewModelTests: XCTestCase {
         trackForMemoryLeaks(samplesIDsStub, file: file, line: line)
         trackForMemoryLeaks(playingProgressUpdatesStub, file: file, line: line)
         trackForMemoryLeaks(compositingStub, file: file, line: line)
-        trackForMemoryLeaks(compositingReadyStub, file: file, line: line)
+        trackForMemoryLeaks(sheetUpdateStub, file: file, line: line)
         
-        return (sut, activeLayerUpdatedStub, layersUpdateStub, samplesIDsStub, playingProgressUpdatesStub, compositingStub, compositingReadyStub)
+        return (sut, activeLayerUpdatedStub, layersUpdateStub, samplesIDsStub, playingProgressUpdatesStub, compositingStub, sheetUpdateStub)
     }
     
     private class ActiveLayerUpdatesSub {
@@ -436,16 +436,16 @@ final class MainViewModelTests: XCTestCase {
         }
     }
     
-    private class CompositingReadyStub {
+    private class SheetUpdateStub {
         
-        private let updatesSubject = PassthroughSubject<URL?, Never>()
+        private let updatesSubject = PassthroughSubject<MainViewModel.Sheet?, Never>()
         
-        var updates: AnyPublisher<URL?, Never> {
+        var updates: AnyPublisher<MainViewModel.Sheet?, Never> {
             
             updatesSubject.eraseToAnyPublisher()
         }
         
-        func publish(_ value: URL?) {
+        func publish(_ value: MainViewModel.Sheet?) {
             
             updatesSubject.send(value)
         }

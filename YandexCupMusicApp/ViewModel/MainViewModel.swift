@@ -40,7 +40,7 @@ final class MainViewModel: ObservableObject {
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
         playingProgressUpdates: AnyPublisher<Double, Never>,
         isCompositing: AnyPublisher<Bool, Never>,
-        compositingReady: AnyPublisher<URL?, Never>
+        sheetUpdate: AnyPublisher<Sheet?, Never>
     ) {
         
         self.instrumentSelector = instrumentSelector
@@ -56,9 +56,7 @@ final class MainViewModel: ObservableObject {
         bindings.insert(controlPanel.bind(isPlayingAll: layersUpdated().isPlayingAll()))
         bindings.insert(controlPanel.bind(isCompositing: isCompositing))
         playingProgressUpdates.assign(to: &$playingProgress)
-        compositingReady
-            .mapToSheet()
-            .assign(to: &$sheet)
+        sheetUpdate.assign(to: &$sheet)
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {

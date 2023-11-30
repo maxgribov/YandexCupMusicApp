@@ -70,7 +70,7 @@ struct MainView: View {
             samplesIDs: { _ in Empty().eraseToAnyPublisher() },
             playingProgressUpdates: Empty().eraseToAnyPublisher(),
             isCompositing: Empty().eraseToAnyPublisher(),
-            compositingReady: Empty().eraseToAnyPublisher()
+            sheetUpdate: Empty().eraseToAnyPublisher()
         ))
     }
 }

@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import Domain
 import Presentation
+import Processing
 
 extension Publisher where Output == Layer?, Failure == Never {
     
