@@ -33,6 +33,7 @@
 		7752DA3F2AF6651F002EBD4D /* LayersControlContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7752DA3E2AF6651F002EBD4D /* LayersControlContainerView.swift */; };
 		778C1C422B14C03800D19683 /* AVAudioSession+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 778C1C412B14C03800D19683 /* AVAudioSession+ext.swift */; };
 		77A9B0642B17D2D3009354AC /* URL+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77A9B0632B17D2D3009354AC /* URL+ext.swift */; };
+		77A9B0662B1887EE009354AC /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77A9B0652B1887EE009354AC /* ActivityView.swift */; };
 		77D105472AF67C6C000D0A9E /* ControlPanelViewModel+ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D105462AF67C6C000D0A9E /* ControlPanelViewModel+ext.swift */; };
 /* End PBXBuildFile section */
 
@@ -73,6 +74,7 @@
 		7752DA3E2AF6651F002EBD4D /* LayersControlContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayersControlContainerView.swift; sourceTree = "<group>"; };
 		778C1C412B14C03800D19683 /* AVAudioSession+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+ext.swift"; sourceTree = "<group>"; };
 		77A9B0632B17D2D3009354AC /* URL+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+ext.swift"; sourceTree = "<group>"; };
+		77A9B0652B1887EE009354AC /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
 		77D105452AF668E7000D0A9E /* YandexCupMusicApp.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = YandexCupMusicApp.xctestplan; sourceTree = "<group>"; };
 		77D105462AF67C6C000D0A9E /* ControlPanelViewModel+ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ControlPanelViewModel+ext.swift"; sourceTree = "<group>"; };
 		77D105482AF7F5FC000D0A9E /* AVAudioEnginePlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = AVAudioEnginePlayground.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -201,6 +203,7 @@
 				7752DA332AF63954002EBD4D /* MainView.swift */,
 				7752DA352AF64A69002EBD4D /* SampleSelectorContainerView.swift */,
 				7752DA3E2AF6651F002EBD4D /* LayersControlContainerView.swift */,
+				77A9B0652B1887EE009354AC /* ActivityView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -341,6 +344,7 @@
 				772EEF422AF00AEC0066F12C /* YandexCupMusicApp.swift in Sources */,
 				77A9B0642B17D2D3009354AC /* URL+ext.swift in Sources */,
 				7752DA362AF64A69002EBD4D /* SampleSelectorContainerView.swift in Sources */,
+				77A9B0662B1887EE009354AC /* ActivityView.swift in Sources */,
 				7752DA3D2AF64F00002EBD4D /* AVAudioRecorder+ext.swift in Sources */,
 				7752DA302AF5A794002EBD4D /* Producer+ext.swift in Sources */,
 				7752DA232AF577B1002EBD4D /* MainViewModel.swift in Sources */,
