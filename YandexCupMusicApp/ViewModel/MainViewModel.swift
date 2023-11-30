@@ -41,7 +41,7 @@ final class MainViewModel: ObservableObject {
     ) {
         
         self.instrumentSelector = instrumentSelector
-        self.sampleControl = SampleControlViewModel(update: activeLayerUpdates.control())
+        self.sampleControl = SampleControlViewModel(initial: nil, update: activeLayerUpdates.control())
         self.controlPanel = .init(
             layersButton: .init(
                 name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),

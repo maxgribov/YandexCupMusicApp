@@ -15,9 +15,9 @@ public final class SampleControlViewModel: ObservableObject {
     @Published public private(set) var control: Layer.Control?
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
-    public init(update: AnyPublisher<Layer.Control?, Never>) {
+    public init(initial control: Layer.Control?, update: AnyPublisher<Layer.Control?, Never>) {
         
-        self.control = nil
+        self.control = control
         update.assign(to: &$control)
     }
     

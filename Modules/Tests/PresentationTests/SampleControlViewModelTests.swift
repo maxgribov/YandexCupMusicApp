@@ -117,7 +117,7 @@ final class SampleControlViewModelTests: XCTestCase {
         line: UInt = #line
     ) -> SampleControlViewModel {
         
-        let sut = SampleControlViewModel(update: Just(control).eraseToAnyPublisher())
+        let sut = SampleControlViewModel(initial: control, update: Just(control).eraseToAnyPublisher())
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
