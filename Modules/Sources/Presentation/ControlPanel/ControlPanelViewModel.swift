@@ -21,12 +21,35 @@ public final class ControlPanelViewModel {
         layersButton: LayersButtonViewModel,
         recordButton: ToggleButtonViewModel,
         composeButton: ToggleButtonViewModel,
-        playButton: ToggleButtonViewModel
+        playButton: ToggleButtonViewModel,
+        layersButtonNameUpdates: AnyPublisher<String?, Never>,
+        composeButtonStatusUpdates: AnyPublisher<Bool, Never>,
+        playButtonStatusUpdates: AnyPublisher<Bool, Never>
     ) {
         self.layersButton = layersButton
         self.recordButton = recordButton
         self.composeButton = composeButton
         self.playButton = playButton
+        
+        layersButtonNameUpdates
+            .map { $0 ?? String.layersButtonDefaultName }
+            .assign(to: &self.layersButton.$name)
+        
+        layersButtonNameUpdates
+            .map { name in
+
+                switch name {
+                case .some:
+                    return self.isLayersButtonEnabled()
+                    
+                case .none:
+                    return false
+                }
+                
+            }.assign(to: &self.layersButton.$isEnabled)
+        
+        composeButtonStatusUpdates.assign(to: &self.composeButton.$isActive)
+        playButtonStatusUpdates.assign(to: &self.playButton.$isActive)
     }
     
     public var delegateAction: AnyPublisher<DelegateAction, Never> {
@@ -45,7 +68,7 @@ public final class ControlPanelViewModel {
         
         recordButton.isActive.toggle()
         delegateActionSubject.send(recordButton.isActive ? .startRecording : .stopRecording)
-        if layersButton.name == Self.layersButtonDefaultName {
+        if layersButton.name == .layersButtonDefaultName {
             
             set(all: [composeButton, playButton], to: !recordButton.isActive)
             
@@ -59,7 +82,7 @@ public final class ControlPanelViewModel {
         
         composeButton.isActive.toggle()
         delegateActionSubject.send(composeButton.isActive ? .startComposing : .stopComposing)
-        if layersButton.name == Self.layersButtonDefaultName {
+        if layersButton.name == .layersButtonDefaultName {
             
             set(all: [recordButton, playButton], to: !composeButton.isActive)
             
@@ -84,7 +107,12 @@ public final class ControlPanelViewModel {
         }
     }
     
-    public static let layersButtonDefaultName = "Слои"
+    private func isLayersButtonEnabled() -> Bool {
+        
+        [recordButton, composeButton, playButton]
+            .map(\.isActive)
+            .reduce(false, { partialResult, value in partialResult || value }) == false
+    }
 }
 
 public extension ControlPanelViewModel {
@@ -100,4 +128,9 @@ public extension ControlPanelViewModel {
         case startPlaying
         case stopPlaying
     }
+}
+
+public extension String {
+    
+    static let layersButtonDefaultName = "Слои"
 }

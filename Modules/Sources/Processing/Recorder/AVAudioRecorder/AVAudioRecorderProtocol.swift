@@ -8,10 +8,10 @@
 import AVFoundation
 
 public protocol AVAudioRecorderProtocol: AnyObject {
-    
+
     init(
         url: URL,
-        settings: [String : Any]
+        format: AVAudioFormat
     ) throws
     
     var delegate: AVAudioRecorderDelegate? { get set }

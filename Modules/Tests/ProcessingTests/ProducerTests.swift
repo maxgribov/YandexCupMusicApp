@@ -12,23 +12,31 @@ import Processing
 
 final class ProducerTests: XCTestCase {
     
+    var cancellables = Set<AnyCancellable>()
+    
+    override func setUp() async throws {
+        try await super.setUp()
+        
+        cancellables = []
+    }
+    
     func test_init_emptyLayers() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         
         XCTAssertTrue(sut.layers.isEmpty)
     }
     
     func test_init_activeLayerIsNil() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         
         XCTAssertNil(sut.active)
     }
     
     func test_init_isRecordingFalse() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         let isRecordingSpy = ValueSpy(sut.isRecording())
         
         XCTAssertEqual(isRecordingSpy.values, [false])
@@ -36,21 +44,28 @@ final class ProducerTests: XCTestCase {
     
     func test_init_doesNotMessagePlayer() {
         
-        let (_, player, _) = makeSUT()
+        let (_, player, _, _) = makeSUT()
         
         XCTAssertTrue(player.messages.isEmpty)
     }
     
     func test_init_doesNotMessageRecorder() {
         
-        let (_, _, recorder) = makeSUT()
+        let (_, _, recorder, _) = makeSUT()
         
         XCTAssertTrue(recorder.messages.isEmpty)
     }
     
+    func test_init_doesNotMessagesComposer() {
+        
+        let (_, _, _, composer) = makeSUT()
+        
+        XCTAssertEqual(composer.messages, [])
+    }
+    
     func test_addLayerForInstrumentWithSample_addsLayerWithCorrectPropertiesAndIncrementingNumber() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         
         let firstLayerID = UUID()
         sut.addLayer(id: firstLayerID, for: .guitar, with: someSample())
@@ -68,7 +83,7 @@ final class ProducerTests: XCTestCase {
     
     func test_addLayerForInstrumentWithSample_setNewLayerToActive() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         
         let firstLayerID = UUID()
         sut.addLayer(id: firstLayerID, for: .guitar, with: someSample())
@@ -81,7 +96,7 @@ final class ProducerTests: XCTestCase {
     
     func test_addLayerForRecording_addsLayerWithCorrectPropertiesAndIncrementingNumber() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         
         let firstLayerID = UUID()
         sut.addLayer(id: firstLayerID, forRecording: someRecordingData())
@@ -99,7 +114,7 @@ final class ProducerTests: XCTestCase {
     
     func test_addLayerForRecording_setNewLayerToActive() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         
         let firstLayerID = UUID()
         sut.addLayer(id: firstLayerID, forRecording: someRecordingData())
@@ -112,7 +127,7 @@ final class ProducerTests: XCTestCase {
     
     func test_setIsPlayingForLayerID_updatesLayersIsPlayingState(){
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         sut.addLayer(for: .guitar, with: someSample())
         sut.addLayer(for: .drums, with: someSample())
         sut.addLayer(forRecording: someRecordingData())
@@ -129,7 +144,7 @@ final class ProducerTests: XCTestCase {
     
     func test_setIsPlayingForLayerID_messagesPlayerWithPlayAndStopCommands() {
         
-        let (sut, player, _) = makeSUT()
+        let (sut, player, _, _) = makeSUT()
         let guitarSample = someSample()
         sut.addLayer(for: .guitar, with: guitarSample)
         let drumsSample = someSample()
@@ -151,7 +166,7 @@ final class ProducerTests: XCTestCase {
     
     func test_setIsMutedForLayerID_updateLayerState() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         sut.addLayer(for: .guitar, with: someSample())
         sut.addLayer(for: .drums, with: someSample())
         sut.addLayer(forRecording: someRecordingData())
@@ -168,7 +183,7 @@ final class ProducerTests: XCTestCase {
     
     func test_setIsMutedForLayerID_messagesPlayerWithPlayAndStopCommands() {
         
-        let (sut, player, _) = makeSUT()
+        let (sut, player, _, _) = makeSUT()
         let guitarSample = someSample()
         sut.addLayer(for: .guitar, with: guitarSample)
         sut.addLayer(for: .drums, with: someSample())
@@ -189,7 +204,7 @@ final class ProducerTests: XCTestCase {
     
     func test_deleteLayerID_removesLayerForID() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         sut.addLayer(for: .guitar, with: someSample())
         sut.addLayer(for: .drums, with: someSample())
         sut.addLayer(forRecording: someRecordingData())
@@ -207,7 +222,7 @@ final class ProducerTests: XCTestCase {
     
     func test_deleteLayerID_setActiveToNilOnLastLayerDeleted() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         sut.addLayer(for: .guitar, with: someSample())
         XCTAssertEqual(sut.active, sut.layers.first?.id)
         
@@ -217,7 +232,7 @@ final class ProducerTests: XCTestCase {
     }
     func test_deleteLayerID_setActiveToLastLayerIDOnDeleteActiveLayerAndLayersRemain() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         sut.addLayer(for: .guitar, with: someSample())
         sut.addLayer(for: .drums, with: someSample())
         sut.addLayer(forRecording: someRecordingData())
@@ -233,7 +248,7 @@ final class ProducerTests: XCTestCase {
     
     func test_deleteLayerID_doesNotChangeActiveOnDeleteNotActiveAndLayersRemain() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         sut.addLayer(for: .guitar, with: someSample())
         sut.addLayer(for: .drums, with: someSample())
         sut.addLayer(forRecording: someRecordingData())
@@ -247,7 +262,7 @@ final class ProducerTests: XCTestCase {
     
     func test_deleteLayerID_messagesPlayerToStopPlayLayerWithID() {
         
-        let (sut, player, _) = makeSUT()
+        let (sut, player, _, _) = makeSUT()
         let layerID = UUID()
         sut.addLayer(id: layerID, for: .guitar, with: someSample())
         sut.set(isPlayingAll: true)
@@ -259,7 +274,7 @@ final class ProducerTests: XCTestCase {
     
     func test_selectLayerID_doNothingOnIncorrectID() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         sut.addLayer(for: .guitar, with: someSample())
         sut.addLayer(for: .drums, with: someSample())
         sut.addLayer(forRecording: someRecordingData())
@@ -271,7 +286,7 @@ final class ProducerTests: XCTestCase {
     
     func test_selectLayerID_updatesActiveLayerForCorrectLayerID() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         sut.addLayer(for: .guitar, with: someSample())
         sut.addLayer(for: .drums, with: someSample())
         sut.addLayer(forRecording: someRecordingData())
@@ -283,7 +298,7 @@ final class ProducerTests: XCTestCase {
     
     func test_startRecording_messagesRecorder() {
         
-        let (sut, _, recorder) = makeSUT()
+        let (sut, _, recorder, _) = makeSUT()
         
         sut.startRecording()
         
@@ -292,9 +307,9 @@ final class ProducerTests: XCTestCase {
     
     func test_startRecording_setIsRecordingToFalseAndMessageDelegateOnFailure() {
         
-        let sut = Producer(player: PlayerSpy(), recorder: AlwaysFailingRecorderStub())
+        let sut = Producer(player: PlayerSpy(), recorder: AlwaysFailingRecorderStub(), composer: ComposerSpy())
         let isRecordingSpy = ValueSpy(sut.isRecording())
-        let delegateSpy = ValueSpy(sut.delegateActionSubject)
+        let delegateSpy = ValueSpy(sut.delegateAction)
         
         sut.startRecording()
         
@@ -304,7 +319,7 @@ final class ProducerTests: XCTestCase {
     
     func test_startRecording_setIsRecodingToTrueOnSuccess() {
         
-        let (sut, _, _) = makeSUT()        
+        let (sut, _, _, _) = makeSUT()        
         let isRecordingSpy = ValueSpy(sut.isRecording())
 
         sut.startRecording()
@@ -314,7 +329,7 @@ final class ProducerTests: XCTestCase {
     
     func test_stopRecording_messagesRecorder() {
         
-        let (sut, _, recorder) = makeSUT()
+        let (sut, _, recorder, _) = makeSUT()
         
         sut.stopRecording()
         
@@ -323,9 +338,9 @@ final class ProducerTests: XCTestCase {
     
     func test_stopRecording_isRecordingBecomeFalseAndInformDelegate() {
         
-        let (sut, _, recorder) = makeSUT()
+        let (sut, _, recorder, _) = makeSUT()
         let isRecordingSpy = ValueSpy(sut.isRecording())
-        let delegateSpy = ValueSpy(sut.delegateActionSubject)
+        let delegateSpy = ValueSpy(sut.delegateAction)
         sut.startRecording()
         
         sut.stopRecording()
@@ -337,7 +352,7 @@ final class ProducerTests: XCTestCase {
     
     func test_stopRecording_addNewRecordingLayerOnSuccess() {
         
-        let (sut, player, recorder) = makeSUT()
+        let (sut, player, recorder, _) = makeSUT()
         let isRecordingSpy = ValueSpy(sut.isRecording())
         sut.startRecording()
         
@@ -355,7 +370,7 @@ final class ProducerTests: XCTestCase {
     
     func test_setIsPlayingAll_startPlayingAllNotMutedLayersAndStopsPlayingAllLayer() {
         
-        let (sut, player, _) = makeSUT()
+        let (sut, player, _, _) = makeSUT()
         let guitarSample = someSample()
         sut.addLayer(for: .guitar, with: guitarSample)
         let drumsData = someSample()
@@ -376,7 +391,7 @@ final class ProducerTests: XCTestCase {
     
     func test_setActiveLayerControl_updatesControlForActiveLayer() {
         
-        let (sut, _, _) = makeSUT()
+        let (sut, _, _, _) = makeSUT()
         sut.addLayer(forRecording: someRecordingData())
         let initialControl = sut.layers[0].control
         
@@ -389,7 +404,7 @@ final class ProducerTests: XCTestCase {
     
     func test_setActiveLayerControl_messagesPlayerWithUpdateForLayerIDWithControl() {
         
-        let (sut, player, _) = makeSUT()
+        let (sut, player, _, _) = makeSUT()
         let layerID = UUID()
         let recordingData = Data("recording".utf8)
         sut.addLayer(id: layerID, forRecording: recordingData)
@@ -401,7 +416,7 @@ final class ProducerTests: XCTestCase {
     
     func test_setIsPlayingForLayerID_firesPlayingProgressOnStartPlaying() {
         
-        let (sut, player, _) = makeSUT()
+        let (sut, player, _, _) = makeSUT()
         
         expectPlayingProgressStartIncreasing(sut, on: {
             
@@ -411,7 +426,7 @@ final class ProducerTests: XCTestCase {
 
     func test_setIsPlayingForLayerID_stopsPlayingProgressUpdatesOnFinishPlaying(){
         
-        let (sut, player, _) = makeSUT()
+        let (sut, player, _, _) = makeSUT()
         
         expectPlayingProgressDropsToZero(sut, on: {
             
@@ -424,6 +439,89 @@ final class ProducerTests: XCTestCase {
         })
     }
     
+    func test_startCompositing_doesNotMessagedComposerOnEmptyLayers() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        
+        sut.startCompositing()
+        
+        XCTAssertEqual(composer.messages, [])
+    }
+    
+    func test_startCompositing_messagesComposerToComposeWithTracksForNotMutedLayers() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        let notMutedLayerID = anyLayerID()
+        let sample = someSample()
+        sut.addLayer(id: notMutedLayerID, for: .guitar, with: sample)
+        let mutedLayerID = anyLayerID()
+        sut.addLayer(id: mutedLayerID, for: .drums, with: someSample())
+        sut.set(isMuted: true, for: mutedLayerID)
+        
+        sut.startCompositing()
+        
+        XCTAssertEqual(composer.messages, [.compose([.init(id: notMutedLayerID, data: sample.data, volume: 0.5, rate: 1.01)])])
+    }
+    
+    func test_compose_stopsAllPlayingLayers() {
+        
+        let (sut, _, _, _) = makeSUT()
+        sut.addLayer(for: .guitar, with: someSample())
+        sut.addLayer(forRecording: anyData())
+        sut.set(isPlayingAll: true)
+        
+        sut.startCompositing()
+        
+        XCTAssertEqual(sut.layers[0].isPlaying, false)
+        XCTAssertEqual(sut.layers[1].isPlaying, false)
+    }
+    
+    func test_isCompositing_deliversStateUpdates() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        
+        expect(sut, composer, isCompositing: [false, true, false], on: {
+            
+            composer.simulateIsCompositingUpdate(value: false)
+            composer.simulateIsCompositingUpdate(value: true)
+            composer.simulateIsCompositingUpdate(value: false)
+        })
+    }
+    
+    func test_stopCompositing_messagesComposerWithStop() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        let layerID = anyLayerID()
+        let sample = someSample()
+        sut.addLayer(id: layerID, for: .guitar, with: sample)
+        
+        sut.startCompositing()
+        sut.stopCompositing()
+        
+        XCTAssertEqual(composer.messages, [.compose([.init(id: layerID, data: sample.data, volume: 0.5, rate: 1.01)]), .stop])
+    }
+    
+    func test_delegateAction_deliversCompositingReadyOnStopAndCompositingSuccess() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        
+        let url = anyURL()
+        expectCompositing(sut, composer, delegateActions: [.compositingReady(url)], on: {
+            
+            composer.simulateCompositingCompleteSuccesful(url: url)
+        })
+    }
+    
+    func test_delegateAction_deliversCompositingFailureOnStopAndCompositingFailure() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        
+        expectCompositing(sut, composer, delegateActions: [.compositingFailed], on: {
+            
+            composer.simulateCompositingCompletionFailure(error: .compositingFailure)
+        })
+    }
+
     //MARK: - Helpers
     
     private func makeSUT
@@ -431,19 +529,22 @@ final class ProducerTests: XCTestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> (
-        sut: Producer,
+        sut: Producer<PlayerSpy, RecorderSpy, ComposerSpy>,
         player: PlayerSpy,
-        recorderSpy: RecorderSpy
+        recorder: RecorderSpy,
+        composer: ComposerSpy
     ) {
         
         let player = PlayerSpy()
         let recorder = RecorderSpy()
-        let sut = Producer(player: player, recorder: recorder)
+        let composer = ComposerSpy()
+        let sut = Producer(player: player, recorder: recorder, composer: composer)
         trackForMemoryLeaks(player, file: file, line: line)
         trackForMemoryLeaks(recorder, file: file, line: line)
+        trackForMemoryLeaks(composer, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
         
-        return (sut, player, recorder)
+        return (sut, player, recorder, composer)
     }
     
     class PlayerSpy: Player {
@@ -544,19 +645,106 @@ final class ProducerTests: XCTestCase {
         func stopRecording() {}
     }
     
+    private class ComposerSpy: Composer {
+        
+        private(set) var messages = [Message]()
+        private let composeSubject = PassthroughSubject<URL, ComposerError>()
+        private let isCompositingStubSubject = PassthroughSubject<Bool, Never>()
+        
+        enum Message: Equatable {
+            
+            case compose([Track])
+            case stop
+        }
+        
+        func isCompositing() -> AnyPublisher<Bool, Never> {
+            
+            isCompositingStubSubject.eraseToAnyPublisher()
+        }
+        
+        func compose(tracks: [Track]) -> AnyPublisher<URL, ComposerError> {
+            
+            messages.append(.compose(tracks))
+            
+            return composeSubject.eraseToAnyPublisher()
+        }
+        
+        func stop() {
+            
+            messages.append(.stop)
+        }
+        
+        func simulateIsCompositingUpdate(value: Bool) {
+            
+            isCompositingStubSubject.send(value)
+        }
+        
+        func simulateCompositingCompleteSuccesful(url: URL) {
+            
+            composeSubject.send(url)
+        }
+        
+        func simulateCompositingCompletionFailure(error: ComposerError) {
+            
+            composeSubject.send(completion: .failure(error))
+        }
+    }
+    
+    private func expectCompositing(
+        _ sut: Producer<PlayerSpy, RecorderSpy, ComposerSpy>,
+        _ composer: ComposerSpy,
+        delegateActions expectedDelegateActions: [Producer<PlayerSpy, RecorderSpy, ComposerSpy>.DelegateAction],
+        on action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        let delegateSpy = ValueSpy(sut.delegateAction)
+        sut.addLayer(for: .guitar, with: someSample())
+        sut.startCompositing()
+        
+        action()
+        
+        XCTAssertEqual(delegateSpy.values, expectedDelegateActions, file: file, line: line)
+    }
+    
+    private func expect(
+        _ sut: Producer<PlayerSpy, RecorderSpy, ComposerSpy>,
+        _ composer: ComposerSpy,
+        isCompositing expectedValues: [Bool],
+        on action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        
+        var receivedValues = [Bool]()
+        sut.isCompositing()
+            .sink(receiveValue: { value in
+                
+                receivedValues.append(value)
+                
+            }).store(in: &cancellables)
+        
+        action()
+        
+        XCTAssertEqual(receivedValues, expectedValues, file: file, line: line)
+    }
+    
     private func expectPlayingProgressStartIncreasing(
-        _ sut: Producer,
+        _ sut: Producer<PlayerSpy, RecorderSpy, ComposerSpy>,
         on action: () -> Void
     ) {
         
         let exp = expectation(description: "Wait for first progress value")
-        let cancellable = sut.playingProgress
+        exp.assertForOverFulfill = false
+        sut.playingProgress
             .sink { progress in
                 
                 if progress > 0 {
                     exp.fulfill()
                 }
             }
+            .store(in: &cancellables)
         
         action()
         
@@ -564,18 +752,19 @@ final class ProducerTests: XCTestCase {
     }
     
     private func expectPlayingProgressDropsToZero(
-        _ sut: Producer,
+        _ sut: Producer<PlayerSpy, RecorderSpy, ComposerSpy>,
         on action: () -> Void
     ) {
         
         let exp = expectation(description: "Wait for first progress zero")
-        let cancellable = sut.playingProgress
+        sut.playingProgress
             .sink { progress in
                 
                 if progress == 0 {
                     exp.fulfill()
                 }
             }
+            .store(in: &cancellables)
         
         action()
         
@@ -590,10 +779,5 @@ final class ProducerTests: XCTestCase {
     private func someRecordingData() -> Data {
         
         Data(UUID().uuidString.utf8)
-    }
-    
-    private func anyNSError() -> NSError {
-        
-        NSError(domain: "", code: 0)
     }
 }

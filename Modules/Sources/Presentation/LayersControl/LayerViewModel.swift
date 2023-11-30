@@ -17,8 +17,6 @@ public struct LayerViewModel: Identifiable {
     public let isMuted: Bool
     public let isActive: Bool
     
-    private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
-    
     public init(id: Layer.ID, name: String, isPlaying: Bool, isMuted: Bool, isActive: Bool) {
         
         self.id = id
@@ -31,41 +29,5 @@ public struct LayerViewModel: Identifiable {
     public init(with layer: Layer, isActive: Bool) {
         
         self.init(id: layer.id, name: layer.name, isPlaying: layer.isPlaying, isMuted: layer.isMuted, isActive: isActive)
-    }
-    
-    public var delegateAction: AnyPublisher<DelegateAction, Never> {
-        
-        delegateActionSubject.eraseToAnyPublisher()
-    }
-    
-    public func playButtonDidTaped() {
-        
-        delegateActionSubject.send(.isPlayingDidChanged(!isPlaying))
-    }
-    
-    public func muteButtonDidTapped() {
-        
-        delegateActionSubject.send(.isMutedDidChanged(!isMuted))
-    }
-    
-    public func selectDidTapped() {
-        
-        delegateActionSubject.send(.selectLayer)
-    }
-    
-    public func deleteButtonDidTapped() {
-        
-        delegateActionSubject.send(.deleteLayer)
-    }
-}
-
-public extension LayerViewModel {
-    
-    enum DelegateAction: Equatable {
-        
-        case isPlayingDidChanged(Bool)
-        case isMutedDidChanged(Bool)
-        case selectLayer
-        case deleteLayer
     }
 }

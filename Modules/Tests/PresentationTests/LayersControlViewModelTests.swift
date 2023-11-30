@@ -40,9 +40,10 @@ final class LayersControlViewModelTests: XCTestCase {
                                     makeLayerViewModel(isPlaying: true),
                                     makeLayerViewModel(isPlaying: false)])
         
-        expect(sut, delegateActions: [.isPlayingDidChanged(sut.layers[2].id, true)], on: {
+        let layerId = sut.layers[2].id
+        expect(sut, delegateActions: [.isPlayingDidChanged(layerId, true)], on: {
             
-            sut.layers[2].playButtonDidTaped()
+            sut.playButtonDidTaped(for: layerId)
         })
     }
     
@@ -52,9 +53,10 @@ final class LayersControlViewModelTests: XCTestCase {
                                     makeLayerViewModel(isMuted: true),
                                     makeLayerViewModel(isMuted: false)])
         
-        expect(sut, delegateActions: [.isMutedDidChanged(sut.layers[1].id, false)], on: {
+        let layerId = sut.layers[1].id
+        expect(sut, delegateActions: [.isMutedDidChanged(layerId, false)], on: {
             
-            sut.layers[1].muteButtonDidTapped()
+            sut.muteButtonDidTapped(for: layerId)
         })
     }
     
@@ -64,9 +66,10 @@ final class LayersControlViewModelTests: XCTestCase {
                                     makeLayerViewModel(),
                                     makeLayerViewModel()])
         
-        expect(sut, delegateActions: [.deleteLayer(sut.layers[0].id)], on: {
+        let layerId = sut.layers[0].id
+        expect(sut, delegateActions: [.deleteLayer(layerId)], on: {
             
-            sut.layers[0].deleteButtonDidTapped()
+            sut.deleteButtonDidTapped(for: layerId)
         })
     }
     
@@ -76,9 +79,10 @@ final class LayersControlViewModelTests: XCTestCase {
                                     makeLayerViewModel(),
                                     makeLayerViewModel()])
         
-        expect(sut, delegateActions: [.selectLayer(sut.layers[2].id)], on: {
+        let layerId = sut.layers[2].id
+        expect(sut, delegateActions: [.selectLayer(layerId)], on: {
             
-            sut.layers[2].selectDidTapped()
+            sut.selectDidTapped(for: layerId)
         })
     }
     

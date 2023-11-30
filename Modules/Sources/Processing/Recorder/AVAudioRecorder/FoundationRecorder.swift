@@ -11,16 +11,19 @@ import Combine
 public final class FoundationRecorder<R>: NSObject, AVAudioRecorderDelegate, Recorder where R: AVAudioRecorderProtocol {
     
     private let recordingStatusSubject = CurrentValueSubject<RecordingStatus, Never>(.idle)
-    private let makeRecorder: (URL, [String : Any]) throws -> R
+    private let makeRecorder: (URL, AVAudioFormat) throws -> R
     private let fileManager: FileManager
+    private let mapper: (URL) -> Data?
     
     public init(
-        makeRecorder: @escaping (URL, [String : Any]) throws -> R,
-        fileManager: FileManager = .default
+        makeRecorder: @escaping (URL, AVAudioFormat) throws -> R,
+        fileManager: FileManager = .default,
+        mapper: @escaping (URL) -> Data? = FoundationRecorder.basicMapper(url:)
     ) {
         
         self.makeRecorder = makeRecorder
         self.fileManager = fileManager
+        self.mapper = mapper
     }
     
     public func isRecording() -> AnyPublisher<Bool, Never> {
@@ -40,7 +43,7 @@ public final class FoundationRecorder<R>: NSObject, AVAudioRecorderDelegate, Rec
         
         do {
             
-            let recorder = try makeRecorder(makeRecordingURL(), makeRecordingSettings())
+            let recorder = try makeRecorder(makeRecordingURL(), .shared)
             recorder.delegate = self
             recorder.record()
             recordingStatusSubject.send(.inProgress(recorder))
@@ -76,16 +79,6 @@ public final class FoundationRecorder<R>: NSObject, AVAudioRecorderDelegate, Rec
         getDocumentsDirectory().appendingPathComponent("recording.m4a")
     }
     
-    private func makeRecordingSettings() -> [String: Any] {
-        
-        [
-            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 12000,
-            AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
-        ]
-    }
-    
     private func getDocumentsDirectory() -> URL {
         
         fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -95,12 +88,11 @@ public final class FoundationRecorder<R>: NSObject, AVAudioRecorderDelegate, Rec
         
         switch flag {
         case true:
-            do {
+            if let data = mapper(recorder.url) {
                 
-                let data = try Data(contentsOf: recorder.url)
                 recordingStatusSubject.send(.complete(data))
                 
-            } catch {
+            } else {
                 
                 recordingStatusSubject.send(.failed)
             }
@@ -123,4 +115,12 @@ public enum FoundationRecorderError: Error {
     
     case recorderInitFailure
     case recordFailedError
+}
+
+public extension FoundationRecorder {
+    
+    static func basicMapper(url: URL) -> Data? {
+        
+        try? Data(contentsOf: url)
+    }
 }

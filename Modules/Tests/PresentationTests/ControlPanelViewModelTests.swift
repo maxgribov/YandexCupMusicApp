@@ -201,13 +201,42 @@ final class ControlPanelViewModelTests: XCTestCase {
         XCTAssertEqual(sut.playButton.isEnabled, true)
     }
     
+    func test_composeButtonStatusUpdates_updatesPlayButtonStatus() {
+        
+        let composeButtonStatusUpdateStub = PassthroughSubject<Bool, Never>()
+        let sut = makeSUT(composeButtonStatusUpdatesStub: composeButtonStatusUpdateStub.eraseToAnyPublisher())
+        XCTAssertFalse(sut.composeButton.isActive)
+        
+        composeButtonStatusUpdateStub.send(true)
+        XCTAssertTrue(sut.composeButton.isActive)
+        
+        composeButtonStatusUpdateStub.send(false)
+        XCTAssertFalse(sut.composeButton.isActive)
+    }
+    
+    func test_playButtonStatusUpdates_updatesPlayButtonStatus() {
+        
+        let playButtonStatusUpdateStub = PassthroughSubject<Bool, Never>()
+        let sut = makeSUT(playButtonStatusUpdatesStub: playButtonStatusUpdateStub.eraseToAnyPublisher())
+        XCTAssertFalse(sut.playButton.isActive)
+        
+        playButtonStatusUpdateStub.send(true)
+        XCTAssertTrue(sut.playButton.isActive)
+        
+        playButtonStatusUpdateStub.send(false)
+        XCTAssertFalse(sut.playButton.isActive)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
-        layersButton: LayersButtonViewModel = LayersButtonViewModel(name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),
+        layersButton: LayersButtonViewModel = LayersButtonViewModel(name: .layersButtonDefaultName, isActive: false, isEnabled: true),
         recordButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .record, isActive: false, isEnabled: true),
         composeButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .compose, isActive: false, isEnabled: true),
         playButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .play, isActive: false, isEnabled: true),
+        layerButtonNameUpdatesStub: AnyPublisher<String?, Never> = Empty().eraseToAnyPublisher(),
+        composeButtonStatusUpdatesStub: AnyPublisher<Bool, Never> = Empty().eraseToAnyPublisher(),
+        playButtonStatusUpdatesStub: AnyPublisher<Bool, Never> = Empty().eraseToAnyPublisher(),
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> ControlPanelViewModel {
@@ -216,7 +245,10 @@ final class ControlPanelViewModelTests: XCTestCase {
             layersButton: layersButton,
             recordButton: recordButton,
             composeButton: composeButton,
-            playButton: playButton
+            playButton: playButton,
+            layersButtonNameUpdates: layerButtonNameUpdatesStub,
+            composeButtonStatusUpdates: composeButtonStatusUpdatesStub,
+            playButtonStatusUpdates: playButtonStatusUpdatesStub
         )
         
         trackForMemoryLeaks(sut, file: file, line: line)

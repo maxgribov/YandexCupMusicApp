@@ -32,8 +32,8 @@ final class FoundationRecorderTests: XCTestCase {
     
     func test_startRecording_deliversErrorOnRecorderInitFailure() throws {
         
-        let sut = FoundationRecorder() { url, settings in
-            try AlwaysFailsAVAudioRecorderStub(url: url, settings: settings)
+        let sut = FoundationRecorder() { url, format in
+            try AlwaysFailsAVAudioRecorderStub(url: url, format: format)
         }
         let startRecordingSpy = ValueSpy(sut.startRecording())
         
@@ -149,22 +149,38 @@ final class FoundationRecorderTests: XCTestCase {
             recorder?.delegate?.audioRecorderDidFinishRecording?(recorderStub, successfully: true)
         })
     }
+    
+    func test_stopRecording_deliversDataOnSuccessRecordingAndSuccessDataFetchingMappedWithBufferMapper() throws {
+        
+        let sut = makeSUT(mapper: FoundationRecorder<AVAudioRecorderSpy>.bufferMapper(url:))
+        
+        let (expectedData, url) = try XCTUnwrap(makeBundleFileDataStub())
+        let recorderStub = try makeAVAudioRecorderStub(url: url)
+        expect(sut, result: expectedData) {
+            
+            sut.stopRecording()
+            recorder?.delegate?.audioRecorderDidFinishRecording?(recorderStub, successfully: true)
+        }
+    }
 
     //MARK: - Helpers
     
     private func makeSUT(
+        mapper: @escaping (URL) -> Data? = FoundationRecorder<AVAudioRecorderSpy>.basicMapper(url:),
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> FoundationRecorder<AVAudioRecorderSpy> {
         
-        let sut = FoundationRecorder { url, settings in
-            
-            let recorder = try AVAudioRecorderSpy(url: url, settings: settings)
-            self.recorder = recorder
-            
-            return recorder
-        }
-        
+        let sut = FoundationRecorder(
+            makeRecorder: { url, format in
+                
+                let recorder = try AVAudioRecorderSpy(url: url, format: format)
+                self.recorder = recorder
+                
+                return recorder
+            },
+            mapper: mapper)
+
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
@@ -183,7 +199,7 @@ final class FoundationRecorderTests: XCTestCase {
         
         weak var delegate: AVAudioRecorderDelegate?
         
-        required init(url: URL, settings: [String : Any]) throws {
+        required init(url: URL, format: AVAudioFormat) throws {
             
             messages.append(.initialisation)
         }
@@ -204,7 +220,7 @@ final class FoundationRecorderTests: XCTestCase {
         
         weak var delegate: AVAudioRecorderDelegate?
         
-        required init(url: URL, settings: [String : Any]) throws {
+        required init(url: URL, format: AVAudioFormat) throws {
             
             throw NSError(domain: "", code: 0)
         }
@@ -316,15 +332,5 @@ final class FoundationRecorderTests: XCTestCase {
         try data.write(to: url)
         
         return (data, url)
-    }
-    
-    private func anyURL() -> URL {
-    
-        URL(string: "www.any-url.com")!
-    }
-    
-    private func anyNSError() -> NSError {
-        
-        NSError(domain: "", code: 0)
     }
 }

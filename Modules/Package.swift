@@ -44,7 +44,9 @@ let package = Package(
             dependencies: ["Domain", "Persistence"]),
         .testTarget(
             name: "ProcessingTests",
-            dependencies: ["Domain", "Processing"]),
+            dependencies: ["Domain", "Processing"],
+            resources: [.process("Resources")]
+        ),
         .testTarget(
             name: "PresentationTests",
             dependencies: ["Domain", "Presentation"]),

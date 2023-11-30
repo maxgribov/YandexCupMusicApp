@@ -19,10 +19,11 @@ final class MainViewModel: ObservableObject {
     @Published private(set) var sampleSelector: SampleSelectorViewModel?
     @Published private(set) var layersControl: LayersControlViewModel?
     @Published var playingProgress: Double
+    @Published var sheet: Sheet?
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
-    private let layersUpdates: () -> AnyPublisher<LayersUpdate, Never>
-    private let samplesIDs: (Instrument) -> AnyPublisher<[Sample.ID], Error>
+    private let makeSampleSelector: (Instrument) -> AnyPublisher<SampleSelectorViewModel, Error>
+    private let makeLayersControl: () -> LayersControlViewModel
     
     private var bindings = Set<AnyCancellable>()
     private var sampleSelectorBinding: AnyCancellable?
@@ -30,29 +31,26 @@ final class MainViewModel: ObservableObject {
     private var layersDelegateBinding: AnyCancellable?
     
     init(
-        activeLayerUpdates: AnyPublisher<Layer?, Never>,
-        layersUpdated: @escaping () -> AnyPublisher<LayersUpdate, Never>,
-        samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
-        playingProgressUpdates: AnyPublisher<Double, Never>
+        instrumentSelector: InstrumentSelectorViewModel,
+        sampleControl: SampleControlViewModel,
+        controlPanel: ControlPanelViewModel,
+        playingProgress: Double,
+        makeSampleSelector: @escaping (Instrument) -> AnyPublisher<SampleSelectorViewModel, Error>,
+        makeLayersControl: @escaping () -> LayersControlViewModel,
+        playingProgressUpdates: AnyPublisher<Double, Never>,
+        sheetUpdates: AnyPublisher<Sheet?, Never>
     ) {
         
-        self.instrumentSelector = .initial
-        self.sampleControl = SampleControlViewModel(update: activeLayerUpdates.control())
-        self.controlPanel = .init(
-            layersButton: .init(
-                name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),
-                recordButton: .init(type: .record, isActive: false, isEnabled: true),
-                composeButton: .init(type: .compose, isActive: false, isEnabled: true),
-                playButton: .init(type: .play, isActive: false, isEnabled: true))
-        self.layersUpdates = layersUpdated
-        self.samplesIDs = samplesIDs
-        self.playingProgress = 0
+        self.instrumentSelector = instrumentSelector
+        self.sampleControl = sampleControl
+        self.controlPanel = controlPanel
+        self.makeSampleSelector = makeSampleSelector
+        self.makeLayersControl = makeLayersControl
+        self.playingProgress = playingProgress
         
         bind()
-        bind(layersUpdated())
-        bindings.insert(controlPanel.bind(activeLayer: activeLayerUpdates))
-        bindings.insert(controlPanel.bind(isPlayingAll: layersUpdated().isPlayingAll()))
         playingProgressUpdates.assign(to: &$playingProgress)
+        sheetUpdates.assign(to: &$sheet)
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
@@ -88,6 +86,13 @@ extension MainViewModel {
         case startPlaying
         case stopPlaying
     }
+    
+    enum Sheet: Identifiable, Hashable {
+        
+        var id: Self { self }
+        
+        case activity(URL)
+    }
 }
 
 //MARK: - Private Helpers
@@ -114,18 +119,6 @@ private extension MainViewModel {
             .store(in: &bindings)
     }
     
-    func bind(_ layers:  AnyPublisher<LayersUpdate, Never>) {
-        
-        layers.sink { [unowned self] update in
-            
-            if update.layers.isEmpty, layersControl != nil {
-                
-                dismissLayersControl()
-            }
-            
-        }.store(in: &bindings)
-    }
-    
     func handleInstrumentSelector(delegateAction: InstrumentSelectorViewModel.DelegateAction) {
         
         switch delegateAction {
@@ -133,13 +126,10 @@ private extension MainViewModel {
             delegateActionSubject.send(.defaultSampleSelected(instrument))
             
         case let .showSampleSelector(instrument):
-            sampleSelectorBinding = samplesIDs(instrument)
-                .makeSampleItemViewModels()
-                .sink(receiveCompletion: { _ in }) { [unowned self] items in
+            sampleSelectorBinding = makeSampleSelector(instrument)
+                .sink(receiveCompletion: { _ in }) { [unowned self] sampleSelector in
                     
-                    let sampleSelector = SampleSelectorViewModel(instrument: instrument, items: items)
                     self.sampleSelector = sampleSelector
-                    
                     sampleSelectorDelegate = sampleSelector.delegateAction
                         .handleEvents(receiveOutput: {[unowned self] action in
                             switch action {
@@ -165,10 +155,17 @@ private extension MainViewModel {
         
         switch delegateAction {
         case .showLayers:
-            let layersControl = LayersControlViewModel(initial: [], updates: layersUpdates().makeLayerViewModels())
+            let layersControl = makeLayersControl()
             self.layersControl = layersControl
             layersDelegateBinding = layersControl.delegateAction.sink(receiveValue: {[unowned self] action in
-                delegateActionSubject.send(.layersControl(action))
+
+                switch action {
+                case .dismiss:
+                    dismissLayersControl()
+                    
+                default:
+                    delegateActionSubject.send(.layersControl(action))
+                }
             })
             
         case .hideLayers:

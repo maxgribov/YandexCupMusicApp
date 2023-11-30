@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import Interface
+import Presentation
 
 struct MainView: View {
     
@@ -38,6 +39,13 @@ struct MainView: View {
                 LayersControlContainerView(viewModel: layersControl, dismissAction: viewModel.dismissLayersControl)
             }
         }
+        .sheet(item: $viewModel.sheet) { sheet in
+            
+            switch sheet {
+            case let .activity(url):
+                ActivityView(activityItems: [url], applicationActivities: nil)
+            }
+        }
     }
 }
 
@@ -49,9 +57,23 @@ struct MainView: View {
             .ignoresSafeArea()
         
         MainView(viewModel: MainViewModel(
-            activeLayerUpdates: Empty().eraseToAnyPublisher(),
-            layersUpdated: { Empty().eraseToAnyPublisher() },
-            samplesIDs: { _ in Empty().eraseToAnyPublisher() },
-            playingProgressUpdates: Empty().eraseToAnyPublisher()))
+            instrumentSelector: .initial,
+            sampleControl: .init(initial: nil, update: Empty().eraseToAnyPublisher()),
+            controlPanel: .init(
+                layersButton: .init(
+                    name: "Layers", isActive: false, isEnabled: true),
+                recordButton: .init(type: .record, isActive: false, isEnabled: true),
+                composeButton: .init(type: .compose, isActive: false, isEnabled: true),
+                playButton: .init(type: .play, isActive: false, isEnabled: true),
+                layersButtonNameUpdates: Empty().eraseToAnyPublisher(),
+                composeButtonStatusUpdates: Empty().eraseToAnyPublisher(),
+                playButtonStatusUpdates: Empty().eraseToAnyPublisher()
+            ),
+            playingProgress: 0,
+            makeSampleSelector: { _ in Empty().eraseToAnyPublisher() },
+            makeLayersControl: { LayersControlViewModel(initial: [], updates: Empty().makeLayerViewModels()) },
+            playingProgressUpdates: Empty().eraseToAnyPublisher(),
+            sheetUpdates: Empty().eraseToAnyPublisher()
+        ))
     }
 }

@@ -12,6 +12,11 @@ struct LayerView: View {
     
     let viewModel: LayerViewModel
     
+    let playButtonDidTapped: () -> Void
+    let muteButtonDidTapped: () -> Void
+    let selectDidTapped: () -> Void
+    let deleteButtonDidTapped: () -> Void
+    
     var body: some View {
         
         HStack(spacing: 0) {
@@ -22,19 +27,19 @@ struct LayerView: View {
             
             Spacer()
             
-            Button(action: viewModel.playButtonDidTaped) {
+            Button(action: playButtonDidTapped) {
                 
                 Image(viewModel.isPlaying ? .iconPause : .iconPlay)
                 
             }.frame(width: 44, height: 44)
             
-            Button(action: viewModel.muteButtonDidTapped) {
+            Button(action: muteButtonDidTapped) {
                 
                 Image(viewModel.isMuted ? .iconMuted : .iconNotMuted)
                 
             }.frame(width: 44, height: 44)
             
-            Button(action: viewModel.deleteButtonDidTapped) {
+            Button(action: deleteButtonDidTapped) {
                 
                 RoundedRectangle(cornerRadius: 4)
                     .foregroundStyle(Color(.backMiddle))
@@ -43,10 +48,13 @@ struct LayerView: View {
             }
             
         }.background {
+            
             RoundedRectangle(cornerRadius: 4)
                 .foregroundStyle(Color(viewModel.isActive ? .backAccent : .backPrimary))
+            
         }.onTapGesture {
-            viewModel.selectDidTapped()
+            
+            selectDidTapped()
         }
     }
 }
@@ -59,11 +67,29 @@ struct LayerView: View {
         
         VStack {
             
-            LayerView(viewModel: .init(id: UUID(), name: "Drums 1", isPlaying: false, isMuted: false, isActive: false))
+            LayerView(
+                viewModel: .init(id: UUID(), name: "Drums 1", isPlaying: false, isMuted: false, isActive: false), 
+                playButtonDidTapped: {},
+                muteButtonDidTapped: {},
+                selectDidTapped: {},
+                deleteButtonDidTapped: {}
+            )
             
-            LayerView(viewModel: .init(id: UUID(), name: "Guitar 1", isPlaying: false, isMuted: true, isActive: false))
+            LayerView(
+                viewModel: .init(id: UUID(), name: "Guitar 1", isPlaying: false, isMuted: true, isActive: false),
+                playButtonDidTapped: {},
+                muteButtonDidTapped: {},
+                selectDidTapped: {},
+                deleteButtonDidTapped: {}
+            )
             
-            LayerView(viewModel: .init(id: UUID(), name: "Drums 2", isPlaying: true, isMuted: false, isActive: true))
+            LayerView(
+                viewModel: .init(id: UUID(), name: "Drums 2", isPlaying: true, isMuted: false, isActive: true),
+                playButtonDidTapped: {},
+                muteButtonDidTapped: {},
+                selectDidTapped: {},
+                deleteButtonDidTapped: {}
+            )
             
         }.padding()
     }

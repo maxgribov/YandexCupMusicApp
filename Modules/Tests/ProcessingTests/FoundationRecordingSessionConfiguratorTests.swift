@@ -188,11 +188,6 @@ final class FoundationRecordingSessionConfiguratorTests: XCTestCase {
         
         XCTAssertEqual(isRecordingEnabledSpy.events, [.failure(expectedError as NSError)], file: file, line: line)
     }
-    
-    private func anyNSError() -> NSError {
-        
-        NSError(domain: "", code: 0)
-    }
 }
 
 #endif

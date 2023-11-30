@@ -11,18 +11,19 @@ import Combine
 import Domain
 import Processing
 import Persistence
+import Presentation
 
-final class AppModel<S, C> where S: SamplesLocalStore, C: AVAudioSessionProtocol {
+final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessionProtocol, P: Player, R: Recorder, C: Composer {
     
-    let producer: Producer
+    let producer: Producer<P, R, C>
     let localStore: S
-    private let sessionConfigurator: FoundationRecordingSessionConfigurator<C>
+    private let sessionConfigurator: FoundationRecordingSessionConfigurator<A>
     
     private var bindings = Set<AnyCancellable>()
     private var defaultSampleRequest: AnyCancellable?
     private var loadSampleBinding: AnyCancellable?
     
-    init(producer: Producer, localStore: S, sessionConfigurator: FoundationRecordingSessionConfigurator<C>) {
+    init(producer: Producer<P, R, C>, localStore: S, sessionConfigurator: FoundationRecordingSessionConfigurator<A>) {
         
         self.producer = producer
         self.localStore = localStore
@@ -32,10 +33,23 @@ final class AppModel<S, C> where S: SamplesLocalStore, C: AVAudioSessionProtocol
     func mainViewModel() -> MainViewModel {
         
         let viewModel = MainViewModel(
-            activeLayerUpdates: producer.activeLayerMain(),
-            layersUpdated: producer.layersMain,
-            samplesIDs: localStore.sampleIDsMain(for:),
-            playingProgressUpdates: producer.playingProgress)
+            instrumentSelector: .initial,
+            sampleControl: .init(update: producer.activeLayerControlUpdates()),
+            controlPanel: .init(
+                layersButton: .init(name: .layersButtonDefaultName, isActive: false, isEnabled: true),
+                recordButton: .init(type: .record, isActive: false, isEnabled: true),
+                composeButton: .init(type: .compose, isActive: false, isEnabled: true),
+                playButton: .init(type: .play, isActive: false, isEnabled: true),
+                layersButtonNameUpdates: producer.layersButtonNameUpdates(),
+                composeButtonStatusUpdates: producer.composeButtonStatusUpdates(),
+                playButtonStatusUpdates: producer.playButtonStatusUpdates()
+            ),
+            playingProgress: 0,
+            makeSampleSelector: localStore.makeSampleSelector(instrument:),
+            makeLayersControl: producer.makeLayersControl,
+            playingProgressUpdates: producer.playingProgress,
+            sheetUpdates: producer.sheetUpdates()
+        )
         bindMainViewModel(delegate: viewModel.delegateAction)
         
         return viewModel
@@ -71,6 +85,9 @@ final class AppModel<S, C> where S: SamplesLocalStore, C: AVAudioSessionProtocol
                     
                 case let .deleteLayer(layerID):
                     producer.delete(layerID: layerID)
+                    
+                case .dismiss:
+                    break
                 }
             
             case let .activeLayerUpdate(control):
@@ -107,22 +124,13 @@ final class AppModel<S, C> where S: SamplesLocalStore, C: AVAudioSessionProtocol
             case .stopRecording:
                 producer.stopRecording()
                 
-            default:
-                break
+            case .startComposing:
+                producer.startCompositing()
+                
+            case .stopComposing:
+                producer.stopCompositing()
             }
             
         }.store(in: &bindings)
     }
 }
-
-extension AppModel where S == BundleSamplesLocalStore, C == AVAudioSession {
-    
-    static let prod = AppModel(
-        producer: Producer(
-            player: FoundationPlayer(makePlayer: { data in try AVAudioPlayer(data: data) }),
-            recorder: FoundationRecorder(makeRecorder: { url, settings in try AVAudioRecorder(url: url, settings: settings) })),
-        localStore: BundleSamplesLocalStore(),
-        sessionConfigurator: .init(session: AVAudioSession.sharedInstance()))
-}
-
-extension AVAudioSession: AVAudioSessionProtocol {}

@@ -9,34 +9,41 @@ import Foundation
 import Combine
 import Domain
 
-public final class Producer {
+public final class Producer<P, R, C> where P: Player, R: Recorder, C: Composer {
     
     @Published public private(set) var layers: [Layer]
     @Published public private(set) var active: Layer.ID?
-    public let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
+    private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
-    private var payloads: [Layer.ID: Payload]
+    private var payloads = [Layer.ID: Payload]()
     
-    private let player: any Player
-    private let recorder: any Recorder
+    private let player: P
+    private let recorder: R
+    private let composer: C
     private let playerEventsSubject = PassthroughSubject<TimeInterval?, Never>()
     
     private var cancellable: AnyCancellable?
     private var recording: AnyCancellable?
     private var playingTimer: AnyCancellable?
+    private var compositing: AnyCancellable?
+    
+    public var delegateAction: AnyPublisher<DelegateAction, Never> {
+        
+        delegateActionSubject.eraseToAnyPublisher()
+    }
     
     public var playingProgress: AnyPublisher<Double, Never> {
 
         playerEventsSubject.progressEvents()
     }
     
-    public init(player: any Player, recorder: any Recorder) {
+    public init(layers: [Layer] = [], active: Layer.ID? = nil, player: P, recorder: R, composer: C) {
         
-        self.layers = []
-        self.active = nil
-        self.payloads = [:]
+        self.layers = layers
+        self.active = active
         self.player = player
         self.recorder = recorder
+        self.composer = composer
         
         cancellable = $layers
             .sink { [unowned self] layers in handleUpdate(layers: layers) }
@@ -207,6 +214,47 @@ public extension Producer {
     }
 }
 
+//MARK: - Compositing
+
+public extension Producer {
+    
+    func isCompositing() -> AnyPublisher<Bool, Never> {
+        
+        composer.isCompositing()
+    }
+    
+    func startCompositing() {
+        
+        let notMutedLayers = layers.filter({ $0.isMuted == false })
+        let tracks = notMutedLayers.map { (layer) -> Track? in
+            
+            guard let data = payloads[layer.id]?.soundData else {
+                return nil
+            }
+            
+            return Track(with: layer, data: data)
+        }
+        .compactMap { $0 }
+        
+        guard tracks.isEmpty == false else {
+            return
+        }
+        
+        set(isPlayingAll: false)
+
+        compositing = composer.compose(tracks: tracks)
+            .map { DelegateAction.compositingReady($0) }
+            .replaceError(with: DelegateAction.compositingFailed)
+            .subscribe(delegateActionSubject)
+    }
+    
+    func stopCompositing() {
+        
+        composer.stop()
+        compositing = nil
+    }
+}
+
 //MARK: - Playing All
 
 public extension Producer {
@@ -295,6 +343,8 @@ public extension Producer {
     enum DelegateAction: Equatable {
         
         case recordingFailed
+        case compositingReady(URL)
+        case compositingFailed
     }
 }
 

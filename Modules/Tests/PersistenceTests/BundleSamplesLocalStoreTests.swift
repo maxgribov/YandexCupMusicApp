@@ -8,6 +8,7 @@
 import XCTest
 import Domain
 import Persistence
+import AVFoundation
 
 final class BundleSamplesLocalStoreTests: XCTestCase {
 
@@ -57,7 +58,7 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         expect(sut, retrieveSample: .failure(BundleSamplesLocalStore.Error.retrieveSampleFileFailed), for: notExistingSampleID())
     }
     
-    func test_retrieveSample_deliversSampleExistingFileForSampleID() throws {
+    func test_retrieveSample_deliversSampleExistingFileForSampleIDAndDefaultMapper() throws {
         
         let sut = makeSUT()
         let expectedFile = try expectedFirstFile(for: .guitar)
@@ -65,15 +66,35 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         expect(sut, retrieveSample: .success(Sample(id: expectedFile.name, data: expectedFile.data)), for: expectedFile.name)
     }
     
+    func test_retrieveSample_deliversSampleExistingFileForSampleIDAndBufferMapper() throws {
+        
+        let sut = makeSUT(mapper: BundleSamplesLocalStore.bufferMapper(url:))
+        let expectedSample = try expectedFirstSample(for: .guitar)
+        
+        expect(sut, retrieveSample: .success(expectedSample), for: expectedSample.id)
+    }
+    
+    func test_bufferMapper_mapsSameURLIdenticalEachTime() throws {
+        
+        let sut = BundleSamplesLocalStore.bufferMapper(url:)
+        let url = try firstFile(bundle: BundleSamplesLocalStore.moduleBundle, prefix: Instrument.guitar.fileNamePrefix)
+        
+        let firstResult = sut(url.url)
+        let secondResult = sut(url.url)
+        
+        XCTAssertEqual(firstResult, secondResult)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
         bundle: Bundle? = nil,
+        mapper: @escaping (URL) -> Data? = BundleSamplesLocalStore.basicMapper(url:),
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> BundleSamplesLocalStore {
         
-        let sut = BundleSamplesLocalStore(bundle: bundle)
+        let sut = BundleSamplesLocalStore(bundle: bundle, mapper: mapper)
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
@@ -119,8 +140,8 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         sut.retrieveSample(for: sampleID) { receivedResult in
             
             switch (receivedResult, expectedResult) {
-            case let (.success(receivedIds), .success(expectedIds)):
-                XCTAssertEqual(receivedIds, expectedIds, "Expected IDs: \(expectedIds), got \(receivedIds) instead", file: file, line: line)
+            case let (.success(receivedSample), .success(expectedSample)):
+                XCTAssertEqual(receivedSample, expectedSample, "Expected Sample: \(expectedSample), got \(receivedSample) instead", file: file, line: line)
                 
             case let (.failure(receivedError), .failure(expectedError)):
                 XCTAssertEqual(receivedError as NSError, expectedError as NSError, "Expected error: \(expectedError), got \(receivedError) instead", file: file, line: line)
@@ -145,7 +166,7 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
             .filter { $0.hasPrefix(prefix) }
     }
     
-    private func firstFile(bundle: Bundle, prefix: String) throws -> (name: String, data: Data) {
+    private func firstFile(bundle: Bundle, prefix: String) throws -> (name: String, url: URL) {
         
         let fileNames = try fileNames(bundle: bundle, prefix: prefix)
         guard let firstFileName = fileNames.first else {
@@ -157,9 +178,8 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         }
         let filePath = path + "/" + firstFileName
         let url = URL(filePath: filePath)
-        let data = try Data(contentsOf: url)
         
-        return (firstFileName, data)
+        return (firstFileName, url)
     }
     
     private func expectedFileNames(for instrument: Instrument) throws -> [String] {
@@ -169,7 +189,22 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     
     private func expectedFirstFile(for instrument: Instrument) throws -> (name: String, data: Data) {
         
-        try firstFile(bundle: BundleSamplesLocalStore.moduleBundle, prefix: instrument.fileNamePrefix)
+        let file = try firstFile(bundle: BundleSamplesLocalStore.moduleBundle, prefix: instrument.fileNamePrefix)
+        let data = try Data(contentsOf: file.url)
+        
+        return (file.name, data)
+    }
+    
+    private func expectedFirstSample(for instrument: Instrument) throws -> Sample {
+        
+        let file = try firstFile(bundle: BundleSamplesLocalStore.moduleBundle, prefix: instrument.fileNamePrefix)
+        
+        guard let data = BundleSamplesLocalStore.bufferMapper(url: file.url) else {
+            
+            throw NSError(domain: "Expected First Sample for Instrument", code: 0)
+        }
+        
+        return Sample(id: file.name, data: data)
     }
     
     private func invalidBundle() -> Bundle {

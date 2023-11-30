@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import Domain
 import Persistence
+import Presentation
 
 extension SamplesLocalStore {
     
@@ -16,9 +17,9 @@ extension SamplesLocalStore {
         
         Deferred {
             
-            Future { [weak self] promise in
+            Future { promise in
                 
-                self?.retrieveSamplesIDs(for: instrument, complete: promise)
+                retrieveSamplesIDs(for: instrument, complete: promise)
             }
             
         }.eraseToAnyPublisher()
@@ -33,9 +34,9 @@ extension SamplesLocalStore {
         
         Deferred {
             
-            Future { [weak self] promise in
+            Future { promise in
                 
-                self?.retrieveSample(for: sampleID, completion: promise)
+                retrieveSample(for: sampleID, completion: promise)
             }
             
         }.eraseToAnyPublisher()
@@ -50,7 +51,12 @@ extension SamplesLocalStore {
         
         sampleIDs(for: instrument)
             .compactMap { sampleIDs in return sampleIDs.first }
-            .flatMap { [unowned self] sampleID in return self.loadSample(sampleID: sampleID) }
+            .flatMap { sampleID in return loadSample(sampleID: sampleID) }
             .eraseToAnyPublisher()
+    }
+    
+    func makeSampleSelector(instrument: Instrument) -> AnyPublisher<SampleSelectorViewModel, Error> {
+        
+        sampleIDsMain(for: instrument).makeSampleItemViewModels().map { SampleSelectorViewModel(instrument: instrument, items: $0) }.eraseToAnyPublisher()
     }
 }
