@@ -19,6 +19,7 @@ final class MainViewModel: ObservableObject {
     @Published private(set) var sampleSelector: SampleSelectorViewModel?
     @Published private(set) var layersControl: LayersControlViewModel?
     @Published var playingProgress: Double
+    @Published private(set) var sheet: Sheet?
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     private let layersUpdates: () -> AnyPublisher<LayersUpdate, Never>
@@ -34,7 +35,8 @@ final class MainViewModel: ObservableObject {
         layersUpdated: @escaping () -> AnyPublisher<LayersUpdate, Never>,
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
         playingProgressUpdates: AnyPublisher<Double, Never>,
-        isCompositing: AnyPublisher<Bool, Never>
+        isCompositing: AnyPublisher<Bool, Never>,
+        compositingReady: AnyPublisher<URL?, Never>
     ) {
         
         self.instrumentSelector = .initial
@@ -55,6 +57,15 @@ final class MainViewModel: ObservableObject {
         bindings.insert(controlPanel.bind(isPlayingAll: layersUpdated().isPlayingAll()))
         bindings.insert(controlPanel.bind(isCompositing: isCompositing))
         playingProgressUpdates.assign(to: &$playingProgress)
+        compositingReady
+            .map{ (url) -> Sheet? in
+            
+                switch url {
+                case let .some(url): return .activity(url)
+                case .none: return nil
+                }
+            }
+            .assign(to: &$sheet)
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
@@ -89,6 +100,13 @@ extension MainViewModel {
         case stopComposing
         case startPlaying
         case stopPlaying
+    }
+    
+    enum Sheet: Identifiable, Hashable {
+        
+        var id: Self { self }
+        
+        case activity(URL)
     }
 }
 

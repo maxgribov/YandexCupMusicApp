@@ -36,7 +36,13 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
             layersUpdated: producer.layersMain,
             samplesIDs: localStore.sampleIDsMain(for:),
             playingProgressUpdates: producer.playingProgress,
-            isCompositing: producer.isCompositing()
+            isCompositing: producer.isCompositing(),
+            compositingReady: producer.delegateAction.map { action in
+                switch action {
+                case let .compositingReady(url): return url
+                default: return nil
+                }
+            }.eraseToAnyPublisher()
         )
         bindMainViewModel(delegate: viewModel.delegateAction)
         
