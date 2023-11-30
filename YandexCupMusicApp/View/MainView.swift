@@ -38,6 +38,13 @@ struct MainView: View {
                 LayersControlContainerView(viewModel: layersControl, dismissAction: viewModel.dismissLayersControl)
             }
         }
+        .sheet(item: $viewModel.sheet) { sheet in
+            
+            switch sheet {
+            case let .activity(url):
+                ActivityView(activityItems: [url], applicationActivities: [])
+            }
+        }
     }
 }
 
