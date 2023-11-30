@@ -15,11 +15,11 @@ public final class Producer<P, R, C> where P: Player, R: Recorder, C: Composer {
     @Published public private(set) var active: Layer.ID?
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
-    private var payloads: [Layer.ID: Payload]
+    private var payloads = [Layer.ID: Payload]()
     
-    private let player: any Player
-    private let recorder: any Recorder
-    private let composer: any Composer
+    private let player: P
+    private let recorder: R
+    private let composer: C
     private let playerEventsSubject = PassthroughSubject<TimeInterval?, Never>()
     
     private var cancellable: AnyCancellable?
@@ -37,11 +37,10 @@ public final class Producer<P, R, C> where P: Player, R: Recorder, C: Composer {
         playerEventsSubject.progressEvents()
     }
     
-    public init(player: P, recorder: R, composer: C) {
+    public init(layers: [Layer] = [], active: Layer.ID? = nil, player: P, recorder: R, composer: C) {
         
-        self.layers = []
-        self.active = nil
-        self.payloads = [:]
+        self.layers = layers
+        self.active = active
         self.player = player
         self.recorder = recorder
         self.composer = composer
