@@ -224,6 +224,20 @@ final class AppModelTests: XCTestCase {
         
         XCTAssertEqual(composer.messages, [.compose])
     }
+    
+    func test_stopCompositingDelegateAction_messagesComposerToStop() {
+        
+        let (sut, _, _, composer) = makeSUT()
+        let mainViewModelDelegateStub = PassthroughSubject<MainViewModel.DelegateAction, Never>()
+        sut.bindMainViewModel(delegate: mainViewModelDelegateStub.eraseToAnyPublisher())
+        sut.producer.addLayer(forRecording: someAudioData())
+        sut.producer.addLayer(forRecording: someOtherAudioData())
+        mainViewModelDelegateStub.send(.startComposing)
+        
+        mainViewModelDelegateStub.send(.stopComposing)
+        
+        XCTAssertEqual(composer.messages, [.compose, .stop])
+    }
 
     private func makeSUT(
         file: StaticString = #filePath,
