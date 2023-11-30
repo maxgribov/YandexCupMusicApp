@@ -64,11 +64,11 @@ struct MainView: View {
                 recordButton: .init(type: .record, isActive: false, isEnabled: true),
                 composeButton: .init(type: .compose, isActive: false, isEnabled: true),
                 playButton: .init(type: .play, isActive: false, isEnabled: true),
+                layersButtonNameUpdates: Empty().eraseToAnyPublisher(),
                 composeButtonStatusUpdates: Empty().eraseToAnyPublisher(),
                 playButtonStatusUpdates: Empty().eraseToAnyPublisher()
             ),
             playingProgress: 0,
-            activeLayerUpdates: Empty().eraseToAnyPublisher(),
             layersUpdated: { Empty().eraseToAnyPublisher() },
             samplesIDs: { _ in Empty().eraseToAnyPublisher() },
             playingProgressUpdate: Empty().eraseToAnyPublisher(),

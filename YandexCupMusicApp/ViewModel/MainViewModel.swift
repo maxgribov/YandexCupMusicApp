@@ -35,7 +35,6 @@ final class MainViewModel: ObservableObject {
         sampleControl: SampleControlViewModel,
         controlPanel: ControlPanelViewModel,
         playingProgress: Double,
-        activeLayerUpdates: AnyPublisher<Layer?, Never>,
         layersUpdated: @escaping () -> AnyPublisher<LayersUpdate, Never>,
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
         playingProgressUpdate: AnyPublisher<Double, Never>,
@@ -51,7 +50,6 @@ final class MainViewModel: ObservableObject {
         
         bind()
         bind(layersUpdated())
-        bindings.insert(controlPanel.bind(activeLayer: activeLayerUpdates))
         playingProgressUpdate.assign(to: &$playingProgress)
         sheetUpdate.assign(to: &$sheet)
     }

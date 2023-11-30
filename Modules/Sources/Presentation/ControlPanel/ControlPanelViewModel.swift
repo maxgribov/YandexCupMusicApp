@@ -22,6 +22,7 @@ public final class ControlPanelViewModel {
         recordButton: ToggleButtonViewModel,
         composeButton: ToggleButtonViewModel,
         playButton: ToggleButtonViewModel,
+        layersButtonNameUpdates: AnyPublisher<String?, Never>,
         composeButtonStatusUpdates: AnyPublisher<Bool, Never>,
         playButtonStatusUpdates: AnyPublisher<Bool, Never>
     ) {
@@ -29,6 +30,23 @@ public final class ControlPanelViewModel {
         self.recordButton = recordButton
         self.composeButton = composeButton
         self.playButton = playButton
+        
+        layersButtonNameUpdates
+            .map { $0 ?? Self.layersButtonDefaultName }
+            .assign(to: &self.layersButton.$name)
+        
+        layersButtonNameUpdates
+            .map { name in
+
+                switch name {
+                case .some:
+                    return self.isLayersButtonEnabled()
+                    
+                case .none:
+                    return false
+                }
+                
+            }.assign(to: &self.layersButton.$isEnabled)
         
         composeButtonStatusUpdates.assign(to: &self.composeButton.$isActive)
         playButtonStatusUpdates.assign(to: &self.playButton.$isActive)
@@ -87,6 +105,13 @@ public final class ControlPanelViewModel {
             
             item.isEnabled = isEnabled
         }
+    }
+    
+    private func isLayersButtonEnabled() -> Bool {
+        
+        [recordButton, composeButton, playButton]
+            .map(\.isActive)
+            .reduce(false, { partialResult, value in partialResult || value }) == false
     }
     
     public static let layersButtonDefaultName = "Слои"

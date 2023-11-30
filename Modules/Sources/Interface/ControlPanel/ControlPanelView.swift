@@ -44,6 +44,7 @@ public struct ControlPanelView: View {
                 recordButton: .init(type: .record, isActive: false, isEnabled: true),
                 composeButton: .init(type: .compose, isActive: false, isEnabled: true),
                 playButton: .init(type: .play, isActive: false, isEnabled: true),
+                layersButtonNameUpdates: Empty().eraseToAnyPublisher(),
                 composeButtonStatusUpdates: Empty().eraseToAnyPublisher(),
                 playButtonStatusUpdates: Empty().eraseToAnyPublisher()))
             .padding()

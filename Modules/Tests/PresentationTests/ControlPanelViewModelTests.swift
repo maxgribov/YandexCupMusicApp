@@ -234,6 +234,7 @@ final class ControlPanelViewModelTests: XCTestCase {
         recordButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .record, isActive: false, isEnabled: true),
         composeButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .compose, isActive: false, isEnabled: true),
         playButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .play, isActive: false, isEnabled: true),
+        layerButtonNameUpdatesStub: AnyPublisher<String?, Never> = Empty().eraseToAnyPublisher(),
         composeButtonStatusUpdatesStub: AnyPublisher<Bool, Never> = Empty().eraseToAnyPublisher(),
         playButtonStatusUpdatesStub: AnyPublisher<Bool, Never> = Empty().eraseToAnyPublisher(),
         file: StaticString = #filePath,
@@ -245,6 +246,7 @@ final class ControlPanelViewModelTests: XCTestCase {
             recordButton: recordButton,
             composeButton: composeButton,
             playButton: playButton,
+            layersButtonNameUpdates: layerButtonNameUpdatesStub,
             composeButtonStatusUpdates: composeButtonStatusUpdatesStub,
             playButtonStatusUpdates: playButtonStatusUpdatesStub
         )
