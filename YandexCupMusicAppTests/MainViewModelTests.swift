@@ -339,6 +339,7 @@ final class MainViewModelTests: XCTestCase {
         let compositingStub = CompositingStub()
         let compositingReadyStub = CompositingReadyStub()
         let sut = MainViewModel(
+            instrumentSelector: .initial,
             activeLayerUpdates: activeLayerUpdatedStub.updates,
             layersUpdated: layersUpdateStub.update,
             samplesIDs: samplesIDsStub.sampleIdsFor(_:),

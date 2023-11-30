@@ -31,6 +31,7 @@ final class MainViewModel: ObservableObject {
     private var layersDelegateBinding: AnyCancellable?
     
     init(
+        instrumentSelector: InstrumentSelectorViewModel,
         activeLayerUpdates: AnyPublisher<Layer?, Never>,
         layersUpdated: @escaping () -> AnyPublisher<LayersUpdate, Never>,
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
@@ -39,7 +40,7 @@ final class MainViewModel: ObservableObject {
         compositingReady: AnyPublisher<URL?, Never>
     ) {
         
-        self.instrumentSelector = .initial
+        self.instrumentSelector = instrumentSelector
         self.sampleControl = SampleControlViewModel(update: activeLayerUpdates.control())
         self.controlPanel = .init(
             layersButton: .init(

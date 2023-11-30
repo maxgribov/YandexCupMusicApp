@@ -56,6 +56,7 @@ struct MainView: View {
             .ignoresSafeArea()
         
         MainView(viewModel: MainViewModel(
+            instrumentSelector: .initial,
             activeLayerUpdates: Empty().eraseToAnyPublisher(),
             layersUpdated: { Empty().eraseToAnyPublisher() },
             samplesIDs: { _ in Empty().eraseToAnyPublisher() },
