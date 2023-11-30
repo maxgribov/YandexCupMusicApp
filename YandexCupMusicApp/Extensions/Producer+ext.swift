@@ -97,4 +97,9 @@ extension Producer {
             }.mapToSheet()
             .eraseToAnyPublisher()
     }
+    
+    func makeLayersControl() -> LayersControlViewModel {
+        
+        LayersControlViewModel(initial: layersViewModels(), updates: layersViewModelsUpdates())
+    }
 }

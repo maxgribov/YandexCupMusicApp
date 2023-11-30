@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import Domain
 import Persistence
+import Presentation
 
 extension SamplesLocalStore {
     
@@ -52,5 +53,10 @@ extension SamplesLocalStore {
             .compactMap { sampleIDs in return sampleIDs.first }
             .flatMap { sampleID in return loadSample(sampleID: sampleID) }
             .eraseToAnyPublisher()
+    }
+    
+    func makeSampleSelector(instrument: Instrument) -> AnyPublisher<SampleSelectorViewModel, Error> {
+        
+        sampleIDsMain(for: instrument).makeSampleItemViewModels().map { SampleSelectorViewModel(instrument: instrument, items: $0) }.eraseToAnyPublisher()
     }
 }

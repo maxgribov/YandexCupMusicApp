@@ -358,8 +358,8 @@ final class MainViewModelTests: XCTestCase {
             playingProgress: 0,
             makeSampleSelector: { instrument in samplesIDsStub.sampleIdsFor(instrument).makeSampleItemViewModels().map { SampleSelectorViewModel(instrument: instrument, items: $0)}.eraseToAnyPublisher() },
             makeLayersControl: { LayersControlViewModel(initial: layersUpdateStub.current.makeLayerViewModels(), updates: layersUpdateStub.update().makeLayerViewModels())},
-            playingProgressUpdate: playingProgressUpdatesStub.updates,
-            sheetUpdate: sheetUpdateStub.updates
+            playingProgressUpdates: playingProgressUpdatesStub.updates,
+            sheetUpdates: sheetUpdateStub.updates
         )
         
         trackForMemoryLeaks(sut, file: file, line: line)

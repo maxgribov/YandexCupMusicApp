@@ -72,8 +72,8 @@ struct MainView: View {
             playingProgress: 0,
             makeSampleSelector: { _ in Empty().eraseToAnyPublisher() },
             makeLayersControl: { LayersControlViewModel(initial: [], updates: Empty().makeLayerViewModels()) },
-            playingProgressUpdate: Empty().eraseToAnyPublisher(),
-            sheetUpdate: Empty().eraseToAnyPublisher()
+            playingProgressUpdates: Empty().eraseToAnyPublisher(),
+            sheetUpdates: Empty().eraseToAnyPublisher()
         ))
     }
 }

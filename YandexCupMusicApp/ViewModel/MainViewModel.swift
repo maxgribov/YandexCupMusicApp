@@ -37,8 +37,8 @@ final class MainViewModel: ObservableObject {
         playingProgress: Double,
         makeSampleSelector: @escaping (Instrument) -> AnyPublisher<SampleSelectorViewModel, Error>,
         makeLayersControl: @escaping () -> LayersControlViewModel,
-        playingProgressUpdate: AnyPublisher<Double, Never>,
-        sheetUpdate: AnyPublisher<Sheet?, Never>
+        playingProgressUpdates: AnyPublisher<Double, Never>,
+        sheetUpdates: AnyPublisher<Sheet?, Never>
     ) {
         
         self.instrumentSelector = instrumentSelector
@@ -49,8 +49,8 @@ final class MainViewModel: ObservableObject {
         self.playingProgress = playingProgress
         
         bind()
-        playingProgressUpdate.assign(to: &$playingProgress)
-        sheetUpdate.assign(to: &$sheet)
+        playingProgressUpdates.assign(to: &$playingProgress)
+        sheetUpdates.assign(to: &$sheet)
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
