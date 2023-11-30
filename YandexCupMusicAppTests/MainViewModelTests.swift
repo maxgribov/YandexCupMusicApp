@@ -351,7 +351,7 @@ final class MainViewModelTests: XCTestCase {
             activeLayerUpdates: activeLayerUpdatedStub.updates,
             layersUpdated: layersUpdateStub.update,
             samplesIDs: samplesIDsStub.sampleIdsFor(_:),
-            playingProgressUpdates: playingProgressUpdatesStub.updates,
+            playingProgressUpdate: playingProgressUpdatesStub.updates,
             isCompositing: compositingStub.updates,
             sheetUpdate: sheetUpdateStub.updates
         )

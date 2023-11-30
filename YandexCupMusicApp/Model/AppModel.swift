@@ -45,7 +45,7 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
             activeLayerUpdates: producer.activeLayerMain(),
             layersUpdated: producer.layersMain,
             samplesIDs: localStore.sampleIDsMain(for:),
-            playingProgressUpdates: producer.playingProgress,
+            playingProgressUpdate: producer.playingProgress,
             isCompositing: producer.isCompositing(),
             sheetUpdate: producer.delegateAction
                 .map { action in

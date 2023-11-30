@@ -68,7 +68,7 @@ struct MainView: View {
             activeLayerUpdates: Empty().eraseToAnyPublisher(),
             layersUpdated: { Empty().eraseToAnyPublisher() },
             samplesIDs: { _ in Empty().eraseToAnyPublisher() },
-            playingProgressUpdates: Empty().eraseToAnyPublisher(),
+            playingProgressUpdate: Empty().eraseToAnyPublisher(),
             isCompositing: Empty().eraseToAnyPublisher(),
             sheetUpdate: Empty().eraseToAnyPublisher()
         ))
