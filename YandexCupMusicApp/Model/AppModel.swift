@@ -33,6 +33,7 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
         
         let viewModel = MainViewModel(
             instrumentSelector: .initial,
+            sampleControl: .init(initial: nil, update: producer.activeLayerMain().control()),
             activeLayerUpdates: producer.activeLayerMain(),
             layersUpdated: producer.layersMain,
             samplesIDs: localStore.sampleIDsMain(for:),

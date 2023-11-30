@@ -32,6 +32,7 @@ final class MainViewModel: ObservableObject {
     
     init(
         instrumentSelector: InstrumentSelectorViewModel,
+        sampleControl: SampleControlViewModel,
         activeLayerUpdates: AnyPublisher<Layer?, Never>,
         layersUpdated: @escaping () -> AnyPublisher<LayersUpdate, Never>,
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
@@ -41,7 +42,7 @@ final class MainViewModel: ObservableObject {
     ) {
         
         self.instrumentSelector = instrumentSelector
-        self.sampleControl = SampleControlViewModel(initial: nil, update: activeLayerUpdates.control())
+        self.sampleControl = sampleControl
         self.controlPanel = .init(
             layersButton: .init(
                 name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),

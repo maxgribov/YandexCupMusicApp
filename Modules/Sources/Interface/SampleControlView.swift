@@ -54,7 +54,7 @@ public struct SampleControlView: View {
         
         Color(.back)
         
-        SampleControlView(viewModel: .init(update: Just(.init(volume: 0.7, speed: 0.3)).eraseToAnyPublisher()))
+        SampleControlView(viewModel: .init(initial: nil, update: Just(.init(volume: 0.7, speed: 0.3)).eraseToAnyPublisher()))
             .padding()
     }
 }

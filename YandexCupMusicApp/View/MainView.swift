@@ -57,6 +57,7 @@ struct MainView: View {
         
         MainView(viewModel: MainViewModel(
             instrumentSelector: .initial,
+            sampleControl: .init(initial: nil, update: Empty().eraseToAnyPublisher()),
             activeLayerUpdates: Empty().eraseToAnyPublisher(),
             layersUpdated: { Empty().eraseToAnyPublisher() },
             samplesIDs: { _ in Empty().eraseToAnyPublisher() },
