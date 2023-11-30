@@ -37,7 +37,12 @@ public struct ControlPanelView: View {
         
         Color(.back)
         
-        ControlPanelView(viewModel: .initial)
+        ControlPanelView(
+            viewModel: .init(
+                layersButton: .init(name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),
+                recordButton: .init(type: .record, isActive: false, isEnabled: true),
+                composeButton: .init(type: .compose, isActive: false, isEnabled: true),
+                playButton: .init(type: .play, isActive: false, isEnabled: true)))
             .padding()
     }
 }

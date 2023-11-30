@@ -5,6 +5,7 @@
 //  Created by Max Gribov on 31.10.2023.
 //
 
+import Foundation
 import Combine
 
 final class ValueSpy<Value> {
@@ -21,8 +22,8 @@ final class ValueSpy<Value> {
                 case .finished:
                     self?.events.append(.finished)
                     
-                case .failure:
-                    self?.events.append(.failure)
+                case let .failure(error):
+                    self?.events.append(.failure(error as NSError))
                 }
             },
             receiveValue: { [weak self] value in
@@ -36,7 +37,7 @@ final class ValueSpy<Value> {
     
     enum Event {
         
-        case failure
+        case failure(NSError)
         case finished
         case value(Value)
         
@@ -49,4 +50,6 @@ final class ValueSpy<Value> {
         }
     }
 }
+
+extension ValueSpy.Event: Equatable where Value: Equatable {}
 

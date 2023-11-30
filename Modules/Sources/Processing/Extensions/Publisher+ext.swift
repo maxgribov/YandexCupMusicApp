@@ -14,13 +14,13 @@ extension Publisher where Output == TimeInterval?, Failure == Never {
         
         map { duration in
             
-            if let duration {
+            if let duration, duration > 0 {
                 
-                return Just(Date() .timeIntervalSinceReferenceDate)
-                    .merge(with: Timer
-                        .publish(every: duration, on: .main, in: .common)
-                        .autoconnect()
-                        .map { $0.timeIntervalSinceReferenceDate })
+                return Timer
+                    .publish(every: duration, on: .main, in: .common)
+                    .autoconnect()
+                    .map { $0.timeIntervalSinceReferenceDate }
+                    .merge(with: Just(Date().timeIntervalSinceReferenceDate))
                     .map { startTime in
                         
                         return Timer
@@ -29,7 +29,7 @@ extension Publisher where Output == TimeInterval?, Failure == Never {
                             .map { $0.timeIntervalSinceReferenceDate }
                             .map { currentTime in
                                 
-                                duration > 0 ? (currentTime - startTime) / duration : 0
+                                (currentTime - startTime) / duration
                                 
                             }.eraseToAnyPublisher()
                     }
@@ -40,7 +40,6 @@ extension Publisher where Output == TimeInterval?, Failure == Never {
                 
                 return Just(Double(0)).eraseToAnyPublisher()
             }
-            
         }
         .switchToLatest()
         .eraseToAnyPublisher()

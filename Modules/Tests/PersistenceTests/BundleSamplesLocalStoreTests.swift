@@ -23,25 +23,22 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     func test_retrieveSamplesIDs_deliversGuitarFilesNamesAsIDsForGuitarInstrument() throws {
         
         let sut = makeSUT()
-        let expected = try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "guitar")
         
-        expect(sut, retrieveSamplesIDsResult: .success(expected), for: .guitar)
+        expect(sut, retrieveSamplesIDsResult: .success(try expectedFileNames(for: .guitar)), for: .guitar)
     }
     
     func test_retrieveSamplesIDs_deliversDrumsFilesNamesAsIDsForDrumsInstrument() throws {
         
         let sut = makeSUT()
-        let expected = try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "drums")
         
-        expect(sut, retrieveSamplesIDsResult: .success(expected), for: .drums)
+        expect(sut, retrieveSamplesIDsResult: .success(try expectedFileNames(for: .drums)), for: .drums)
     }
     
     func test_retrieveSamplesIDs_deliversBrassFilesNamesAsIDsForBrassInstrument() throws {
         
         let sut = makeSUT()
-        let expected = try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "brass")
         
-        expect(sut, retrieveSamplesIDsResult: .success(expected), for: .brass)
+        expect(sut, retrieveSamplesIDsResult: .success(try expectedFileNames(for: .brass)), for: .brass)
     }
     
     //MARK: - Sample
@@ -63,7 +60,7 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     func test_retrieveSample_deliversSampleExistingFileForSampleID() throws {
         
         let sut = makeSUT()
-        let expectedFile = try firstFile(bundle: BundleSamplesLocalStore.moduleBundle, prefix: "guitar")
+        let expectedFile = try expectedFirstFile(for: .guitar)
         
         expect(sut, retrieveSample: .success(Sample(id: expectedFile.name, data: expectedFile.data)), for: expectedFile.name)
     }
@@ -165,6 +162,16 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
         return (firstFileName, data)
     }
     
+    private func expectedFileNames(for instrument: Instrument) throws -> [String] {
+        
+        try fileNames(bundle: BundleSamplesLocalStore.moduleBundle, prefix: instrument.fileNamePrefix)
+    }
+    
+    private func expectedFirstFile(for instrument: Instrument) throws -> (name: String, data: Data) {
+        
+        try firstFile(bundle: BundleSamplesLocalStore.moduleBundle, prefix: instrument.fileNamePrefix)
+    }
+    
     private func invalidBundle() -> Bundle {
         Bundle()
     }
@@ -176,4 +183,9 @@ final class BundleSamplesLocalStoreTests: XCTestCase {
     private func notExistingSampleID() -> Sample.ID {
         "Sample file not exists"
     }
+}
+
+private extension Instrument {
+    
+    var fileNamePrefix: String { rawValue }
 }

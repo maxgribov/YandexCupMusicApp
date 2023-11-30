@@ -38,7 +38,12 @@ final class MainViewModel: ObservableObject {
         
         self.instrumentSelector = .initial
         self.sampleControl = SampleControlViewModel(update: activeLayerUpdates.control())
-        self.controlPanel = .initial
+        self.controlPanel = .init(
+            layersButton: .init(
+                name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),
+                recordButton: .init(type: .record, isActive: false, isEnabled: true),
+                composeButton: .init(type: .compose, isActive: false, isEnabled: true),
+                playButton: .init(type: .play, isActive: false, isEnabled: true))
         self.layersUpdates = layersUpdated
         self.samplesIDs = samplesIDs
         self.playingProgress = 0

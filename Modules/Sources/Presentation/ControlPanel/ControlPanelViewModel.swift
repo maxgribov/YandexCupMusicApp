@@ -100,6 +100,4 @@ public extension ControlPanelViewModel {
         case startPlaying
         case stopPlaying
     }
-    
-    static let initial = ControlPanelViewModel(layersButton: .initial, recordButton: .initialRecord, composeButton: .initialCompose, playButton: .initialPlay)
 }

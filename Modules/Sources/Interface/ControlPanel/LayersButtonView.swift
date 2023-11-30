@@ -44,7 +44,6 @@ struct LayersButtonView: View {
         Color(.back)
         
         VStack {
-            LayersButtonView(viewModel: .initial, action: {})
             LayersButtonView(viewModel: .init(name: "Active", isActive: true, isEnabled: true), action: {})
             LayersButtonView(viewModel: .init(name: "Disabled", isActive: false, isEnabled: false), action: {})
         }

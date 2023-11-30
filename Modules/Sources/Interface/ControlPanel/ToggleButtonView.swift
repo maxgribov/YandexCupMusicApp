@@ -40,7 +40,6 @@ struct ToggleButtonView: View {
         
         VStack {
             
-            ToggleButtonView(viewModel: .initialRecord) {}
             ToggleButtonView(viewModel: .init(type: .record, isActive: true, isEnabled: true)) {}
             ToggleButtonView(viewModel: .init(type: .record, isActive: false, isEnabled: false)) {}
         }
