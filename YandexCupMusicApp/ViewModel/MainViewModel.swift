@@ -22,8 +22,8 @@ final class MainViewModel: ObservableObject {
     @Published var sheet: Sheet?
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
-    private let layersUpdates: () -> AnyPublisher<LayersUpdate, Never>
     private let samplesIDs: (Instrument) -> AnyPublisher<[Sample.ID], Error>
+    private let makeLayersControl: () -> LayersControlViewModel
     
     private var bindings = Set<AnyCancellable>()
     private var sampleSelectorBinding: AnyCancellable?
@@ -35,7 +35,7 @@ final class MainViewModel: ObservableObject {
         sampleControl: SampleControlViewModel,
         controlPanel: ControlPanelViewModel,
         playingProgress: Double,
-        layersUpdated: @escaping () -> AnyPublisher<LayersUpdate, Never>,
+        makeLayersControl: @escaping () -> LayersControlViewModel,
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
         playingProgressUpdate: AnyPublisher<Double, Never>,
         sheetUpdate: AnyPublisher<Sheet?, Never>
@@ -44,12 +44,11 @@ final class MainViewModel: ObservableObject {
         self.instrumentSelector = instrumentSelector
         self.sampleControl = sampleControl
         self.controlPanel = controlPanel
+        self.makeLayersControl = makeLayersControl
         self.playingProgress = playingProgress
-        self.layersUpdates = layersUpdated
         self.samplesIDs = samplesIDs
         
         bind()
-        bind(layersUpdated())
         playingProgressUpdate.assign(to: &$playingProgress)
         sheetUpdate.assign(to: &$sheet)
     }
@@ -120,18 +119,6 @@ private extension MainViewModel {
             .store(in: &bindings)
     }
     
-    func bind(_ layers:  AnyPublisher<LayersUpdate, Never>) {
-        
-        layers.sink { [unowned self] update in
-            
-            if update.layers.isEmpty, layersControl != nil {
-                
-                dismissLayersControl()
-            }
-            
-        }.store(in: &bindings)
-    }
-    
     func handleInstrumentSelector(delegateAction: InstrumentSelectorViewModel.DelegateAction) {
         
         switch delegateAction {
@@ -171,10 +158,17 @@ private extension MainViewModel {
         
         switch delegateAction {
         case .showLayers:
-            let layersControl = LayersControlViewModel(initial: [], updates: layersUpdates().makeLayerViewModels())
+            let layersControl = makeLayersControl()
             self.layersControl = layersControl
             layersDelegateBinding = layersControl.delegateAction.sink(receiveValue: {[unowned self] action in
-                delegateActionSubject.send(.layersControl(action))
+
+                switch action {
+                case .dismiss:
+                    dismissLayersControl()
+                    
+                default:
+                    delegateActionSubject.send(.layersControl(action))
+                }
             })
             
         case .hideLayers:

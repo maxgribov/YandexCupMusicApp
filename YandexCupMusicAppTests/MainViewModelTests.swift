@@ -101,7 +101,9 @@ final class MainViewModelTests: XCTestCase {
     
     func test_controlPanelLayersButtonDidTapped_createsAndRemovesLayersControl() {
         
-        let (sut, _, _, _, _, _, _) = makeSUT()
+        let (sut, _, layersUpdate, _, _, _, _) = makeSUT()
+        let layers = [someLayer(), someLayer()]
+        layersUpdate.publish(.init(layers: layers, active: layers[0].id))
         
         sut.controlPanel.layersButtonDidTapped()
         XCTAssertNotNil(sut.layersControl)
@@ -156,7 +158,10 @@ final class MainViewModelTests: XCTestCase {
     
     func test_dismissLayersControl_invokesLayersButtonDidTappedOnControlPanel() {
         
-        let (sut, _, _, _, _, _, _) = makeSUT()
+        let (sut, _, layersUpdate, _, _, _, _) = makeSUT()
+        
+        let layers = [someLayer(), someLayer()]
+        layersUpdate.publish(.init(layers: layers, active: layers[0].id))
         sut.controlPanel.layersButtonDidTapped()
         XCTAssertNotNil(sut.layersControl)
         
@@ -351,7 +356,7 @@ final class MainViewModelTests: XCTestCase {
                 composeButtonStatusUpdates: compositingStub.updates,
                 playButtonStatusUpdates: layersUpdateStub.update().isPlayingAll()),
             playingProgress: 0,
-            layersUpdated: layersUpdateStub.update,
+            makeLayersControl: { LayersControlViewModel(initial: layersUpdateStub.current.makeLayerViewModels(), updates: layersUpdateStub.update().makeLayerViewModels())},
             samplesIDs: samplesIDsStub.sampleIdsFor(_:),
             playingProgressUpdate: playingProgressUpdatesStub.updates,
             sheetUpdate: sheetUpdateStub.updates
@@ -385,6 +390,10 @@ final class MainViewModelTests: XCTestCase {
     private class LayersUpdateStub {
         
         private let updateSubject = CurrentValueSubject<LayersUpdate, Never>.init(.init(layers: [], active: nil))
+        
+        var current: LayersUpdate {
+            updateSubject.value
+        }
         
         func update() -> AnyPublisher<LayersUpdate, Never> {
             
@@ -467,5 +476,22 @@ final class MainViewModelTests: XCTestCase {
             isMuted: isMuted,
             control: control
         )
+    }
+}
+
+extension LayersUpdate {
+    
+    func makeLayerViewModels() -> [LayerViewModel] {
+        
+        layers.map { layer in
+            
+            LayerViewModel(
+                id: layer.id,
+                name: layer.name,
+                isPlaying: layer.isPlaying,
+                isMuted: layer.isMuted,
+                isActive: layer.id == active
+            )
+        }
     }
 }

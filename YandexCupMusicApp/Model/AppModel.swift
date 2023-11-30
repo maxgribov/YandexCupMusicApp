@@ -46,7 +46,7 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
                 playButtonStatusUpdates: producer.layersMain().isPlayingAll()
             ),
             playingProgress: 0,
-            layersUpdated: producer.layersMain,
+            makeLayersControl: { LayersControlViewModel(initial: self.producer.layers.map { LayerViewModel(id: $0.id, name: $0.name, isPlaying: $0.isPlaying, isMuted: $0.isMuted, isActive: $0.id == self.producer.active )}, updates: self.producer.layersMain().makeLayerViewModels() )},
             samplesIDs: localStore.sampleIDsMain(for:),
             playingProgressUpdate: producer.playingProgress,
             sheetUpdate: producer.delegateAction
@@ -95,6 +95,9 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
                     
                 case let .deleteLayer(layerID):
                     producer.delete(layerID: layerID)
+                    
+                case .dismiss:
+                    break
                 }
             
             case let .activeLayerUpdate(control):

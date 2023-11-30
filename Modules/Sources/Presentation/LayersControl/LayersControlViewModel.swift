@@ -13,11 +13,15 @@ public final class LayersControlViewModel: ObservableObject {
     
     @Published public private(set) var layers: [LayerViewModel]
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
+    private var updatesBinding: AnyCancellable?
     
     public init(initial layers: [LayerViewModel], updates: AnyPublisher<[LayerViewModel], Never>) {
         
         self.layers = layers
         updates.assign(to: &$layers)
+        updatesBinding = updates.drop(while: { $0.isEmpty == false })
+            .map { _ in DelegateAction.dismiss }
+            .subscribe(delegateActionSubject)
     }
     
     public var delegateAction: AnyPublisher<DelegateAction, Never> {
@@ -62,5 +66,6 @@ public extension LayersControlViewModel {
         case isMutedDidChanged(Layer.ID, Bool)
         case deleteLayer(Layer.ID)
         case selectLayer(Layer.ID)
+        case dismiss
     }
 }

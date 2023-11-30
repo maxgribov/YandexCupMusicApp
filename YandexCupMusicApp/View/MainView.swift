@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import Interface
+import Presentation
 
 struct MainView: View {
     
@@ -69,7 +70,7 @@ struct MainView: View {
                 playButtonStatusUpdates: Empty().eraseToAnyPublisher()
             ),
             playingProgress: 0,
-            layersUpdated: { Empty().eraseToAnyPublisher() },
+            makeLayersControl: { LayersControlViewModel(initial: [], updates: Empty().makeLayerViewModels()) },
             samplesIDs: { _ in Empty().eraseToAnyPublisher() },
             playingProgressUpdate: Empty().eraseToAnyPublisher(),
             sheetUpdate: Empty().eraseToAnyPublisher()
