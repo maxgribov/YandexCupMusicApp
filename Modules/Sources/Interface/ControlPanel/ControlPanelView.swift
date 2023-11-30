@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 import Presentation
 
 public struct ControlPanelView: View {
@@ -42,7 +43,8 @@ public struct ControlPanelView: View {
                 layersButton: .init(name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),
                 recordButton: .init(type: .record, isActive: false, isEnabled: true),
                 composeButton: .init(type: .compose, isActive: false, isEnabled: true),
-                playButton: .init(type: .play, isActive: false, isEnabled: true)))
+                playButton: .init(type: .play, isActive: false, isEnabled: true),
+                playButtonStatusUpdates: Empty().eraseToAnyPublisher()))
             .padding()
     }
 }

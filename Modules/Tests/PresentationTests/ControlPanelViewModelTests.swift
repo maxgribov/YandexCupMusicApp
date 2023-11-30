@@ -201,6 +201,19 @@ final class ControlPanelViewModelTests: XCTestCase {
         XCTAssertEqual(sut.playButton.isEnabled, true)
     }
     
+    func test_playButtonStatusUpdates_updatesPlayButtonStatus() {
+        
+        let playButtonStatusUpdateStub = PassthroughSubject<Bool, Never>()
+        let sut = makeSUT(playButtonStatusUpdatesStub: playButtonStatusUpdateStub.eraseToAnyPublisher())
+        XCTAssertFalse(sut.playButton.isActive)
+        
+        playButtonStatusUpdateStub.send(true)
+        XCTAssertTrue(sut.playButton.isActive)
+        
+        playButtonStatusUpdateStub.send(false)
+        XCTAssertFalse(sut.playButton.isActive)
+    }
+    
     //MARK: - Helpers
     
     private func makeSUT(
@@ -208,6 +221,7 @@ final class ControlPanelViewModelTests: XCTestCase {
         recordButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .record, isActive: false, isEnabled: true),
         composeButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .compose, isActive: false, isEnabled: true),
         playButton: ToggleButtonViewModel = ToggleButtonViewModel(type: .play, isActive: false, isEnabled: true),
+        playButtonStatusUpdatesStub: AnyPublisher<Bool, Never> = Empty().eraseToAnyPublisher(),
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> ControlPanelViewModel {
@@ -216,7 +230,8 @@ final class ControlPanelViewModelTests: XCTestCase {
             layersButton: layersButton,
             recordButton: recordButton,
             composeButton: composeButton,
-            playButton: playButton
+            playButton: playButton,
+            playButtonStatusUpdates: playButtonStatusUpdatesStub
         )
         
         trackForMemoryLeaks(sut, file: file, line: line)

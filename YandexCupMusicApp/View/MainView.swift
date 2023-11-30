@@ -61,9 +61,11 @@ struct MainView: View {
             controlPanel: .init(
                 layersButton: .init(
                     name: "Layers", isActive: false, isEnabled: true),
-                    recordButton: .init(type: .record, isActive: false, isEnabled: true),
-                    composeButton: .init(type: .compose, isActive: false, isEnabled: true),
-                    playButton: .init(type: .play, isActive: false, isEnabled: true)),
+                recordButton: .init(type: .record, isActive: false, isEnabled: true),
+                composeButton: .init(type: .compose, isActive: false, isEnabled: true),
+                playButton: .init(type: .play, isActive: false, isEnabled: true),
+                playButtonStatusUpdates: Empty().eraseToAnyPublisher()
+            ),
             playingProgress: 0,
             activeLayerUpdates: Empty().eraseToAnyPublisher(),
             layersUpdated: { Empty().eraseToAnyPublisher() },

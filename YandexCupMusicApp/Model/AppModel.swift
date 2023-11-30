@@ -40,7 +40,9 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
                     name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),
                     recordButton: .init(type: .record, isActive: false, isEnabled: true),
                     composeButton: .init(type: .compose, isActive: false, isEnabled: true),
-                    playButton: .init(type: .play, isActive: false, isEnabled: true)),
+                    playButton: .init(type: .play, isActive: false, isEnabled: true),
+                playButtonStatusUpdates: producer.layersMain().isPlayingAll()
+            ),
             playingProgress: 0,
             activeLayerUpdates: producer.activeLayerMain(),
             layersUpdated: producer.layersMain,

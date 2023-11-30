@@ -21,12 +21,15 @@ public final class ControlPanelViewModel {
         layersButton: LayersButtonViewModel,
         recordButton: ToggleButtonViewModel,
         composeButton: ToggleButtonViewModel,
-        playButton: ToggleButtonViewModel
+        playButton: ToggleButtonViewModel,
+        playButtonStatusUpdates: AnyPublisher<Bool, Never>
     ) {
         self.layersButton = layersButton
         self.recordButton = recordButton
         self.composeButton = composeButton
         self.playButton = playButton
+        
+        playButtonStatusUpdates.assign(to: &self.playButton.$isActive)
     }
     
     public var delegateAction: AnyPublisher<DelegateAction, Never> {

@@ -53,7 +53,6 @@ final class MainViewModel: ObservableObject {
         bind()
         bind(layersUpdated())
         bindings.insert(controlPanel.bind(activeLayer: activeLayerUpdates))
-        bindings.insert(controlPanel.bind(isPlayingAll: layersUpdated().isPlayingAll()))
         bindings.insert(controlPanel.bind(isCompositing: isCompositing))
         playingProgressUpdate.assign(to: &$playingProgress)
         sheetUpdate.assign(to: &$sheet)
