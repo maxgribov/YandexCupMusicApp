@@ -508,7 +508,6 @@ final class ProducerTests: XCTestCase {
         let url = anyURL()
         expectCompositing(sut, composer, delegateActions: [.compositingReady(url)], on: {
             
-            sut.stopCompositing()
             composer.simulateCompositingCompleteSuccesful(url: url)
         })
     }
@@ -519,7 +518,6 @@ final class ProducerTests: XCTestCase {
         
         expectCompositing(sut, composer, delegateActions: [.compositingFailed], on: {
             
-            sut.stopCompositing()
             composer.simulateCompositingCompletionFailure(error: .compositingFailure)
         })
     }
