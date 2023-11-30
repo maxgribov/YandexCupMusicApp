@@ -11,6 +11,7 @@ import Combine
 import Domain
 import Processing
 import Persistence
+import Presentation
 
 final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessionProtocol, P: Player, R: Recorder, C: Composer {
     
@@ -34,6 +35,12 @@ final class AppModel<S, A, P, R, C> where S: SamplesLocalStore, A: AVAudioSessio
         let viewModel = MainViewModel(
             instrumentSelector: .initial,
             sampleControl: .init(initial: nil, update: producer.activeLayerMain().control()),
+            controlPanel: .init(
+                layersButton: .init(
+                    name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),
+                    recordButton: .init(type: .record, isActive: false, isEnabled: true),
+                    composeButton: .init(type: .compose, isActive: false, isEnabled: true),
+                    playButton: .init(type: .play, isActive: false, isEnabled: true)),
             activeLayerUpdates: producer.activeLayerMain(),
             layersUpdated: producer.layersMain,
             samplesIDs: localStore.sampleIDsMain(for:),

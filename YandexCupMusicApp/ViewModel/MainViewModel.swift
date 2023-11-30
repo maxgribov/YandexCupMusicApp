@@ -33,6 +33,7 @@ final class MainViewModel: ObservableObject {
     init(
         instrumentSelector: InstrumentSelectorViewModel,
         sampleControl: SampleControlViewModel,
+        controlPanel: ControlPanelViewModel,
         activeLayerUpdates: AnyPublisher<Layer?, Never>,
         layersUpdated: @escaping () -> AnyPublisher<LayersUpdate, Never>,
         samplesIDs: @escaping (Instrument) -> AnyPublisher<[Sample.ID], Error>,
@@ -43,12 +44,7 @@ final class MainViewModel: ObservableObject {
         
         self.instrumentSelector = instrumentSelector
         self.sampleControl = sampleControl
-        self.controlPanel = .init(
-            layersButton: .init(
-                name: ControlPanelViewModel.layersButtonDefaultName, isActive: false, isEnabled: true),
-                recordButton: .init(type: .record, isActive: false, isEnabled: true),
-                composeButton: .init(type: .compose, isActive: false, isEnabled: true),
-                playButton: .init(type: .play, isActive: false, isEnabled: true))
+        self.controlPanel = controlPanel
         self.layersUpdates = layersUpdated
         self.samplesIDs = samplesIDs
         self.playingProgress = 0
