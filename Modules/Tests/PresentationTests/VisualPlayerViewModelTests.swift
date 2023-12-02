@@ -20,6 +20,7 @@ final class VisualPlayerViewModel: ObservableObject {
         case togglePlay
         case rewind
         case fastForward
+        case export
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
@@ -51,6 +52,10 @@ final class VisualPlayerViewModel: ObservableObject {
         delegateActionSubject.send(.fastForward)
     }
 
+    func exportButtonDidTapped() {
+        
+        delegateActionSubject.send(.export)
+    }
 }
 
 final class VisualPlayerViewModelTests: XCTestCase {
@@ -100,6 +105,16 @@ final class VisualPlayerViewModelTests: XCTestCase {
         sut.fastForwardButtonDidTapped()
         
         XCTAssertEqual(delegateActionSpy.values, [.fastForward])
+    }
+    
+    func test_exportForwardButtonDidTaped_messagesDelegateToExport() {
+        
+        let sut = makeSUT()
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        
+        sut.exportButtonDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.export])
     }
     
     //MARK: - Helpers
