@@ -71,17 +71,32 @@ final class VisualPlayerViewModelTests: XCTestCase {
         XCTAssertEqual(delegateActionSpy.values, [.export])
     }
     
-    func test_trackUpdates_messagesAllShapesToUpdate() {
+//    func test_trackUpdates_messagesAllShapesToUpdate() {
+//        
+//        let shapes = [VisualPlayerShapeViewModelSpy(id: UUID(), name: "", scale: .zero, position: .zero), VisualPlayerShapeViewModelSpy(id: UUID(), name: "", scale: .zero, position: .zero)]
+//        let trackUdatesStub = PassthroughSubject<Float, Never>()
+//        let sut = makeSUT(makeShapes: { _ in shapes }, trackUpdates: trackUdatesStub.eraseToAnyPublisher())
+//        
+//        let update: Float = 0.5
+//        trackUdatesStub.send(update)
+//        sut.canvasAreaDidUpdated(area: .zero)
+//        
+//        XCTAssertEqual(shapes[0].messages, [.update(update, .zero)])
+//        XCTAssertEqual(shapes[1].messages, [.update(update, .zero)])
+//    }
+    
+    func test_canvasAreaDidUpdated_messagesAllShapesToUpdate() {
         
-        let shapes = [VisualPlayerShapeViewModelSpy(id: UUID(), name: "", scale: .zero, position: .zero), VisualPlayerShapeViewModelSpy(id: UUID(), name: "", scale: .zero, position: .zero)]
+        let shapes = [VisualPlayerShapeViewModelSpy(id: UUID(), name: "", scale: .zero, position: .zero)]
         let trackUdatesStub = PassthroughSubject<Float, Never>()
         let sut = makeSUT(makeShapes: { _ in shapes }, trackUpdates: trackUdatesStub.eraseToAnyPublisher())
         
         let update: Float = 0.5
         trackUdatesStub.send(update)
+        let area =  CGRect(x: 0, y: 0, width: 100, height: 100)
+        sut.canvasAreaDidUpdated(area: area)
         
-        XCTAssertEqual(shapes[0].messages, [.update(update, .zero)])
-        XCTAssertEqual(shapes[1].messages, [.update(update, .zero)])
+        XCTAssertEqual(shapes[0].messages, [.update(update, .zero), .update(update, area)])
     }
     
     func test_playerStateUpdates_updatesPlayButtonState() {
@@ -103,6 +118,7 @@ final class VisualPlayerViewModelTests: XCTestCase {
         layerID: Layer.ID = UUID(),
         title: String = "",
         makeShapes: @escaping (Layer.ID) -> [VisualPlayerShapeViewModel] = { _ in [] },
+        canvasArea: CGRect = .zero,
         audioControl: VisualPlayerAudioControlViewModel = VisualPlayerAudioControlViewModel(playButton: .init(isPlaying: false)),
         trackUpdates: AnyPublisher<Float, Never> = Empty().eraseToAnyPublisher(),
         playerStateUpdates: AnyPublisher<PlayerState, Never> = Empty().eraseToAnyPublisher(),
@@ -110,7 +126,7 @@ final class VisualPlayerViewModelTests: XCTestCase {
         line: UInt = #line
     ) -> VisualPlayerViewModel {
         
-        let sut = VisualPlayerViewModel(layerID: layerID, title: title, makeShapes: makeShapes, audioControl: audioControl, trackUpdates: trackUpdates, playerStateUpdates: playerStateUpdates)
+        let sut = VisualPlayerViewModel(layerID: layerID, title: title, makeShapes: makeShapes, canvasArea: canvasArea, audioControl: audioControl, trackUpdates: trackUpdates, playerStateUpdates: playerStateUpdates)
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut

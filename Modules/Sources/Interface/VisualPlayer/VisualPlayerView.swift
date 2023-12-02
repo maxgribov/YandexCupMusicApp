@@ -35,7 +35,9 @@ struct VisualPlayerView: View {
                 
             }.padding()
             
-            VisualPlayerCanvasView(shapes: viewModel.shapes)
+            VisualPlayerCanvasView(shapes: viewModel.shapes) { area in
+                viewModel.canvasAreaDidUpdated(area: area)
+            }
             
             //TODO: progress control
             EmptyView()
@@ -72,6 +74,7 @@ struct VisualPlayerView: View {
 struct VisualPlayerCanvasView: View {
     
     let shapes: [VisualPlayerShapeViewModel]
+    let areaUpdate: (CGRect) -> Void
     
     var body: some View {
         
@@ -84,6 +87,10 @@ struct VisualPlayerCanvasView: View {
                     .frame(width: 256, height: 256)
                     .scaleEffect(shape.scale)
                     .position(shape.position)
+            }
+            .onAppear {
+                
+                areaUpdate(geometry.frame(in: .local))
             }
         }
     }
@@ -125,6 +132,7 @@ extension VisualPlayerShapeViewModel {
                     layerID: UUID(),
                     title: "Track name",
                     makeShapes: { _ in [VisualPlayerShapeViewModel(id: UUID(), name: "fig_\(Int.random(in: 1...15))", scale: 1, position: .init(x: 100, y: 100)), VisualPlayerShapeViewModel(id: UUID(), name: "fig_\(Int.random(in: 1...15))", scale: 1, position: .init(x: 200, y: 200))] },
+                    canvasArea: .zero,
                     audioControl: .init(
                         playButton: .init(isPlaying: false)),
                     trackUpdates: Empty().eraseToAnyPublisher(),

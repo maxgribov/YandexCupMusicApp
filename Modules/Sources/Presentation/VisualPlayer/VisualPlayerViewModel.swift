@@ -14,6 +14,7 @@ public final class VisualPlayerViewModel: ObservableObject {
     public private(set) var layerID: Layer.ID
     @Published public private(set) var title: String
     @Published public private(set) var shapes: [VisualPlayerShapeViewModel]
+    @Published public private(set) var canvasArea: CGRect
     public let audioControl: VisualPlayerAudioControlViewModel
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
@@ -34,19 +35,21 @@ public final class VisualPlayerViewModel: ObservableObject {
         delegateActionSubject.eraseToAnyPublisher()
     }
     
-    public init(layerID: Layer.ID, title: String, makeShapes: @escaping (Layer.ID) -> [VisualPlayerShapeViewModel], audioControl: VisualPlayerAudioControlViewModel, trackUpdates: AnyPublisher<Float, Never>, playerStateUpdates: AnyPublisher<PlayerState, Never>) {
+    public init(layerID: Layer.ID, title: String, makeShapes: @escaping (Layer.ID) -> [VisualPlayerShapeViewModel], canvasArea: CGRect, audioControl: VisualPlayerAudioControlViewModel, trackUpdates: AnyPublisher<Float, Never>, playerStateUpdates: AnyPublisher<PlayerState, Never>) {
         
         self.layerID = layerID
         self.title = title
         self.shapes = makeShapes(layerID)
+        self.canvasArea = canvasArea
         self.audioControl = audioControl
         self.makeShapes = makeShapes
         
         trackUpdates
-            .sink { [unowned self] update in
+            .combineLatest(self.$canvasArea)
+            .sink { [unowned self] update, area in
                 
                 shapes.forEach { shape in
-                    shape.update(update, area: .zero)
+                    shape.update(update, area: area)
                 }
                 
             }.store(in: &cancellables)
@@ -57,6 +60,7 @@ public final class VisualPlayerViewModel: ObservableObject {
                 self.audioControl.playButton.isPlaying = state.isPlaying
                 
             }.store(in: &cancellables)
+
     }
     
     public func backButtonDidTapped() {
@@ -82,6 +86,11 @@ public final class VisualPlayerViewModel: ObservableObject {
     public func exportButtonDidTapped() {
         
         delegateActionSubject.send(.export)
+    }
+    
+    public func canvasAreaDidUpdated(area: CGRect) {
+        
+        canvasArea = area
     }
 }
 
