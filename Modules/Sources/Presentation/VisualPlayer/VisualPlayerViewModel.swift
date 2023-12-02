@@ -60,7 +60,16 @@ public final class VisualPlayerViewModel: ObservableObject {
                 self.audioControl.playButton.isPlaying = state.isPlaying
                 
             }.store(in: &cancellables)
-
+        
+        Timer.publish(every: 0.1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [unowned self] _ in
+                
+                shapes.forEach { shape in
+                    shape.updatePositon(for: canvasArea)
+                }
+                
+            }.store(in: &cancellables)
     }
     
     public func backButtonDidTapped() {
@@ -100,18 +109,64 @@ open class VisualPlayerShapeViewModel: Identifiable {
     public let name: String
     @Published public var scale: CGFloat
     @Published public var position: CGPoint
+    public private(set) var direction: Direction
     
-    public init(id: UUID, name: String, scale: CGFloat, position: CGPoint) {
+    public init(id: UUID, name: String, scale: CGFloat, position: CGPoint, direction: Direction = .down) {
         
         self.id = id
         self.name = name
         self.scale = scale
         self.position = position
+        self.direction = direction
     }
     
     open func update(_ data: Float, area: CGRect) {
         
         
+    }
+    
+    open func updatePositon(for area: CGRect) {
+        
+        let offset: CGFloat = 10
+        let halfSize: CGFloat = 256 / 2
+        switch direction {
+        case .up:
+            position = CGPoint(x: position.x, y: position.y - offset)
+            if position.y < area.minY + halfSize {
+                direction = randomDirection()
+            }
+            
+        case .down:
+            position = CGPoint(x: position.x, y: position.y + offset)
+            if position.y > area.maxY - halfSize {
+                direction = randomDirection()
+            }
+            
+        case .left:
+            position = CGPoint(x: position.x - offset, y: position.y)
+            if position.y < area.minX + halfSize {
+                direction = randomDirection()
+            }
+            
+        case .rigth:
+            position = CGPoint(x: position.x + offset, y: position.y)
+            if position.x > area.maxX - halfSize {
+                direction = randomDirection()
+            }
+        }
+    }
+    
+    private func randomDirection() -> Direction {
+        
+        Direction.allCases.randomElement() ?? .down
+    }
+    
+    public enum Direction: CaseIterable {
+        
+        case up
+        case down
+        case left
+        case rigth
     }
 }
 
