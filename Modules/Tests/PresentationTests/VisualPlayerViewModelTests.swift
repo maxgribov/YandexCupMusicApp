@@ -18,6 +18,7 @@ final class VisualPlayerViewModel: ObservableObject {
         
         case dismiss
         case togglePlay
+        case rewind
     }
     
     var delegateAction: AnyPublisher<DelegateAction, Never> {
@@ -37,6 +38,11 @@ final class VisualPlayerViewModel: ObservableObject {
     func playButtonDidTapped() {
         
         delegateActionSubject.send(.togglePlay)
+    }
+    
+    func rewindButtonDidTapped() {
+        
+        delegateActionSubject.send(.rewind)
     }
 
 }
@@ -68,6 +74,16 @@ final class VisualPlayerViewModelTests: XCTestCase {
         sut.playButtonDidTapped()
         
         XCTAssertEqual(delegateActionSpy.values, [.togglePlay])
+    }
+    
+    func test_rewindButtonDidTaped_messagesDelegateToRewind() {
+        
+        let sut = makeSUT()
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        
+        sut.rewindButtonDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.rewind])
     }
     
     //MARK: - Helpers
