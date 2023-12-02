@@ -17,6 +17,7 @@ final class VisualPlayerViewModel: ObservableObject {
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     private let makeShapes: (Layer.ID) -> [VisualPlayerShapeViewModel]
+    private var cancellables = Set<AnyCancellable>()
     
     enum DelegateAction: Equatable {
         
@@ -32,12 +33,21 @@ final class VisualPlayerViewModel: ObservableObject {
         delegateActionSubject.eraseToAnyPublisher()
     }
     
-    init(layerID: Layer.ID, title: String, makeShapes: @escaping (Layer.ID) -> [VisualPlayerShapeViewModel]) {
+    init(layerID: Layer.ID, title: String, makeShapes: @escaping (Layer.ID) -> [VisualPlayerShapeViewModel], trackUpdates: AnyPublisher<Float, Never>) {
         
         self.layerID = layerID
         self.title = title
         self.shapes = makeShapes(layerID)
         self.makeShapes = makeShapes
+        
+        trackUpdates
+            .sink { [unowned self] update in
+                
+                shapes.forEach { shape in
+                    shape.update(update, area: .zero)
+                }
+                
+            }.store(in: &cancellables)
     }
     
     func backButtonDidTapped() {
@@ -67,7 +77,7 @@ final class VisualPlayerViewModel: ObservableObject {
     
 }
 
-final class VisualPlayerShapeViewModel: Identifiable {
+class VisualPlayerShapeViewModel: Identifiable {
     
     let id: UUID
     let name: String
@@ -80,6 +90,11 @@ final class VisualPlayerShapeViewModel: Identifiable {
         self.name = name
         self.scale = scale
         self.position = position
+    }
+    
+    func update(_ data: Float, area: CGRect) {
+        
+        
     }
 }
 
@@ -144,19 +159,46 @@ final class VisualPlayerViewModelTests: XCTestCase {
         XCTAssertEqual(delegateActionSpy.values, [.export])
     }
     
+    func test_trackUpdates_messagesAllShapesToUpdate() {
+        
+        let shapes = [VisualPlayerShapeViewModelSpy(id: UUID(), name: "", scale: .zero, position: .zero), VisualPlayerShapeViewModelSpy(id: UUID(), name: "", scale: .zero, position: .zero)]
+        let trackUdatesStub = PassthroughSubject<Float, Never>()
+        let sut = makeSUT(makeShapes: { _ in shapes }, trackUpdates: trackUdatesStub.eraseToAnyPublisher())
+        
+        let update: Float = 0.5
+        trackUdatesStub.send(update)
+        
+        XCTAssertEqual(shapes[0].messages, [.update(update, .zero)])
+        XCTAssertEqual(shapes[1].messages, [.update(update, .zero)])
+    }
+    
     //MARK: - Helpers
     
     func makeSUT(
         layerID: Layer.ID = UUID(),
         title: String = "",
         makeShapes: @escaping (Layer.ID) -> [VisualPlayerShapeViewModel] = { _ in [] },
+        trackUpdates: AnyPublisher<Float, Never> = Empty().eraseToAnyPublisher(),
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> VisualPlayerViewModel {
         
-        let sut = VisualPlayerViewModel(layerID: layerID, title: title, makeShapes: makeShapes)
+        let sut = VisualPlayerViewModel(layerID: layerID, title: title, makeShapes: makeShapes, trackUpdates: trackUpdates)
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
+    }
+    
+    private class VisualPlayerShapeViewModelSpy: VisualPlayerShapeViewModel {
+        
+        private(set) var messages = [Message]()
+        
+        enum Message: Equatable {
+            case update(Float, CGRect)
+        }
+        
+        override func update(_ data: Float, area: CGRect) {
+            messages.append(.update(data, area))
+        }
     }
 }
