@@ -44,6 +44,10 @@ struct MainView: View {
             switch sheet {
             case let .activity(url):
                 ActivityView(activityItems: [url], applicationActivities: nil)
+                
+            case let .visualPlayer(visualPlayerViewModel):
+                VisualPlayerView(viewModel: visualPlayerViewModel)
+                    .background(Color.black.ignoresSafeArea())
             }
         }
     }

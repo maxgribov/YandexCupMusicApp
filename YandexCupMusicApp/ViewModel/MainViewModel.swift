@@ -92,6 +92,7 @@ extension MainViewModel {
         var id: Self { self }
         
         case activity(URL)
+        case visualPlayer(VisualPlayerViewModel)
     }
 }
 
@@ -170,6 +171,18 @@ private extension MainViewModel {
             
         case .hideLayers:
             layersControl = nil
+            
+        case .startPlaying:
+            let visualPlayerViewModel = VisualPlayerViewModel(
+                        layerID: UUID(),
+                        title: "Track name",
+                        makeShapes: { _ in [VisualPlayerShapeViewModel(id: UUID(), name: "fig_\(Int.random(in: 1...15))", scale: 1, position: .init(x: 100, y: 100)), VisualPlayerShapeViewModel(id: UUID(), name: "fig_\(Int.random(in: 1...15))", scale: 1, position: .init(x: 200, y: 200))] },
+                        canvasArea: .zero,
+                        audioControl: .init(
+                            playButton: .init(isPlaying: false)),
+                        trackUpdates: Empty().eraseToAnyPublisher(),
+                        playerStateUpdates: Empty().eraseToAnyPublisher())
+            sheet = .visualPlayer(visualPlayerViewModel)
             
         default:
             break

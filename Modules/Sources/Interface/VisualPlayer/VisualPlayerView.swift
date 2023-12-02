@@ -9,11 +9,15 @@ import SwiftUI
 import Combine
 import Presentation
 
-struct VisualPlayerView: View {
+public struct VisualPlayerView: View {
     
     @ObservedObject var viewModel: VisualPlayerViewModel
     
-    var body: some View {
+    public init(viewModel: VisualPlayerViewModel) {
+        self.viewModel = viewModel
+    }
+    
+    public var body: some View {
         
         VStack {
         

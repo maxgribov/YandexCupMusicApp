@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import Domain
 
-public final class VisualPlayerViewModel: ObservableObject {
+public final class VisualPlayerViewModel: ObservableObject, Hashable {
     
     public private(set) var layerID: Layer.ID
     @Published public private(set) var title: String
@@ -100,6 +100,14 @@ public final class VisualPlayerViewModel: ObservableObject {
     public func canvasAreaDidUpdated(area: CGRect) {
         
         canvasArea = area
+    }
+    
+    public static func == (lhs: VisualPlayerViewModel, rhs: VisualPlayerViewModel) -> Bool {
+        lhs.layerID == rhs.layerID
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(layerID)
     }
 }
 
