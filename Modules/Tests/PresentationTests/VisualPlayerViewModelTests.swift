@@ -12,6 +12,8 @@ import Domain
 final class VisualPlayerViewModel: ObservableObject {
     
     @Published private(set) var title: String
+    @Published private(set) var shapes: [VisualPlayerShapeViewModel]
+    
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
     
     enum DelegateAction: Equatable {
@@ -28,8 +30,10 @@ final class VisualPlayerViewModel: ObservableObject {
         delegateActionSubject.eraseToAnyPublisher()
     }
     
-    init(title: String) {
+    init(title: String, shapes: [VisualPlayerShapeViewModel]) {
+        
         self.title = title
+        self.shapes = shapes
     }
     
     func backButtonDidTapped() {
@@ -56,15 +60,34 @@ final class VisualPlayerViewModel: ObservableObject {
         
         delegateActionSubject.send(.export)
     }
+    
+}
+
+final class VisualPlayerShapeViewModel: Identifiable {
+    
+    let id: UUID
+    let name: String
+    @Published var scale: CGFloat
+    @Published var position: CGPoint
+    
+    init(id: UUID, name: String, scale: CGFloat, position: CGPoint) {
+        
+        self.id = id
+        self.name = name
+        self.scale = scale
+        self.position = position
+    }
 }
 
 final class VisualPlayerViewModelTests: XCTestCase {
     
-    func test_init_titleEqualTrackName() {
+    func test_init_titleCorrectTrackNameAndShapes() {
         
-        let sut = makeSUT(title: "track name")
+        let shapes = [VisualPlayerShapeViewModel(id: UUID(), name: "some shape", scale: .zero, position: .zero)]
+        let sut = makeSUT(title: "track name", shapes: shapes)
         
         XCTAssertEqual(sut.title, "track name")
+        XCTAssertEqual(sut.shapes[0].id, shapes[0].id)
     }
     
     func test_backButtonDidTap_messgesDelegateToDissmiss() {
@@ -121,11 +144,12 @@ final class VisualPlayerViewModelTests: XCTestCase {
     
     func makeSUT(
         title: String = "",
+        shapes: [VisualPlayerShapeViewModel] = [],
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> VisualPlayerViewModel {
         
-        let sut = VisualPlayerViewModel(title: title)
+        let sut = VisualPlayerViewModel(title: title, shapes: shapes)
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
