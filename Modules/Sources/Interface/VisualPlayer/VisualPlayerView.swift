@@ -86,17 +86,27 @@ struct VisualPlayerCanvasView: View {
             
             ForEach(shapes) { shape in
                 
-                shape.image
-                    .resizable()
-                    .frame(width: 256, height: 256)
-                    .scaleEffect(shape.scale)
-                    .position(shape.position)
+                VisualPlayerShapeView(viewModel: shape)
             }
             .onAppear {
                 
                 areaUpdate(geometry.frame(in: .local))
             }
         }
+    }
+}
+
+struct VisualPlayerShapeView: View {
+    
+    @ObservedObject var viewModel: VisualPlayerShapeViewModel
+    
+    var body: some View {
+        
+        viewModel.image
+            .resizable()
+            .frame(width: 256, height: 256)
+            .scaleEffect(viewModel.scale)
+            .position(viewModel.position)
     }
 }
 
@@ -135,7 +145,7 @@ extension VisualPlayerShapeViewModel {
                 .init(
                     layerID: UUID(),
                     title: "Track name",
-                    makeShapes: { _ in [VisualPlayerShapeViewModel(id: UUID(), name: "fig_\(Int.random(in: 1...15))", scale: 1, position: .init(x: 100, y: 100)), VisualPlayerShapeViewModel(id: UUID(), name: "fig_\(Int.random(in: 1...15))", scale: 1, position: .init(x: 200, y: 200))] },
+                    makeShapes: { _ in VisualPlayerViewModel.generateRandomShapes(area: .init(x: 0, y: 0, width: 500, height: 700)) },
                     canvasArea: .zero,
                     audioControl: .init(
                         playButton: .init(isPlaying: false)),

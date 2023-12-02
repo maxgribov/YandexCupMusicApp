@@ -176,12 +176,24 @@ private extension MainViewModel {
             let visualPlayerViewModel = VisualPlayerViewModel(
                         layerID: UUID(),
                         title: "Track name",
-                        makeShapes: { _ in [VisualPlayerShapeViewModel(id: UUID(), name: "fig_\(Int.random(in: 1...15))", scale: 1, position: .init(x: 100, y: 100)), VisualPlayerShapeViewModel(id: UUID(), name: "fig_\(Int.random(in: 1...15))", scale: 1, position: .init(x: 200, y: 200))] },
+                        makeShapes: { _ in VisualPlayerViewModel.generateRandomShapes(area: .init(x: 0, y: 0, width: 500, height: 700)) },
                         canvasArea: .zero,
                         audioControl: .init(
                             playButton: .init(isPlaying: false)),
                         trackUpdates: Empty().eraseToAnyPublisher(),
                         playerStateUpdates: Empty().eraseToAnyPublisher())
+            
+            visualPlayerViewModel
+                .delegateAction.sink { [unowned self] action in
+                    switch action {
+                    case .dismiss:
+                        sheet = nil
+                        
+                    default:
+                        break
+                    }
+                }.store(in: &bindings)
+            
             sheet = .visualPlayer(visualPlayerViewModel)
             
         default:

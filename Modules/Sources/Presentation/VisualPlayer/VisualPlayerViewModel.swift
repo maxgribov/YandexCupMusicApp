@@ -109,9 +109,24 @@ public final class VisualPlayerViewModel: ObservableObject, Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(layerID)
     }
+    
+    public static func generateRandomShapes(area: CGRect) -> [VisualPlayerShapeViewModel] {
+        
+        var shapes = [VisualPlayerShapeViewModel]()
+        let numberOfShapes = Int.random(in: 8...15)
+        
+        for _ in 0...numberOfShapes {
+            
+            let yPos = CGFloat.random(in: area.minY...area.maxY)
+            let xPos = CGFloat.random(in: area.minX...area.maxX)
+            shapes.append(.init(id: UUID(), name: "fig_\(Int.random(in: 1...15))", scale: 1, position: .init(x: yPos, y: xPos)))
+        }
+        
+        return shapes
+    }
 }
 
-open class VisualPlayerShapeViewModel: Identifiable {
+open class VisualPlayerShapeViewModel: Identifiable, ObservableObject {
     
     public let id: UUID
     public let name: String
@@ -140,25 +155,25 @@ open class VisualPlayerShapeViewModel: Identifiable {
         switch direction {
         case .up:
             position = CGPoint(x: position.x, y: position.y - offset)
-            if position.y < area.minY + halfSize {
+            if position.y < (area.minY + halfSize) {
                 direction = randomDirection()
             }
             
         case .down:
             position = CGPoint(x: position.x, y: position.y + offset)
-            if position.y > area.maxY - halfSize {
+            if position.y > (area.maxY - halfSize) {
                 direction = randomDirection()
             }
             
         case .left:
             position = CGPoint(x: position.x - offset, y: position.y)
-            if position.y < area.minX + halfSize {
+            if position.x < (area.minX + halfSize) {
                 direction = randomDirection()
             }
             
         case .rigth:
             position = CGPoint(x: position.x + offset, y: position.y)
-            if position.x > area.maxX - halfSize {
+            if position.x > (area.maxX - halfSize) {
                 direction = randomDirection()
             }
         }
