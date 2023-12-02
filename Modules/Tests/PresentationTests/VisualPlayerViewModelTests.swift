@@ -11,10 +11,12 @@ import Domain
 
 final class VisualPlayerViewModel: ObservableObject {
     
+    private(set) var layerID: Layer.ID
     @Published private(set) var title: String
     @Published private(set) var shapes: [VisualPlayerShapeViewModel]
     
     private let delegateActionSubject = PassthroughSubject<DelegateAction, Never>()
+    private let makeShapes: (Layer.ID) -> [VisualPlayerShapeViewModel]
     
     enum DelegateAction: Equatable {
         
@@ -30,10 +32,12 @@ final class VisualPlayerViewModel: ObservableObject {
         delegateActionSubject.eraseToAnyPublisher()
     }
     
-    init(title: String, shapes: [VisualPlayerShapeViewModel]) {
+    init(layerID: Layer.ID, title: String, makeShapes: @escaping (Layer.ID) -> [VisualPlayerShapeViewModel]) {
         
+        self.layerID = layerID
         self.title = title
-        self.shapes = shapes
+        self.shapes = makeShapes(layerID)
+        self.makeShapes = makeShapes
     }
     
     func backButtonDidTapped() {
@@ -84,7 +88,7 @@ final class VisualPlayerViewModelTests: XCTestCase {
     func test_init_titleCorrectTrackNameAndShapes() {
         
         let shapes = [VisualPlayerShapeViewModel(id: UUID(), name: "some shape", scale: .zero, position: .zero)]
-        let sut = makeSUT(title: "track name", shapes: shapes)
+        let sut = makeSUT(title: "track name", makeShapes: { _ in shapes })
         
         XCTAssertEqual(sut.title, "track name")
         XCTAssertEqual(sut.shapes[0].id, shapes[0].id)
@@ -143,13 +147,14 @@ final class VisualPlayerViewModelTests: XCTestCase {
     //MARK: - Helpers
     
     func makeSUT(
+        layerID: Layer.ID = UUID(),
         title: String = "",
-        shapes: [VisualPlayerShapeViewModel] = [],
+        makeShapes: @escaping (Layer.ID) -> [VisualPlayerShapeViewModel] = { _ in [] },
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> VisualPlayerViewModel {
         
-        let sut = VisualPlayerViewModel(title: title, shapes: shapes)
+        let sut = VisualPlayerViewModel(layerID: layerID, title: title, makeShapes: makeShapes)
         trackForMemoryLeaks(sut, file: file, line: line)
         
         return sut
