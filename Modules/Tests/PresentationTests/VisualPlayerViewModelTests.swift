@@ -33,6 +33,11 @@ final class VisualPlayerViewModel: ObservableObject {
         
         delegateActionSubject.send(.dismiss)
     }
+    
+    func playButtonDidTapped() {
+        
+        delegateActionSubject.send(.togglePlay)
+    }
 
 }
 
@@ -53,6 +58,16 @@ final class VisualPlayerViewModelTests: XCTestCase {
         sut.backButtonDidTapped()
         
         XCTAssertEqual(delegateActionSpy.values, [.dismiss])
+    }
+    
+    func test_playButtonDidTaped_messagesDelegateToTogglePlay() {
+        
+        let sut = makeSUT()
+        let delegateActionSpy = ValueSpy(sut.delegateAction)
+        
+        sut.playButtonDidTapped()
+        
+        XCTAssertEqual(delegateActionSpy.values, [.togglePlay])
     }
     
     //MARK: - Helpers
